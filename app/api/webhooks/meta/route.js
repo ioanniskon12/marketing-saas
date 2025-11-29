@@ -10,11 +10,18 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-// Use service role for webhook operations (no user context)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+// Lazy initialize Supabase client
+let supabaseInstance = null;
+
+function getSupabase() {
+  if (!supabaseInstance && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    supabaseInstance = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    );
+  }
+  return supabaseInstance;
+}
 
 const VERIFY_TOKEN = process.env.META_WEBHOOK_VERIFY_TOKEN || 'social-media-saas-webhook';
 
@@ -79,6 +86,12 @@ export async function POST(request) {
  */
 async function processMessagingEvent(event, pageId) {
   try {
+    const supabase = getSupabase();
+    if (!supabase) {
+      console.error('Supabase not configured');
+      return;
+    }
+
     // Find the social account by page ID
     const { data: socialAccount, error: accountError } = await supabase
       .from('social_accounts')
@@ -163,6 +176,12 @@ async function handleIncomingMessage(socialAccount, senderId, message, timestamp
     messageType = message.attachments[0]?.type || 'attachment';
   }
 
+  const supabase = getSupabase();
+  if (!supabase) {
+    console.error('Supabase not configured');
+    return;
+  }
+
   // Save message
   const { error: messageError } = await supabase
     .from('inbox_messages')
@@ -204,6 +223,11 @@ async function handleIncomingMessage(socialAccount, senderId, message, timestamp
  * Get or create contact from platform user
  */
 async function getOrCreateContact(workspaceId, platform, externalId, accessToken) {
+  const supabase = getSupabase();
+  if (!supabase) {
+    throw new Error('Supabase not configured');
+  }
+
   // Check if contact exists
   const { data: existingContact } = await supabase
     .from('inbox_contacts')
@@ -266,6 +290,11 @@ async function getOrCreateContact(workspaceId, platform, externalId, accessToken
  * Get or create thread for a contact
  */
 async function getOrCreateThread(workspaceId, socialAccountId, contactId, platform) {
+  const supabase = getSupabase();
+  if (!supabase) {
+    throw new Error('Supabase not configured');
+  }
+
   // Check if thread exists
   const { data: existingThread } = await supabase
     .from('inbox_threads')
