@@ -279,8 +279,11 @@ export async function POST(request) {
     // Force recompile
     if (post_now) {
       try {
-        // Construct publish URL (hardcode localhost to avoid SSL issues)
-        const publishUrl = `http://localhost:3000/api/posts/${post.id}/publish`;
+        // Construct publish URL - use localhost for dev, production URL for Vercel
+        const host = request.headers.get('host');
+        const isLocalhost = host.includes('localhost') || host.includes('127.0.0.1');
+        const protocol = isLocalhost ? 'http' : 'https';
+        const publishUrl = `${protocol}://${host}/api/posts/${post.id}/publish`;
         console.log('Publishing to URL:', publishUrl);
         console.log('Post ID:', post.id);
 
