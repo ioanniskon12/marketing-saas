@@ -22,7 +22,7 @@ import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { showToast } from '@/components/ui/Toast';
 import { Button } from '@/components/ui';
 import MediaUploader from '@/components/media/MediaUploader';
-import { supabase } from '@/lib/supabaseClient';
+import { createClient } from '@/lib/supabase/client';
 
 // Styled Components
 const Container = styled.div`
@@ -429,6 +429,7 @@ const formatFileSize = (bytes) => {
 
 // Main Component
 export default function MediaManagerPage() {
+  const supabase = createClient();
   const { currentWorkspace } = useWorkspace();
 
   // State
