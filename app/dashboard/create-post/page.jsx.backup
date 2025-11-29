@@ -1,0 +1,850 @@
+/**
+ * Unified Post Creation Page
+ *
+ * Single page for creating posts across multiple social media platforms
+ * Features inline account connection and platform-specific composers
+ */
+
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import styled from 'styled-components';
+import {
+  Instagram, Facebook, Linkedin, Twitter, Music, Youtube,
+  Plus, Link2, Image as ImageIcon, Calendar, Send, Save,
+  X, Check, AlertCircle, Loader
+} from 'lucide-react';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { showToast } from '@/components/ui/Toast';
+import { Button, Input } from '@/components/ui';
+import MediaLibrarySelector from '@/components/media/MediaLibrarySelector';
+import MediaUploader from '@/components/media/MediaUploader';
+
+// Platform configuration
+const PLATFORM_CONFIG = {
+  facebook: { icon: Facebook, color: '#1877F2', name: 'Facebook' },
+  instagram: { icon: Instagram, color: '#E4405F', name: 'Instagram' },
+  linkedin: { icon: Linkedin, color: '#0A66C2', name: 'LinkedIn' },
+  twitter: { icon: Twitter, color: '#1DA1F2', name: 'Twitter/X' },
+  tiktok: { icon: Music, color: '#000000', name: 'TikTok' },
+  youtube: { icon: Youtube, color: '#FF0000', name: 'YouTube' },
+};
+
+const PLATFORMS_ORDER = ['facebook', 'instagram', 'linkedin', 'twitter', 'tiktok', 'youtube'];
+
+const Container = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: ${props => props.theme.spacing.xl};
+`;
+
+const Header = styled.div`
+  margin-bottom: ${props => props.theme.spacing.xl};
+`;
+
+const Title = styled.h1`
+  font-size: ${props => props.theme.typography.fontSize['3xl']};
+  font-weight: ${props => props.theme.typography.fontWeight.bold};
+  color: ${props => props.theme.colors.text.primary};
+  margin-bottom: ${props => props.theme.spacing.sm};
+`;
+
+const Subtitle = styled.p`
+  color: ${props => props.theme.colors.text.secondary};
+  font-size: ${props => props.theme.typography.fontSize.base};
+`;
+
+// Account Connection Section
+const AccountsSection = styled.div`
+  background: ${props => props.theme.colors.background.paper};
+  border-radius: ${props => props.theme.borderRadius.xl};
+  padding: ${props => props.theme.spacing.lg};
+  margin-bottom: ${props => props.theme.spacing.xl};
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
+`;
+
+const AccountsSectionTitle = styled.h2`
+  font-size: ${props => props.theme.typography.fontSize.lg};
+  font-weight: ${props => props.theme.typography.fontWeight.semibold};
+  color: ${props => props.theme.colors.text.primary};
+  margin-bottom: ${props => props.theme.spacing.md};
+  display: flex;
+  align-items: center;
+  gap: ${props => props.theme.spacing.sm};
+`;
+
+const AccountsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: ${props => props.theme.spacing.md};
+`;
+
+const AccountCard = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: ${props => props.theme.spacing.md};
+  background: ${props => props.$connected ? props.theme.colors.neutral[50] : 'transparent'};
+  border: 2px solid ${props => props.$selected ? props.$color : props.theme.colors.neutral[200]};
+  border-radius: ${props => props.theme.borderRadius.lg};
+  cursor: ${props => props.$connected ? 'pointer' : 'default'};
+  transition: all ${props => props.theme.transitions.fast};
+  position: relative;
+
+  &:hover {
+    ${props => props.$connected && `
+      transform: translateY(-2px);
+      box-shadow: ${props.theme.shadows.md};
+      border-color: ${props.$color};
+    `}
+  }
+`;
+
+const AccountIcon = styled.div`
+  width: 56px;
+  height: 56px;
+  border-radius: ${props => props.theme.borderRadius.full};
+  background: ${props => props.$color};
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: ${props => props.theme.spacing.sm};
+  box-shadow: ${props => props.theme.shadows.sm};
+
+  svg {
+    width: 28px;
+    height: 28px;
+  }
+`;
+
+const AccountName = styled.div`
+  font-size: ${props => props.theme.typography.fontSize.sm};
+  font-weight: ${props => props.theme.typography.fontWeight.semibold};
+  color: ${props => props.theme.colors.text.primary};
+  text-align: center;
+  margin-bottom: ${props => props.theme.spacing.xs};
+`;
+
+const AccountUsername = styled.div`
+  font-size: ${props => props.theme.typography.fontSize.xs};
+  color: ${props => props.theme.colors.text.secondary};
+  text-align: center;
+  margin-bottom: ${props => props.theme.spacing.sm};
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const ConnectButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: ${props => props.theme.spacing.xs};
+  padding: ${props => props.theme.spacing.xs} ${props => props.theme.spacing.sm};
+  background: ${props => props.$color};
+  color: white;
+  border: none;
+  border-radius: ${props => props.theme.borderRadius.md};
+  font-size: ${props => props.theme.typography.fontSize.xs};
+  font-weight: ${props => props.theme.typography.fontWeight.semibold};
+  cursor: pointer;
+  transition: all ${props => props.theme.transitions.fast};
+
+  &:hover {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+`;
+
+const SelectBadge = styled.div`
+  position: absolute;
+  top: ${props => props.theme.spacing.xs};
+  right: ${props => props.theme.spacing.xs};
+  width: 20px;
+  height: 20px;
+  border-radius: ${props => props.theme.borderRadius.full};
+  background: ${props => props.$selected ? props.$color : 'transparent'};
+  border: 2px solid ${props => props.$selected ? props.$color : props.theme.colors.neutral[300]};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: all ${props => props.theme.transitions.fast};
+
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+`;
+
+const StatusBadge = styled.div`
+  padding: ${props => props.theme.spacing.xs} ${props => props.theme.spacing.sm};
+  background: ${props => props.$type === 'connected' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(156, 163, 175, 0.15)'};
+  color: ${props => props.$type === 'connected' ? '#10B981' : '#6B7280'};
+  border-radius: ${props => props.theme.borderRadius.md};
+  font-size: ${props => props.theme.typography.fontSize.xs};
+  font-weight: ${props => props.theme.typography.fontWeight.semibold};
+  display: flex;
+  align-items: center;
+  gap: ${props => props.theme.spacing.xs};
+
+  svg {
+    width: 10px;
+    height: 10px;
+  }
+`;
+
+// Composer Section
+const ComposerSection = styled.div`
+  background: ${props => props.theme.colors.background.paper};
+  border-radius: ${props => props.theme.borderRadius.xl};
+  padding: ${props => props.theme.spacing.xl};
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
+`;
+
+const ComposerTitle = styled.h2`
+  font-size: ${props => props.theme.typography.fontSize.xl};
+  font-weight: ${props => props.theme.typography.fontWeight.semibold};
+  color: ${props => props.theme.colors.text.primary};
+  margin-bottom: ${props => props.theme.spacing.lg};
+`;
+
+const FormGroup = styled.div`
+  margin-bottom: ${props => props.theme.spacing.lg};
+`;
+
+const Label = styled.label`
+  display: block;
+  font-size: ${props => props.theme.typography.fontSize.sm};
+  font-weight: ${props => props.theme.typography.fontWeight.medium};
+  color: ${props => props.theme.colors.text.primary};
+  margin-bottom: ${props => props.theme.spacing.sm};
+`;
+
+const MediaSection = styled.div`
+  margin-bottom: ${props => props.theme.spacing.lg};
+`;
+
+const MediaGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: ${props => props.theme.spacing.md};
+  margin-top: ${props => props.theme.spacing.md};
+`;
+
+const MediaThumbnail = styled.div`
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: ${props => props.theme.borderRadius.lg};
+  overflow: hidden;
+  background: ${props => props.theme.colors.neutral[100]};
+  border: 2px solid ${props => props.theme.colors.neutral[200]};
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+const RemoveMediaButton = styled.button`
+  position: absolute;
+  top: ${props => props.theme.spacing.xs};
+  right: ${props => props.theme.spacing.xs};
+  width: 24px;
+  height: 24px;
+  border-radius: ${props => props.theme.borderRadius.full};
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all ${props => props.theme.transitions.fast};
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.9);
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+`;
+
+const AddMediaButton = styled.button`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  border: 2px dashed ${props => props.theme.colors.neutral[300]};
+  border-radius: ${props => props.theme.borderRadius.lg};
+  background: transparent;
+  color: ${props => props.theme.colors.text.secondary};
+  cursor: pointer;
+  transition: all ${props => props.theme.transitions.fast};
+  gap: ${props => props.theme.spacing.xs};
+  font-size: ${props => props.theme.typography.fontSize.xs};
+
+  &:hover {
+    border-color: ${props => props.theme.colors.primary.main};
+    color: ${props => props.theme.colors.primary.main};
+    background: ${props => props.theme.colors.primary.main}10;
+  }
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+`;
+
+const BrowseLibraryButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${props => props.theme.spacing.sm};
+  padding: ${props => props.theme.spacing.md};
+  margin-top: ${props => props.theme.spacing.md};
+  width: 100%;
+  border: 2px dashed ${props => props.theme.colors.neutral[300]};
+  border-radius: ${props => props.theme.borderRadius.lg};
+  background: transparent;
+  color: ${props => props.theme.colors.text.secondary};
+  cursor: pointer;
+  transition: all ${props => props.theme.transitions.fast};
+  font-size: ${props => props.theme.typography.fontSize.sm};
+  font-weight: ${props => props.theme.typography.fontWeight.medium};
+
+  &:hover {
+    border-color: ${props => props.theme.colors.primary.main};
+    color: ${props => props.theme.colors.primary.main};
+    background: ${props => props.theme.colors.primary.main}10;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+`;
+
+const ScheduleSection = styled.div`
+  display: flex;
+  gap: ${props => props.theme.spacing.md};
+  margin-bottom: ${props => props.theme.spacing.lg};
+  flex-wrap: wrap;
+`;
+
+const ScheduleOption = styled.button`
+  flex: 1;
+  min-width: 150px;
+  padding: ${props => props.theme.spacing.md};
+  border: 2px solid ${props => props.$active ? props.theme.colors.primary.main : props.theme.colors.neutral[200]};
+  background: ${props => props.$active ? `${props.theme.colors.primary.main}10` : 'transparent'};
+  border-radius: ${props => props.theme.borderRadius.lg};
+  cursor: pointer;
+  transition: all ${props => props.theme.transitions.fast};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: ${props => props.theme.spacing.xs};
+
+  &:hover {
+    border-color: ${props => props.theme.colors.primary.main};
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+    color: ${props => props.$active ? props.theme.colors.primary.main : props.theme.colors.text.secondary};
+  }
+`;
+
+const ScheduleLabel = styled.div`
+  font-size: ${props => props.theme.typography.fontSize.sm};
+  font-weight: ${props => props.theme.typography.fontWeight.medium};
+  color: ${props => props.$active ? props.theme.colors.primary.main : props.theme.colors.text.primary};
+`;
+
+const StyledTextArea = styled.textarea`
+  width: 100%;
+  padding: ${props => props.theme.spacing.md};
+  border: 1px solid ${props => props.theme.colors.neutral[300]};
+  border-radius: ${props => props.theme.borderRadius.lg};
+  font-size: ${props => props.theme.typography.fontSize.sm};
+  color: ${props => props.theme.colors.text.primary};
+  background: ${props => props.theme.colors.background.default};
+  font-family: inherit;
+  resize: vertical;
+  min-height: 120px;
+  transition: all ${props => props.theme.transitions.fast};
+
+  &:focus {
+    outline: none;
+    border-color: ${props => props.theme.colors.primary.main};
+    box-shadow: 0 0 0 3px ${props => props.theme.colors.primary.main}20;
+  }
+
+  &::placeholder {
+    color: ${props => props.theme.colors.text.secondary};
+  }
+`;
+
+const DateTimeInput = styled.input`
+  width: 100%;
+  padding: ${props => props.theme.spacing.md};
+  border: 1px solid ${props => props.theme.colors.neutral[300]};
+  border-radius: ${props => props.theme.borderRadius.lg};
+  font-size: ${props => props.theme.typography.fontSize.sm};
+  color: ${props => props.theme.colors.text.primary};
+  background: ${props => props.theme.colors.background.default};
+  transition: all ${props => props.theme.transitions.fast};
+
+  &:focus {
+    outline: none;
+    border-color: ${props => props.theme.colors.primary.main};
+    box-shadow: 0 0 0 3px ${props => props.theme.colors.primary.main}20;
+  }
+`;
+
+const ActionButtons = styled.div`
+  display: flex;
+  gap: ${props => props.theme.spacing.md};
+  justify-content: flex-end;
+  margin-top: ${props => props.theme.spacing.xl};
+  padding-top: ${props => props.theme.spacing.xl};
+  border-top: 1px solid ${props => props.theme.colors.neutral[200]};
+`;
+
+const EmptyState = styled.div`
+  text-align: center;
+  padding: ${props => props.theme.spacing['3xl']};
+  color: ${props => props.theme.colors.text.secondary};
+
+  svg {
+    width: 64px;
+    height: 64px;
+    margin-bottom: ${props => props.theme.spacing.lg};
+    color: ${props => props.theme.colors.neutral[300]};
+  }
+
+  h3 {
+    font-size: ${props => props.theme.typography.fontSize.lg};
+    font-weight: ${props => props.theme.typography.fontWeight.semibold};
+    color: ${props => props.theme.colors.text.primary};
+    margin-bottom: ${props => props.theme.spacing.sm};
+  }
+
+  p {
+    margin-bottom: ${props => props.theme.spacing.lg};
+  }
+`;
+
+export default function CreatePostPage() {
+  const { currentWorkspace } = useWorkspace();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // State
+  const [accounts, setAccounts] = useState([]);
+  const [selectedAccounts, setSelectedAccounts] = useState(new Set());
+  const [loading, setLoading] = useState(true);
+  const [caption, setCaption] = useState('');
+  const [selectedMedia, setSelectedMedia] = useState([]);
+  const [showMediaLibrary, setShowMediaLibrary] = useState(false);
+  const [scheduleType, setScheduleType] = useState('now'); // 'now' or 'schedule'
+  const [scheduledDate, setScheduledDate] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  // Load accounts
+  useEffect(() => {
+    if (currentWorkspace) {
+      loadAccounts();
+    }
+  }, [currentWorkspace]);
+
+  // Handle OAuth callback
+  useEffect(() => {
+    const success = searchParams.get('success');
+    const error = searchParams.get('error');
+    const platform = searchParams.get('platform');
+
+    if (success === 'account_connected' && platform) {
+      showToast.success(`${PLATFORM_CONFIG[platform]?.name || platform} connected successfully!`);
+      loadAccounts();
+      // Clean URL
+      window.history.replaceState({}, '', '/dashboard/create-post');
+    } else if (error) {
+      showToast.error('Failed to connect account');
+      window.history.replaceState({}, '', '/dashboard/create-post');
+    }
+  }, [searchParams]);
+
+  const loadAccounts = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/social-accounts?workspace_id=${currentWorkspace.id}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to load accounts');
+      }
+
+      setAccounts(data.accounts || []);
+    } catch (error) {
+      console.error('Error loading accounts:', error);
+      showToast.error('Failed to load connected accounts');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConnect = (platform) => {
+    // Check if already connected
+    const existingAccount = accounts.find(acc => acc.platform === platform && acc.is_active);
+    if (existingAccount) {
+      showToast.error(`${PLATFORM_CONFIG[platform].name} is already connected.`);
+      return;
+    }
+
+    // Redirect to OAuth with returnUrl
+    const returnUrl = encodeURIComponent('/dashboard/create-post');
+    window.location.href = `/api/auth/connect/${platform}?workspace_id=${currentWorkspace.id}&returnUrl=${returnUrl}`;
+  };
+
+  const toggleAccountSelection = (accountId) => {
+    const newSelected = new Set(selectedAccounts);
+    if (newSelected.has(accountId)) {
+      newSelected.delete(accountId);
+    } else {
+      newSelected.add(accountId);
+    }
+    setSelectedAccounts(newSelected);
+  };
+
+  const handleMediaSelect = (files) => {
+    setSelectedMedia(files);
+    setShowMediaLibrary(false);
+  };
+
+  const handleUploadComplete = (uploadedFiles) => {
+    // Convert uploaded files to the format expected by selectedMedia
+    const newMedia = uploadedFiles.map(file => ({
+      id: file.id,
+      url: file.url,
+      name: file.fileName,
+      mimeType: file.mimeType,
+      size: file.fileSize,
+    }));
+
+    setSelectedMedia(prev => [...prev, ...newMedia]);
+    showToast.success(`${uploadedFiles.length} file${uploadedFiles.length > 1 ? 's' : ''} uploaded successfully`);
+  };
+
+  const removeMedia = (index) => {
+    setSelectedMedia(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async (isDraft = false) => {
+    if (selectedAccounts.size === 0) {
+      showToast.error('Please select at least one platform to post to');
+      return;
+    }
+
+    if (!caption.trim() && selectedMedia.length === 0) {
+      showToast.error('Please add a caption or media to your post');
+      return;
+    }
+
+    if (scheduleType === 'schedule' && !scheduledDate) {
+      showToast.error('Please select a date and time for scheduling');
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const selectedAccountIds = Array.from(selectedAccounts);
+      const postData = {
+        workspace_id: currentWorkspace.id,
+        accounts: selectedAccountIds,
+        caption,
+        media: selectedMedia.map(m => ({
+          id: m.id,
+          url: m.url,
+          type: m.mimeType?.startsWith('video') ? 'video' : 'image',
+        })),
+        schedule_type: scheduleType,
+        scheduled_date: scheduleType === 'schedule' ? scheduledDate : null,
+        status: isDraft ? 'draft' : (scheduleType === 'now' ? 'publishing' : 'scheduled'),
+      };
+
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(postData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create post');
+      }
+
+      if (isDraft) {
+        showToast.success('Draft saved successfully!');
+      } else if (scheduleType === 'now') {
+        showToast.success('Post is being published!');
+      } else {
+        showToast.success('Post scheduled successfully!');
+      }
+
+      // Redirect to calendar
+      router.push('/dashboard/calendar');
+    } catch (error) {
+      console.error('Error creating post:', error);
+      showToast.error(error.message || 'Failed to create post');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const getConnectedAccount = (platform) => {
+    return accounts.find(acc => acc.platform === platform && acc.is_active) || null;
+  };
+
+  const connectedAccounts = accounts.filter(acc => acc.is_active);
+  const hasConnectedAccounts = connectedAccounts.length > 0;
+
+  if (loading) {
+    return (
+      <Container>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px' }}>
+          <Loader size={32} className="animate-spin" />
+        </div>
+      </Container>
+    );
+  }
+
+  return (
+    <Container>
+      <Header>
+        <Title>Create Post</Title>
+        <Subtitle>
+          Create and schedule posts across multiple social media platforms
+        </Subtitle>
+      </Header>
+
+      {/* Account Connection Section */}
+      <AccountsSection>
+        <AccountsSectionTitle>
+          <Link2 size={20} />
+          Select Platforms
+        </AccountsSectionTitle>
+
+        <AccountsGrid>
+          {PLATFORMS_ORDER.map((platformKey) => {
+            const config = PLATFORM_CONFIG[platformKey];
+            const account = getConnectedAccount(platformKey);
+            const isConnected = !!account;
+            const isSelected = account && selectedAccounts.has(account.id);
+            const Icon = config.icon;
+
+            return (
+              <AccountCard
+                key={platformKey}
+                $connected={isConnected}
+                $selected={isSelected}
+                $color={config.color}
+                onClick={() => isConnected && toggleAccountSelection(account.id)}
+              >
+                {isConnected && (
+                  <SelectBadge $selected={isSelected} $color={config.color}>
+                    {isSelected && <Check />}
+                  </SelectBadge>
+                )}
+
+                <AccountIcon $color={config.color}>
+                  <Icon />
+                </AccountIcon>
+
+                <AccountName>{config.name}</AccountName>
+
+                {isConnected ? (
+                  <>
+                    <AccountUsername>
+                      @{account.platform_username || 'connected'}
+                    </AccountUsername>
+                    <StatusBadge $type="connected">
+                      <Check />
+                      Connected
+                    </StatusBadge>
+                  </>
+                ) : (
+                  <>
+                    <AccountUsername>Not connected</AccountUsername>
+                    <ConnectButton
+                      $color={config.color}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleConnect(platformKey);
+                      }}
+                    >
+                      <Link2 />
+                      Connect
+                    </ConnectButton>
+                  </>
+                )}
+              </AccountCard>
+            );
+          })}
+        </AccountsGrid>
+      </AccountsSection>
+
+      {/* Composer Section */}
+      {hasConnectedAccounts ? (
+        <ComposerSection>
+          <ComposerTitle>Create Your Post</ComposerTitle>
+
+          {/* Caption */}
+          <FormGroup>
+            <Label>Caption</Label>
+            <StyledTextArea
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              placeholder="Write your caption here..."
+              rows={6}
+            />
+          </FormGroup>
+
+          {/* Media */}
+          <MediaSection>
+            <Label>Media (Images & Videos)</Label>
+
+            {/* Direct Upload */}
+            <MediaUploader
+              onUploadComplete={handleUploadComplete}
+              onUploadStart={() => console.log('Upload started')}
+              onUploadProgress={(progress) => console.log('Progress:', progress)}
+              multiple={true}
+              autoUpload={true}
+              showPreview={false}
+              allowedTypes={['image/*', 'video/*']}
+              maxFileSize={100 * 1024 * 1024} // 100MB
+            />
+
+            {/* Selected Media Grid */}
+            {selectedMedia.length > 0 && (
+              <MediaGrid>
+                {selectedMedia.map((media, index) => (
+                  <MediaThumbnail key={media.id}>
+                    <img src={media.url} alt={media.name} />
+                    <RemoveMediaButton onClick={() => removeMedia(index)}>
+                      <X />
+                    </RemoveMediaButton>
+                  </MediaThumbnail>
+                ))}
+              </MediaGrid>
+            )}
+
+            {/* Browse Library Button */}
+            <BrowseLibraryButton onClick={() => setShowMediaLibrary(true)}>
+              <ImageIcon />
+              Browse Media Library
+            </BrowseLibraryButton>
+          </MediaSection>
+
+          {/* Schedule */}
+          <FormGroup>
+            <Label>When to Post</Label>
+            <ScheduleSection>
+              <ScheduleOption
+                $active={scheduleType === 'now'}
+                onClick={() => setScheduleType('now')}
+              >
+                <Send />
+                <ScheduleLabel $active={scheduleType === 'now'}>
+                  Post Now
+                </ScheduleLabel>
+              </ScheduleOption>
+              <ScheduleOption
+                $active={scheduleType === 'schedule'}
+                onClick={() => setScheduleType('schedule')}
+              >
+                <Calendar />
+                <ScheduleLabel $active={scheduleType === 'schedule'}>
+                  Schedule Later
+                </ScheduleLabel>
+              </ScheduleOption>
+            </ScheduleSection>
+
+            {scheduleType === 'schedule' && (
+              <DateTimeInput
+                type="datetime-local"
+                value={scheduledDate}
+                onChange={(e) => setScheduledDate(e.target.value)}
+                min={new Date().toISOString().slice(0, 16)}
+              />
+            )}
+          </FormGroup>
+
+          {/* Action Buttons */}
+          <ActionButtons>
+            <Button
+              variant="ghost"
+              onClick={() => handleSubmit(true)}
+              disabled={submitting}
+            >
+              <Save size={18} />
+              Save Draft
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => handleSubmit(false)}
+              disabled={submitting}
+            >
+              {submitting ? (
+                <>
+                  <Loader size={18} className="animate-spin" />
+                  {scheduleType === 'now' ? 'Publishing...' : 'Scheduling...'}
+                </>
+              ) : (
+                <>
+                  {scheduleType === 'now' ? <Send size={18} /> : <Calendar size={18} />}
+                  {scheduleType === 'now' ? 'Publish Now' : 'Schedule Post'}
+                </>
+              )}
+            </Button>
+          </ActionButtons>
+        </ComposerSection>
+      ) : (
+        <ComposerSection>
+          <EmptyState>
+            <AlertCircle />
+            <h3>No Accounts Connected</h3>
+            <p>Connect at least one social media account above to start creating posts</p>
+          </EmptyState>
+        </ComposerSection>
+      )}
+
+      {/* Media Library Modal */}
+      <MediaLibrarySelector
+        isOpen={showMediaLibrary}
+        onClose={() => setShowMediaLibrary(false)}
+        onSelect={handleMediaSelect}
+        multiSelect={true}
+        allowedTypes={['image', 'video']}
+        maxSelection={10}
+        selectedMedia={selectedMedia}
+      />
+    </Container>
+  );
+}
