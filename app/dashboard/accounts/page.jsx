@@ -85,10 +85,17 @@ const PlatformIcon = styled.div`
   justify-content: center;
   flex-shrink: 0;
   box-shadow: 0 4px 12px ${props => props.$color}40;
+  overflow: hidden;
 
   svg {
     width: 24px;
     height: 24px;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 `;
 
@@ -509,13 +516,17 @@ export default function AccountsPage() {
               <CardTop>
                 <PlatformInfo>
                   <PlatformIcon $color={config.color}>
-                    <Icon />
+                    {account?.platform_profile_picture ? (
+                      <img src={account.platform_profile_picture} alt={account.platform_display_name || config.name} />
+                    ) : (
+                      <Icon />
+                    )}
                   </PlatformIcon>
                   <PlatformDetails>
                     <PlatformName>{config.name}</PlatformName>
                     <Username>
-                      {account?.platform_username
-                        ? `@${account.platform_username}`
+                      {account?.platform_display_name || account?.platform_username
+                        ? account.platform_display_name || `@${account.platform_username}`
                         : 'Not connected'}
                     </Username>
                   </PlatformDetails>
