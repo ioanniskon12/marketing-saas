@@ -165,6 +165,8 @@ export async function PATCH(request, { params }) {
 /**
  * DELETE /api/workspaces/[workspaceId]
  * Delete a workspace (owner only)
+ * Deletes all workspace data including media files, posts, and accounts
+ * NOTE: Does NOT delete posts from Facebook, only from database
  */
 export async function DELETE(request, { params }) {
   try {
@@ -196,16 +198,88 @@ export async function DELETE(request, { params }) {
       );
     }
 
-    // Delete workspace (cascade will handle members)
-    const { error } = await supabase
+    console.log('Starting workspace deletion:', workspaceId);
+
+    // Step 1: Get all media files for this workspace to delete from storage
+    const { data: allMedia, error: mediaFetchError } = await supabase
+      .from('post_media')
+      .select('file_url')
+      .eq('workspace_id', workspaceId);
+
+    if (mediaFetchError) {
+      console.error('Error fetching media for deletion:', mediaFetchError);
+    }
+
+    // Step 2: Delete all media files from Supabase storage
+    if (allMedia && allMedia.length > 0) {
+      console.log(`Deleting ${allMedia.length} media files from storage...`);
+
+      const filePaths = allMedia
+        .map(media => {
+          // Extract file path from URL
+          // URL format: https://[project].supabase.co/storage/v1/object/public/media/[workspace]/[filename]
+          const urlParts = media.file_url.split('/media/');
+          return urlParts.length === 2 ? urlParts[1] : null;
+        })
+        .filter(Boolean);
+
+      if (filePaths.length > 0) {
+        const { error: storageError } = await supabase.storage
+          .from('media')
+          .remove(filePaths);
+
+        if (storageError) {
+          console.error('Error deleting media from storage:', storageError);
+          // Continue anyway - we still want to delete from database
+        } else {
+          console.log(`Successfully deleted ${filePaths.length} files from storage`);
+        }
+      }
+    }
+
+    // Step 3: Delete all posts (database only - NOT from Facebook)
+    // This will cascade to post_media table
+    const { error: postsDeleteError } = await supabase
+      .from('posts')
+      .delete()
+      .eq('workspace_id', workspaceId);
+
+    if (postsDeleteError) {
+      console.error('Error deleting posts:', postsDeleteError);
+      throw postsDeleteError;
+    }
+
+    console.log('Successfully deleted all posts from database');
+
+    // Step 4: Delete all social accounts
+    const { error: accountsDeleteError } = await supabase
+      .from('social_accounts')
+      .delete()
+      .eq('workspace_id', workspaceId);
+
+    if (accountsDeleteError) {
+      console.error('Error deleting social accounts:', accountsDeleteError);
+      throw accountsDeleteError;
+    }
+
+    console.log('Successfully deleted all social accounts');
+
+    // Step 5: Delete workspace (cascade will handle workspace_members and other relations)
+    const { error: workspaceDeleteError } = await supabase
       .from('workspaces')
       .delete()
       .eq('id', workspaceId);
 
-    if (error) throw error;
+    if (workspaceDeleteError) {
+      console.error('Error deleting workspace:', workspaceDeleteError);
+      throw workspaceDeleteError;
+    }
+
+    console.log('Successfully deleted workspace');
 
     return NextResponse.json({
-      message: 'Workspace deleted successfully',
+      message: 'Workspace and all associated data deleted successfully',
+      deletedMedia: allMedia?.length || 0,
     });
   } catch (error) {
     console.error('Error deleting workspace:', error);

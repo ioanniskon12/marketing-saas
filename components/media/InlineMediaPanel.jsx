@@ -413,9 +413,11 @@ export default function InlineMediaPanel({
         return {
           id: file.id,
           name: file.name,
-          url: urlData.publicUrl,
+          file_url: urlData.publicUrl,
+          url: urlData.publicUrl, // Keep for backward compatibility
           type: isVideo ? 'video' : 'image',
           mime_type: file.metadata?.mimetype,
+          file_size: file.metadata?.size || 0,
           size: file.metadata?.size || 0
         };
       });

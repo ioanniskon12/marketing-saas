@@ -40,38 +40,12 @@ export async function DELETE(request, { params }) {
       );
     }
 
-    // First, handle posts associated with this account
-    // Get all posts that include this account
-    const { data: postsWithAccount } = await supabase
-      .from('posts')
-      .select('id, platforms')
-      .contains('platforms', [accountId]);
-
-    if (postsWithAccount && postsWithAccount.length > 0) {
-      for (const post of postsWithAccount) {
-        // Remove this account from the platforms array
-        const updatedPlatforms = post.platforms.filter(id => id !== accountId);
-
-        if (updatedPlatforms.length === 0) {
-          // If no platforms left, delete the post
-          await supabase
-            .from('posts')
-            .delete()
-            .eq('id', post.id);
-        } else {
-          // Otherwise, just remove this account from the platforms array
-          await supabase
-            .from('posts')
-            .update({ platforms: updatedPlatforms })
-            .eq('id', post.id);
-        }
-      }
-    }
-
-    // Delete the account
+     // Soft delete: Just set is_active to false instead of deleting
+    // This keeps all posts and data, which will be hidden from the UI
+    // When reconnecting the same account, it can be reactivated
     const { error: deleteError } = await supabase
       .from('social_accounts')
-      .delete()
+      .update({ is_active: false })
       .eq('id', accountId);
 
     if (deleteError) throw deleteError;

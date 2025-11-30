@@ -833,9 +833,19 @@ export default function WorkspaceSettingsPage() {
           <p style={{ marginBottom: '16px' }}>
             Are you sure you want to delete <strong>{currentWorkspace.name}</strong>?
           </p>
-          <p style={{ color: '#EF4444' }}>
-            This action cannot be undone. All posts, media, analytics, and team members
-            will be permanently deleted.
+          <p style={{ color: '#EF4444', marginBottom: '16px' }}>
+            This action cannot be undone. The following will be permanently deleted from our database:
+          </p>
+          <ul style={{ color: '#EF4444', marginLeft: '20px', marginBottom: '16px' }}>
+            <li>All posts and scheduled content</li>
+            <li>All media files and images</li>
+            <li>All social media account connections</li>
+            <li>All analytics and performance data</li>
+            <li>All team members and permissions</li>
+          </ul>
+          <p style={{ color: '#10B981', fontSize: '14px', background: '#10B98120', padding: '12px', borderRadius: '8px' }}>
+            <strong>Note:</strong> Posts that have already been published to Facebook will remain on Facebook.
+            Only the data in our system will be deleted.
           </p>
         </ModalContent>
       </Modal>

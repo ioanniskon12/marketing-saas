@@ -1143,6 +1143,7 @@ export default function PostComposer({
       setHashtags(postToEdit.hashtags || []);
       setInstagramPinFirst(postToEdit.instagram_pin_first || false);
       setTimezone(postToEdit.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone);
+      setCurrentStep(2); // Always start at step 2 when editing
 
       // Initialize platform data when editing
       if (postToEdit.platform_data) {
@@ -1165,6 +1166,12 @@ export default function PostComposer({
         const date = new Date(postToEdit.scheduled_for);
         setScheduledDate(date.toISOString().split('T')[0]);
         setScheduledTime(date.toTimeString().slice(0, 5));
+        setPostNow(false); // Ensure "Schedule for Later" is selected when editing a scheduled post
+      } else {
+        // If no scheduled date, default to schedule mode with empty fields
+        setPostNow(false);
+        setScheduledDate('');
+        setScheduledTime('');
       }
     } else if (isOpen && !postToEdit) {
       // Set pre-selected platform if provided
@@ -1208,6 +1215,7 @@ export default function PostComposer({
       setInstagramPinFirst(false);
       setActivePlatformTab(null);
       setPlatformData({});
+      setPostNow(false); // Reset post now toggle
     }
   }, [isOpen, postToEdit, preSelectedPlatform, preSelectedDate, initialStep, connectedAccounts]);
 
@@ -1410,7 +1418,12 @@ export default function PostComposer({
       } else if (scheduledDate && scheduledTime) {
         // Schedule for later
         scheduledFor = new Date(`${scheduledDate}T${scheduledTime}`).toISOString();
-        postStatus = 'scheduled';
+        // Preserve 'published' status if editing a published post, otherwise use 'scheduled'
+        if (postToEdit && postToEdit.status === 'published' && postToEdit.published_at) {
+          postStatus = 'published';
+        } else {
+          postStatus = 'scheduled';
+        }
       }
 
       // Prepare platform-specific posts data
@@ -1436,6 +1449,21 @@ export default function PostComposer({
       if (postToEdit) {
         // For editing, we'll update with the active platform's data
         const activeData = platformData[activePlatformTab] || { content: '', media: [], hashtags: [] };
+
+        // Preserve the original scheduled_for if not changed
+        const finalScheduledFor = scheduledFor !== null ? scheduledFor : postToEdit.scheduled_for;
+
+        console.log('Edit mode - saving post:', {
+          postId: postToEdit.id,
+          originalScheduledFor: postToEdit.scheduled_for,
+          calculatedScheduledFor: scheduledFor,
+          finalScheduledFor: finalScheduledFor,
+          postNow: postNow,
+          postStatus: postStatus,
+          scheduledDate: scheduledDate,
+          scheduledTime: scheduledTime
+        });
+
         responses = [await fetch(`/api/posts/${postToEdit.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -1444,7 +1472,7 @@ export default function PostComposer({
             content: activeData.content,
             content_type: activeData.content_type || 'feed',
             platforms: selectedPlatforms,
-            scheduled_for: scheduledFor,
+            scheduled_for: finalScheduledFor,
             timezone: timezone,
             status: postStatus,
             media: activeData.media,
@@ -2283,25 +2311,16 @@ export default function PostComposer({
           </>
         ) : currentStep === 2 ? (
           <>
-            {postToEdit && (
+            {!postToEdit && (
               <Button
-                variant="danger"
-                onClick={handleDelete}
+                variant="ghost"
+                onClick={() => setCurrentStep(1)}
                 disabled={loading}
-                style={{ marginRight: 'auto' }}
               >
-                <Trash2 size={16} />
-                Delete
+                <ChevronLeft size={16} />
+                Back
               </Button>
             )}
-            <Button
-              variant="ghost"
-              onClick={() => setCurrentStep(1)}
-              disabled={loading}
-            >
-              <ChevronLeft size={16} />
-              Back
-            </Button>
             <Button
               variant="ghost"
               onClick={onClose}
@@ -2309,16 +2328,28 @@ export default function PostComposer({
             >
               Cancel
             </Button>
-            <Button
-              onClick={() => {
-                if (validateForm()) {
-                  setCurrentStep(3);
-                }
-              }}
-              disabled={loadingAccounts}
-            >
-              Next: Preview
-            </Button>
+            {postToEdit ? (
+              // Edit mode: Show only Save Changes button
+              <Button
+                onClick={handleSubmit}
+                loading={loading}
+                disabled={loadingAccounts}
+              >
+                Save Changes
+              </Button>
+            ) : (
+              // Create mode: Show Next: Preview button
+              <Button
+                onClick={() => {
+                  if (validateForm()) {
+                    setCurrentStep(3);
+                  }
+                }}
+                disabled={loadingAccounts}
+              >
+                Next: Preview
+              </Button>
+            )}
           </>
         ) : (
           <>

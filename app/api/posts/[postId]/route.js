@@ -135,6 +135,8 @@ export async function PATCH(request, { params }) {
     if (platforms !== undefined) updateData.platforms = platforms;
     if (status !== undefined) updateData.status = status;
 
+    console.log('PATCH update data:', { postId, updateData, original_scheduled_for: existingPost.scheduled_for });
+
     // Update post
     const { data: post, error: updateError } = await supabase
       .from('posts')
@@ -142,6 +144,8 @@ export async function PATCH(request, { params }) {
       .eq('id', postId)
       .select()
       .single();
+
+    console.log('PATCH result:', { updated_post: post });
 
     if (updateError) throw updateError;
 
@@ -175,6 +179,61 @@ export async function PATCH(request, { params }) {
           .insert(mediaInserts);
 
         if (mediaError) throw mediaError;
+      }
+    }
+
+    // Update on Facebook if post was already published (check published_at instead of status)
+    if (existingPost.published_at && existingPost.platform_posts && content !== undefined) {
+      // platform_posts is a JSON object with account IDs as keys
+      for (const [accountId, platformData] of Object.entries(existingPost.platform_posts)) {
+        if (platformData.platform === 'facebook' && platformData.platform_post_id) {
+          try {
+            // Get the access token from social_accounts
+            const { data: account } = await supabase
+              .from('social_accounts')
+              .select('access_token')
+              .eq('id', accountId)
+              .single();
+
+            if (!account || !account.access_token) {
+              console.error('Facebook account or access token not found');
+              continue;
+            }
+
+            const accessToken = account.access_token;
+            const fbPostId = platformData.platform_post_id;
+
+            console.log('Updating Facebook post:', fbPostId, 'with content:', content);
+
+            // Call Facebook Graph API to update the post
+            // Note: Facebook only allows updating the message, not media
+            const response = await fetch(
+              `https://graph.facebook.com/v18.0/${fbPostId}`,
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  message: content,
+                  access_token: accessToken,
+                }),
+              }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+              console.error('Failed to update Facebook post:', data);
+              // Don't throw - continue with database update even if Facebook update fails
+            } else {
+              console.log('Successfully updated Facebook post');
+            }
+          } catch (fbError) {
+            console.error('Error updating Facebook post:', fbError);
+            // Don't throw - continue with database update
+          }
+        }
       }
     }
 

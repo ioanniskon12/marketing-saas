@@ -96,8 +96,37 @@ export async function GET(request) {
       throw mediaError;
     }
 
+    // Get all active social accounts for this workspace
+    const { data: activeAccounts, error: accountsError } = await supabase
+      .from('social_accounts')
+      .select('id')
+      .eq('workspace_id', workspaceId)
+      .eq('is_active', true);
+
+    if (accountsError) throw accountsError;
+
+    const activeAccountIds = new Set((activeAccounts || []).map(acc => acc.id));
+
+    // Filter media to only include:
+    // 1. Media without a post (library-only media) - always visible
+    // 2. Media with posts that have at least one active account
+    const filteredMedia = (media || []).filter(item => {
+      // If no post, it's library-only media - always visible
+      if (!item.posts || !item.post_id) {
+        return true;
+      }
+
+      // If post has no platforms (drafts), always visible
+      if (!item.posts.platforms || item.posts.platforms.length === 0) {
+        return true;
+      }
+
+      // Check if at least one platform is active
+      return item.posts.platforms.some(platformId => activeAccountIds.has(platformId));
+    });
+
     // Format the response
-    const formattedMedia = (media || []).map(item => ({
+    const formattedMedia = filteredMedia.map(item => ({
       id: item.id,
       file_url: item.file_url,
       file_name: item.file_name,

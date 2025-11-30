@@ -267,9 +267,11 @@ export default function MediaUploader({ value = [], onChange, maxFiles = 10 }) {
         }
 
         // Get public URL
-        const { data: { publicUrl } } = supabase.storage
+        const { data: urlData } = supabase.storage
           .from('media')
           .getPublicUrl(filePath);
+
+        const publicUrl = urlData.publicUrl;
 
         // Get media dimensions
         let width, height, duration;

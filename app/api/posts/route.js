@@ -80,9 +80,32 @@ export async function GET(request) {
 
     if (error) throw error;
 
+    // Get all active social accounts for this workspace
+    const { data: activeAccounts, error: accountsError } = await supabase
+      .from('social_accounts')
+      .select('id')
+      .eq('workspace_id', workspaceId)
+      .eq('is_active', true);
+
+    if (accountsError) throw accountsError;
+
+    const activeAccountIds = new Set((activeAccounts || []).map(acc => acc.id));
+
+    // Filter posts to only include those with at least one active account
+    // A post is visible if ANY of its platforms are active accounts
+    const filteredPosts = (posts || []).filter(post => {
+      if (!post.platforms || post.platforms.length === 0) {
+        // Posts without platforms (drafts) are always visible
+        return true;
+      }
+
+      // Check if at least one platform is active
+      return post.platforms.some(platformId => activeAccountIds.has(platformId));
+    });
+
     return NextResponse.json({
-      posts: posts || [],
-      count: posts?.length || 0,
+      posts: filteredPosts || [],
+      count: filteredPosts?.length || 0,
     });
   } catch (error) {
     console.error('Error fetching posts:', error);
@@ -189,6 +212,29 @@ export async function POST(request) {
       }
     }
 
+    // Ensure hashtags is always an array
+    if (postHashtags && !Array.isArray(postHashtags)) {
+      // If it's a string, split it into an array
+      if (typeof postHashtags === 'string') {
+        postHashtags = postHashtags
+          .split(/[\s]+/)
+          .map(t => t.trim().replace(/^#/, ''))
+          .filter(Boolean);
+      } else {
+        postHashtags = [];
+      }
+    }
+
+    // Ensure platforms is always an array
+    let finalPlatforms = platforms;
+    if (finalPlatforms && !Array.isArray(finalPlatforms)) {
+      if (typeof finalPlatforms === 'string') {
+        finalPlatforms = [finalPlatforms];
+      } else {
+        finalPlatforms = [];
+      }
+    }
+
     // Determine scheduled_for and status based on post_now
     let finalScheduledFor = scheduled_for;
     let finalStatus = status;
@@ -209,7 +255,7 @@ export async function POST(request) {
         content: postContent,
         content_type,
         scheduled_for: finalScheduledFor || null,
-        platforms: platforms || [],
+        platforms: finalPlatforms || [],
         hashtags: postHashtags || [],
         status: finalStatus,
       })
@@ -225,20 +271,29 @@ export async function POST(request) {
       const newMedia = postMedia.filter(item => !item.from_library && !item.media_id);
 
       if (newMedia.length > 0) {
-        const mediaInserts = newMedia.map((item, index) => ({
-          post_id: post.id,
-          workspace_id,
-          media_type: item.media_type,
-          file_url: item.file_url,
-          thumbnail_url: item.thumbnail_url,
-          file_size: item.file_size,
-          mime_type: item.mime_type,
-          width: item.width,
-          height: item.height,
-          duration: item.duration,
-          display_order: index,
-          alt_text: item.alt_text,
-        }));
+        const mediaInserts = newMedia.map((item, index) => {
+          // Derive media_type from mime_type if not provided
+          let mediaType = item.media_type;
+          if (!mediaType && item.mime_type) {
+            mediaType = item.mime_type.startsWith('image/') ? 'image' :
+                       item.mime_type.startsWith('video/') ? 'video' : 'image';
+          }
+
+          return {
+            post_id: post.id,
+            workspace_id,
+            media_type: mediaType,
+            file_url: item.file_url,
+            thumbnail_url: item.thumbnail_url,
+            file_size: item.file_size,
+            mime_type: item.mime_type,
+            width: item.width,
+            height: item.height,
+            duration: item.duration,
+            display_order: index,
+            alt_text: item.alt_text,
+          };
+        });
 
         const { error: mediaError } = await supabase
           .from('post_media')
