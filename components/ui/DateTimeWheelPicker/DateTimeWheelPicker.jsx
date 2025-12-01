@@ -11,6 +11,8 @@ import {
   PickerContainer,
   PickerHeader,
   PickerTitle,
+  CloseButton,
+  ValidationWarning,
   WheelsContainer,
   HighlightBar,
   PickerActions,
@@ -127,6 +129,7 @@ export default function DateTimeWheelPicker({
   const [selectedHour, setSelectedHour] = useState(initHour);
   const [selectedMinute, setSelectedMinute] = useState(initMinute);
   const [selectedPeriod, setSelectedPeriod] = useState(initPeriod);
+  const [validationError, setValidationError] = useState('');
 
   // Build the complete datetime whenever values change
   const buildDateTime = useCallback(() => {
@@ -153,23 +156,6 @@ export default function DateTimeWheelPicker({
     };
   }, [selectedDate, selectedHour, selectedMinute, selectedPeriod, use24Hour]);
 
-  // Validate that selected time is not in the past
-  useEffect(() => {
-    if (disablePastDates) {
-      const selected = buildDateTime();
-      const now = new Date();
-
-      if (new Date(selected.datetime) < now) {
-        // Reset to current time + 1 hour
-        const newInit = initializeValues();
-        setSelectedDate(newInit.dateStr);
-        setSelectedHour(newInit.hour);
-        setSelectedMinute(newInit.minute);
-        setSelectedPeriod(newInit.period);
-      }
-    }
-  }, [selectedDate, selectedHour, selectedMinute, selectedPeriod, disablePastDates, buildDateTime, initializeValues]);
-
   // Prevent body scroll when modal is open
   useEffect(() => {
     const originalOverflow = document.body.style.overflow;
@@ -193,6 +179,20 @@ export default function DateTimeWheelPicker({
 
   const handleConfirm = () => {
     const result = buildDateTime();
+
+    // Validate that selected time is not in the past
+    if (disablePastDates) {
+      const selectedTime = new Date(result.datetime);
+      const now = new Date();
+
+      if (selectedTime < now) {
+        setValidationError('Please select a future date and time');
+        return;
+      }
+    }
+
+    // Clear any previous errors and proceed
+    setValidationError('');
     onChange?.(result);
   };
 
@@ -201,6 +201,20 @@ export default function DateTimeWheelPicker({
       {title && (
         <PickerHeader>
           <PickerTitle>{title}</PickerTitle>
+          <CloseButton onClick={onCancel} aria-label="Close">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </CloseButton>
         </PickerHeader>
       )}
 
@@ -241,6 +255,26 @@ export default function DateTimeWheelPicker({
           />
         )}
       </WheelsContainer>
+
+      {/* Validation Warning */}
+      {validationError && (
+        <ValidationWarning>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <span>{validationError}</span>
+        </ValidationWarning>
+      )}
 
       {showActions && (
         <PickerActions>

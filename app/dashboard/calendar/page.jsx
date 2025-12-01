@@ -193,12 +193,12 @@ const ModalDescription = styled.p`
 `;
 
 const ModalWarning = styled.div`
-  background: ${props => props.theme.colors.danger.light}20;
-  border: 1px solid ${props => props.theme.colors.danger.light};
+  background: ${props => props.theme.colors.error.main}15;
+  border: 1px solid ${props => props.theme.colors.error.main};
   border-radius: ${props => props.theme.borderRadius.md};
   padding: ${props => props.theme.spacing.md};
   margin-bottom: ${props => props.theme.spacing.lg};
-  color: ${props => props.theme.colors.danger.main};
+  color: ${props => props.theme.colors.error.main};
   font-size: ${props => props.theme.typography.fontSize.sm};
 `;
 
@@ -227,7 +227,7 @@ const CancelButton = styled.button`
 const DeleteButton = styled.button`
   padding: ${props => props.theme.spacing.sm} ${props => props.theme.spacing.lg};
   border-radius: ${props => props.theme.borderRadius.md};
-  background: ${props => props.theme.colors.danger.main};
+  background: ${props => props.theme.colors.error.main};
   color: white;
   border: none;
   font-size: ${props => props.theme.typography.fontSize.md};
@@ -236,7 +236,7 @@ const DeleteButton = styled.button`
   transition: all ${props => props.theme.transitions.fast};
 
   &:hover {
-    background: ${props => props.theme.colors.danger.dark};
+    background: ${props => props.theme.colors.error.dark};
   }
 `;
 
@@ -620,12 +620,6 @@ export default function CalendarPage() {
                   : 'Are you sure you want to delete this post from your calendar?'}
               </ModalDescription>
             </ModalHeader>
-
-            {deletingPost.status === 'published' && (
-              <ModalWarning>
-                Warning: This will permanently remove the post from Facebook. This action cannot be undone.
-              </ModalWarning>
-            )}
 
             <ModalActions>
               <CancelButton onClick={cancelDelete}>

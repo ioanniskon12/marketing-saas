@@ -11,7 +11,6 @@ import { checkPermission } from '@/lib/permissions/rbac';
 
 const FACEBOOK_APP_ID = process.env.FACEBOOK_APP_ID;
 const FACEBOOK_APP_SECRET = process.env.FACEBOOK_APP_SECRET;
-const FACEBOOK_REDIRECT_URI = process.env.NEXT_PUBLIC_APP_URL + '/api/auth/facebook/callback';
 
 // Facebook permissions for posting to pages
 // Note: pages_manage_posts requires App Review approval for production apps
@@ -31,6 +30,13 @@ export async function GET(request) {
     const supabase = await createClient();
     const { searchParams } = new URL(request.url);
     const workspaceId = searchParams.get('workspace_id');
+
+    // Get APP_URL dynamically on each request
+    const APP_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || 'http://localhost:3000';
+    const FACEBOOK_REDIRECT_URI = APP_URL + '/api/auth/facebook/callback';
+
+    console.log('DEBUG - APP_URL:', APP_URL);
+    console.log('DEBUG - FACEBOOK_REDIRECT_URI:', FACEBOOK_REDIRECT_URI);
 
     // Get current user
     const { data: { user }, error: userError } = await supabase.auth.getUser();

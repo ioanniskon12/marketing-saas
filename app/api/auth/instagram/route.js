@@ -13,7 +13,8 @@ import { checkPermission } from '@/lib/permissions/rbac';
 // Instagram Business API uses Facebook OAuth
 const FACEBOOK_APP_ID = process.env.FACEBOOK_APP_ID;
 const FACEBOOK_APP_SECRET = process.env.FACEBOOK_APP_SECRET;
-const INSTAGRAM_REDIRECT_URI = process.env.NEXT_PUBLIC_APP_URL + '/api/auth/instagram/callback';
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || 'http://localhost:3000';
+const INSTAGRAM_REDIRECT_URI = APP_URL + '/api/auth/instagram/callback';
 
 // Basic Instagram permissions that work without App Review
 // Advanced permissions require App Review approval

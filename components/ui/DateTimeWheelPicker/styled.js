@@ -121,6 +121,10 @@ export const PickerHeader = styled.div`
   width: 100%;
   text-align: center;
   margin-bottom: ${props => props.theme.spacing.md};
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const PickerTitle = styled.h3`
@@ -128,6 +132,75 @@ export const PickerTitle = styled.h3`
   font-weight: ${props => props.theme.typography.fontWeight.semibold};
   color: ${props => props.theme.colors.text.primary};
   margin: 0;
+`;
+
+export const CloseButton = styled.button`
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255, 255, 255, 0.05);
+  color: ${props => props.theme.colors.text.secondary};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all ${props => props.theme.transitions.fast};
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: ${props => props.theme.colors.text.primary};
+  }
+
+  &:active {
+    background: rgba(255, 255, 255, 0.03);
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  &:focus {
+    outline: 2px solid ${props => props.theme.colors.primary.main};
+    outline-offset: 2px;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+`;
+
+export const ValidationWarning = styled.div`
+  background: ${props => props.theme.colors.error.main}15;
+  border: 1px solid ${props => props.theme.colors.error.main};
+  color: ${props => props.theme.colors.error.main};
+  padding: ${props => props.theme.spacing.sm} ${props => props.theme.spacing.md};
+  border-radius: 8px;
+  font-size: ${props => props.theme.typography.fontSize.sm};
+  margin-bottom: ${props => props.theme.spacing.md};
+  display: flex;
+  align-items: center;
+  gap: ${props => props.theme.spacing.sm};
+  animation: slideIn 0.2s ease;
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  svg {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+  }
 `;
 
 export const PickerActions = styled.div`

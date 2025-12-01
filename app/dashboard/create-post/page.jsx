@@ -1524,18 +1524,16 @@ export default function CreatePostPage() {
 
       {/* iOS-Style Schedule Picker Modal */}
       {showSchedulePicker && (
-        <ModalOverlay onClick={() => setShowSchedulePicker(false)}>
-          <div onClick={(e) => e.stopPropagation()}>
-            <DateTimeWheelPicker
-              initialValue={scheduledDate}
-              onChange={(result) => {
-                setScheduledDate(result.datetime);
-                setShowSchedulePicker(false);
-                setHasUnsavedChanges(true);
-              }}
-              onCancel={() => setShowSchedulePicker(false)}
-            />
-          </div>
+        <ModalOverlay>
+          <DateTimeWheelPicker
+            initialValue={scheduledDate}
+            onChange={(result) => {
+              setScheduledDate(result.datetime);
+              setShowSchedulePicker(false);
+              setHasUnsavedChanges(true);
+            }}
+            onCancel={() => setShowSchedulePicker(false)}
+          />
         </ModalOverlay>
       )}
     </Container>
