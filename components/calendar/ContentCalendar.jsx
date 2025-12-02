@@ -884,6 +884,7 @@ const PLATFORM_COLORS = ['orange', 'purple', 'red', 'green', 'blue'];
 
 export default function ContentCalendar({
   posts = [],
+  accounts = [],
   onPostClick,
   onPostEdit,
   onPostReschedule,
@@ -902,6 +903,22 @@ export default function ContentCalendar({
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedTimezone, setSelectedTimezone] = useState('Europe/Rome');
   const [selectedLocation, setSelectedLocation] = useState('Rome (Italy)');
+
+  // Helper function to get platform from post's account IDs
+  const getPlatformFromPost = (post) => {
+    if (!post.platforms || !Array.isArray(post.platforms) || post.platforms.length === 0) {
+      return 'instagram'; // Default fallback
+    }
+
+    // Get first account ID from the post's platforms array
+    const accountId = post.platforms[0];
+
+    // Look up the account in the accounts array
+    const account = accounts.find(acc => acc.id === accountId);
+
+    // Return the platform or default to instagram
+    return account?.platform || 'instagram';
+  };
 
   // Calendar Settings State (load from localStorage or use defaults)
   const [settings, setSettings] = useState(() => {
@@ -1220,7 +1237,7 @@ export default function ContentCalendar({
                           <SlotPostsRow>
                             {/* Render posts for this slot inline */}
                             {slotPosts.map((post) => {
-                              const platform = post.platform || 'instagram';
+                              const platform = getPlatformFromPost(post);
                               return (
                                 <InlinePostCard key={post.id}>
                                   <CalendarPostCard
@@ -1309,7 +1326,7 @@ export default function ContentCalendar({
                   <CalendarPostPill
                     key={post.id}
                     post={post}
-                    platform={post.platform || 'instagram'}
+                    platform={getPlatformFromPost(post)}
                     showTime={true}
                     onClick={(p) => (onPostClick || onPostEdit)?.(p)}
                     onEdit={onPostEdit}
@@ -1356,6 +1373,15 @@ export default function ContentCalendar({
               upcomingPosts.map((post, idx) => {
                 const postDate = new Date(post.scheduled_for);
                 const colors = ['yellow', 'blue', 'pink'];
+                const platform = getPlatformFromPost(post);
+
+                // Get platform icon component
+                const PlatformIcon = {
+                  instagram: Instagram,
+                  facebook: Facebook,
+                  linkedin: Linkedin,
+                  twitter: Twitter,
+                }[platform] || Instagram;
 
                 return (
                   <UpcomingEvent
@@ -1367,7 +1393,7 @@ export default function ContentCalendar({
                     }}
                   >
                     <EventLogo>
-                      <Instagram />
+                      <PlatformIcon />
                     </EventLogo>
                     <EventDetails>
                       <EventName>{post.content?.substring(0, 30) || 'Post'}...</EventName>

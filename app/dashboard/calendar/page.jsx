@@ -576,6 +576,7 @@ export default function CalendarPage() {
       {/* Calendar */}
       <ContentCalendar
         posts={filteredPosts}
+        accounts={accounts}
         onPostMove={handlePostMove}
         onPostEdit={handlePostEdit}
         onPostReschedule={handlePostReschedule}

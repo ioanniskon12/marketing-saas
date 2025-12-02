@@ -260,9 +260,174 @@ async function publishToFacebook(post, account) {
 }
 
 async function publishToInstagram(post, account) {
-  // Instagram publishing will be implemented later
-  return {
-    success: false,
-    error: 'Instagram publishing not yet implemented',
-  };
+  try {
+    const accessToken = account.access_token;
+    const instagramAccountId = account.platform_account_id;
+
+    if (!accessToken || !instagramAccountId) {
+      return { success: false, error: 'Missing Instagram credentials' };
+    }
+
+    // Prepare caption
+    let caption = post.content || '';
+
+    // Add hashtags
+    if (post.hashtags && post.hashtags.length > 0) {
+      const hashtagString = post.hashtags.map(tag => `#${tag}`).join(' ');
+      caption = caption + '\n\n' + hashtagString;
+    }
+
+    console.log('Publishing to Instagram:', {
+      instagramAccountId,
+      hasMedia: post.post_media && post.post_media.length > 0,
+      mediaCount: post.post_media?.length || 0
+    });
+
+    // Get media if available
+    const media = post.post_media || [];
+    const imageMedia = media.filter(m => m.media_type === 'image');
+
+    let containerId;
+
+    // Case 1: Single image post
+    if (imageMedia.length === 1) {
+      console.log('Creating single Instagram image post');
+
+      // Step 1: Create media container
+      const createParams = new URLSearchParams({
+        image_url: imageMedia[0].file_url,
+        caption: caption,
+        access_token: accessToken,
+      });
+
+      const createResponse = await fetch(
+        `https://graph.facebook.com/v18.0/${instagramAccountId}/media`,
+        {
+          method: 'POST',
+          body: createParams,
+        }
+      );
+
+      const createData = await createResponse.json();
+
+      if (createData.error) {
+        console.error('Instagram create container error:', createData.error);
+        return {
+          success: false,
+          error: createData.error.message || 'Instagram API error',
+        };
+      }
+
+      containerId = createData.id;
+    }
+    // Case 2: Multiple images (carousel)
+    else if (imageMedia.length > 1 && imageMedia.length <= 10) {
+      console.log('Creating Instagram carousel with', imageMedia.length, 'images');
+
+      // Step 1: Create media containers for each image
+      const containerIds = [];
+      for (const mediaItem of imageMedia) {
+        const itemParams = new URLSearchParams({
+          image_url: mediaItem.file_url,
+          is_carousel_item: 'true',
+          access_token: accessToken,
+        });
+
+        const itemResponse = await fetch(
+          `https://graph.facebook.com/v18.0/${instagramAccountId}/media`,
+          {
+            method: 'POST',
+            body: itemParams,
+          }
+        );
+
+        const itemData = await itemResponse.json();
+        if (itemData.id) {
+          containerIds.push(itemData.id);
+        } else if (itemData.error) {
+          console.error('Instagram carousel item error:', itemData.error);
+          return {
+            success: false,
+            error: itemData.error.message || 'Failed to create carousel item',
+          };
+        }
+      }
+
+      // Step 2: Create carousel container
+      const carouselParams = new URLSearchParams({
+        media_type: 'CAROUSEL',
+        children: containerIds.join(','),
+        caption: caption,
+        access_token: accessToken,
+      });
+
+      const carouselResponse = await fetch(
+        `https://graph.facebook.com/v18.0/${instagramAccountId}/media`,
+        {
+          method: 'POST',
+          body: carouselParams,
+        }
+      );
+
+      const carouselData = await carouselResponse.json();
+
+      if (carouselData.error) {
+        console.error('Instagram carousel container error:', carouselData.error);
+        return {
+          success: false,
+          error: carouselData.error.message || 'Failed to create carousel',
+        };
+      }
+
+      containerId = carouselData.id;
+    }
+    // Case 3: Text-only or unsupported
+    else {
+      return {
+        success: false,
+        error: imageMedia.length > 10
+          ? 'Instagram allows maximum 10 images in a carousel'
+          : 'Instagram requires at least one image',
+      };
+    }
+
+    // Final step: Publish the container
+    console.log('Publishing Instagram container:', containerId);
+    const publishParams = new URLSearchParams({
+      creation_id: containerId,
+      access_token: accessToken,
+    });
+
+    const publishResponse = await fetch(
+      `https://graph.facebook.com/v18.0/${instagramAccountId}/media_publish`,
+      {
+        method: 'POST',
+        body: publishParams,
+      }
+    );
+
+    const publishData = await publishResponse.json();
+
+    if (publishData.error) {
+      console.error('Instagram publish error:', publishData.error);
+      return {
+        success: false,
+        error: publishData.error.message || 'Failed to publish to Instagram',
+      };
+    }
+
+    if (publishData.id) {
+      return {
+        success: true,
+        postId: publishData.id,
+        postUrl: `https://www.instagram.com/p/${publishData.id}/`,
+      };
+    }
+
+    return { success: false, error: 'Unknown error publishing to Instagram' };
+
+  } catch (error) {
+    console.error('Error publishing to Instagram:', error);
+    return { success: false, error: error.message };
+  }
 }

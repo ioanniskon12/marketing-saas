@@ -39,7 +39,8 @@ const PostTypeSelector = styled.div`
   display: flex;
   gap: ${props => props.theme.spacing.sm};
   padding: ${props => props.theme.spacing.sm};
-  background: ${props => props.theme.colors.neutral[100]};
+  background: ${props => props.theme.colors.background.default};
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
   border-radius: ${props => props.theme.borderRadius.lg};
   margin-bottom: ${props => props.theme.spacing.md};
 `;
@@ -49,7 +50,7 @@ const PostTypeOption = styled.button`
   padding: ${props => props.theme.spacing.sm} ${props => props.theme.spacing.md};
   border: 2px solid ${props => props.$selected ? props.theme.colors.primary.main : 'transparent'};
   border-radius: ${props => props.theme.borderRadius.md};
-  background: ${props => props.$selected ? 'white' : 'transparent'};
+  background: ${props => props.$selected ? props.theme.colors.background.paper : 'transparent'};
   color: ${props => props.theme.colors.text.primary};
   font-size: ${props => props.theme.typography.fontSize.sm};
   font-weight: ${props => props.theme.typography.fontWeight.medium};
@@ -57,7 +58,7 @@ const PostTypeOption = styled.button`
   transition: all ${props => props.theme.transitions.fast};
 
   &:hover {
-    background: white;
+    background: ${props => props.theme.colors.background.paper};
   }
 
   &:focus {
@@ -638,6 +639,7 @@ export default function InstagramComposer({
           ? 'Reels: vertical 1080×1920 (9:16) · 1 video · max 90 seconds'
           : 'Stories: vertical 1080×1920 (9:16) · 1 image or video',
       }}
+      onMediaChange={onMediaChange}
       onAddMediaFromLibrary={(items) => onMediaChange?.([...media, ...items])}
       onUploadMedia={onMediaUpload}
       onRemoveMedia={removeMedia}
