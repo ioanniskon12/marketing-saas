@@ -30,12 +30,26 @@ export async function GET(request, { params }) {
       );
     }
 
-    // Decode state parameter
-    const stateData = JSON.parse(Buffer.from(state, 'base64').toString());
-    const { workspaceId, userId } = stateData;
+    // Decode state parameter with error handling
+    let stateData;
+    try {
+      console.log('Raw state parameter:', state);
+      const decodedState = Buffer.from(state, 'base64').toString('utf8');
+      console.log('Decoded state:', decodedState);
+      stateData = JSON.parse(decodedState);
+    } catch (error) {
+      console.error('State decoding error:', error);
+      console.error('State value:', state);
+      return NextResponse.redirect(
+        `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/accounts?error=invalid_state&details=${encodeURIComponent(error.message)}`
+      );
+    }
+
+    const { workspaceId, userId, codeVerifier } = stateData;
 
     // Exchange code for access token
-    const tokenData = await exchangeCodeForToken(platform, code);
+    // For Twitter, pass the codeVerifier for PKCE
+    const tokenData = await exchangeCodeForToken(platform, code, codeVerifier);
 
     // Get user profile from platform
     const profile = await getUserProfile(platform, tokenData.access_token);

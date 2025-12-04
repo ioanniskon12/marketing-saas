@@ -1202,34 +1202,6 @@ export default function CreatePostPage() {
         </CrossPostHelpers>
       )}
 
-      {/* Design & Layout Controls */}
-      <ControlsRow>
-        {/* Design Theme Selector */}
-        {/* Layout Switcher */}
-        <LayoutSwitcher>
-          <LayoutButton
-            $active={layoutMode === 'side-by-side'}
-            onClick={() => setLayoutMode('side-by-side')}
-            title="Side by Side"
-          >
-            <Columns2 />
-          </LayoutButton>
-          <LayoutButton
-            $active={layoutMode === 'full-width'}
-            onClick={() => setLayoutMode('full-width')}
-            title="Full Width"
-          >
-            <Square />
-          </LayoutButton>
-          <LayoutButton
-            $active={layoutMode === 'stacked'}
-            onClick={() => setLayoutMode('stacked')}
-            title="Stacked"
-          >
-            <Rows2 />
-          </LayoutButton>
-        </LayoutSwitcher>
-      </ControlsRow>
 
       {/* Composer Layout - Conditional based on layoutMode */}
       {layoutMode === 'side-by-side' && (

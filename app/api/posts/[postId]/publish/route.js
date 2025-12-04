@@ -69,6 +69,10 @@ export async function POST(request, { params }) {
           result = await publishToFacebook(post, account);
         } else if (account.platform === 'instagram') {
           result = await publishToInstagram(post, account);
+        } else if (account.platform === 'twitter') {
+          result = await publishToTwitter(post, account);
+        } else if (account.platform === 'youtube') {
+          result = await publishToYouTube(post, account);
         } else {
           errors.push(`Platform ${account.platform} not supported yet`);
           continue;
@@ -428,6 +432,288 @@ async function publishToInstagram(post, account) {
 
   } catch (error) {
     console.error('Error publishing to Instagram:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+async function publishToTwitter(post, account) {
+  try {
+    const accessToken = account.access_token;
+    const userId = account.platform_account_id;
+
+    if (!accessToken) {
+      return { success: false, error: 'Missing Twitter credentials' };
+    }
+
+    // Prepare tweet text
+    let tweetText = post.content || '';
+
+    // Add hashtags
+    if (post.hashtags && post.hashtags.length > 0) {
+      const hashtagString = post.hashtags.map(tag => `#${tag}`).join(' ');
+      tweetText = tweetText + '\n\n' + hashtagString;
+    }
+
+    // Twitter character limit
+    if (tweetText.length > 280) {
+      return {
+        success: false,
+        error: `Tweet text exceeds 280 characters (${tweetText.length} characters)`
+      };
+    }
+
+    console.log('Publishing to Twitter:', {
+      userId,
+      textLength: tweetText.length,
+      hasMedia: post.post_media && post.post_media.length > 0,
+      mediaCount: post.post_media?.length || 0
+    });
+
+    // Get media if available
+    const media = post.post_media || [];
+    const imageMedia = media.filter(m => m.media_type === 'image');
+
+    let mediaIds = [];
+
+    // Upload media if present (Twitter allows up to 4 images)
+    if (imageMedia.length > 0) {
+      if (imageMedia.length > 4) {
+        return {
+          success: false,
+          error: 'Twitter allows maximum 4 images per tweet'
+        };
+      }
+
+      console.log('Uploading', imageMedia.length, 'images to Twitter');
+
+      for (const mediaItem of imageMedia) {
+        try {
+          // Download image first
+          const imageResponse = await fetch(mediaItem.file_url);
+          if (!imageResponse.ok) {
+            throw new Error(`Failed to download image: ${imageResponse.statusText}`);
+          }
+
+          const imageBuffer = await imageResponse.arrayBuffer();
+          const base64Image = Buffer.from(imageBuffer).toString('base64');
+
+          // Upload to Twitter using v1.1 media upload endpoint
+          const uploadResponse = await fetch(
+            'https://upload.twitter.com/1.1/media/upload.json',
+            {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: new URLSearchParams({
+                media_data: base64Image,
+              }),
+            }
+          );
+
+          const uploadData = await uploadResponse.json();
+
+          if (uploadData.errors) {
+            console.error('Twitter media upload error:', uploadData.errors);
+            return {
+              success: false,
+              error: uploadData.errors[0]?.message || 'Failed to upload media',
+            };
+          }
+
+          if (uploadData.media_id_string) {
+            mediaIds.push(uploadData.media_id_string);
+          }
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          return { success: false, error: `Media upload failed: ${error.message}` };
+        }
+      }
+    }
+
+    // Create tweet using v2 API
+    const tweetPayload = {
+      text: tweetText,
+    };
+
+    // Add media if uploaded
+    if (mediaIds.length > 0) {
+      tweetPayload.media = {
+        media_ids: mediaIds,
+      };
+    }
+
+    const tweetResponse = await fetch(
+      'https://api.twitter.com/2/tweets',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(tweetPayload),
+      }
+    );
+
+    const tweetData = await tweetResponse.json();
+
+    if (tweetData.errors) {
+      console.error('Twitter API error:', tweetData.errors);
+      return {
+        success: false,
+        error: tweetData.errors[0]?.message || 'Twitter API error',
+      };
+    }
+
+    if (tweetData.data && tweetData.data.id) {
+      const tweetId = tweetData.data.id;
+      return {
+        success: true,
+        postId: tweetId,
+        postUrl: `https://twitter.com/user/status/${tweetId}`,
+      };
+    }
+
+    return { success: false, error: 'Unknown error publishing to Twitter' };
+
+  } catch (error) {
+    console.error('Error publishing to Twitter:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+async function publishToYouTube(post, account) {
+  try {
+    const accessToken = account.access_token;
+
+    if (!accessToken) {
+      return { success: false, error: 'Missing YouTube credentials' };
+    }
+
+    // YouTube requires video content - check if we have a video
+    const media = post.post_media || [];
+    const videoMedia = media.filter(m => m.media_type === 'video');
+
+    if (videoMedia.length === 0) {
+      return {
+        success: false,
+        error: 'YouTube requires a video file. Please add a video to this post.',
+      };
+    }
+
+    if (videoMedia.length > 1) {
+      return {
+        success: false,
+        error: 'YouTube only supports one video per upload.',
+      };
+    }
+
+    // Prepare video metadata
+    let title = post.content ? post.content.substring(0, 100) : 'Video Upload';
+    let description = post.content || '';
+
+    // Add hashtags to description
+    if (post.hashtags && post.hashtags.length > 0) {
+      const hashtagString = post.hashtags.map(tag => `#${tag}`).join(' ');
+      description = description + '\n\n' + hashtagString;
+    }
+
+    console.log('Publishing to YouTube:', {
+      hasVideo: true,
+      title: title.substring(0, 50) + '...',
+    });
+
+    // Download video first
+    const videoUrl = videoMedia[0].file_url;
+    const videoResponse = await fetch(videoUrl);
+
+    if (!videoResponse.ok) {
+      throw new Error(`Failed to download video: ${videoResponse.statusText}`);
+    }
+
+    const videoBuffer = await videoResponse.arrayBuffer();
+    const videoBlob = new Blob([videoBuffer], { type: 'video/mp4' });
+
+    // Step 1: Create upload request
+    const metadata = {
+      snippet: {
+        title: title,
+        description: description,
+        tags: post.hashtags || [],
+        categoryId: '22', // People & Blogs category
+      },
+      status: {
+        privacyStatus: 'public', // or 'private' or 'unlisted'
+      },
+    };
+
+    // YouTube upload requires resumable upload
+    // Step 1: Initialize upload
+    const initResponse = await fetch(
+      'https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'X-Upload-Content-Type': 'video/*',
+        },
+        body: JSON.stringify(metadata),
+      }
+    );
+
+    if (!initResponse.ok) {
+      const error = await initResponse.text();
+      console.error('YouTube init error:', error);
+      return {
+        success: false,
+        error: `Failed to initialize upload: ${error}`,
+      };
+    }
+
+    // Get upload URL from location header
+    const uploadUrl = initResponse.headers.get('Location');
+
+    if (!uploadUrl) {
+      return {
+        success: false,
+        error: 'Failed to get upload URL from YouTube',
+      };
+    }
+
+    // Step 2: Upload video data
+    const uploadResponse = await fetch(uploadUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'video/*',
+      },
+      body: videoBlob,
+    });
+
+    if (!uploadResponse.ok) {
+      const error = await uploadResponse.text();
+      console.error('YouTube upload error:', error);
+      return {
+        success: false,
+        error: `Failed to upload video: ${error}`,
+      };
+    }
+
+    const uploadData = await uploadResponse.json();
+
+    if (uploadData.id) {
+      return {
+        success: true,
+        postId: uploadData.id,
+        postUrl: `https://www.youtube.com/watch?v=${uploadData.id}`,
+      };
+    }
+
+    return { success: false, error: 'Unknown error uploading to YouTube' };
+
+  } catch (error) {
+    console.error('Error publishing to YouTube:', error);
     return { success: false, error: error.message };
   }
 }

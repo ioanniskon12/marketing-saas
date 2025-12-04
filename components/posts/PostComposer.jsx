@@ -1894,43 +1894,56 @@ export default function PostComposer({
             {/* Platform-Specific Composers */}
             {platformType === 'twitter' && (
               <TwitterComposer
-                value={data.content}
-                onChange={(val) => updateActivePlatformData({ content: val })}
-                media={data.media}
+                content={data.content}
+                onContentChange={(val) => updateActivePlatformData({ content: val })}
+                media={data.media || []}
+                hashtags={data.hashtags || []}
                 onMediaChange={(val) => updateActivePlatformData({ media: val })}
+                onHashtagsChange={(val) => updateActivePlatformData({ hashtags: val })}
                 onMediaUpload={() => setShowMediaLibrary(true)}
+                onOpenMediaLibrary={() => setShowMediaLibrary(true)}
               />
             )}
 
             {platformType === 'youtube' && (
               <YouTubeComposer
-                video={data.media[0]}
+                media={data.media || []}
                 title={data.content.split('\n')[0] || ''}
-                description={data.content.split('\n').slice(1).join('\n') || data.content}
-                tags={data.hashtags}
-                onVideoChange={(video) => updateActivePlatformData({ media: [video] })}
+                content={data.content.split('\n').slice(1).join('\n') || data.content}
+                tags={data.hashtags || []}
+                category={data.category || ''}
+                visibility={data.visibility || 'public'}
+                onMediaChange={(media) => updateActivePlatformData({ media })}
                 onTitleChange={(title) => {
                   const desc = data.content.split('\n').slice(1).join('\n');
                   updateActivePlatformData({ content: desc ? `${title}\n${desc}` : title });
                 }}
-                onDescriptionChange={(desc) => {
+                onContentChange={(desc) => {
                   const title = data.content.split('\n')[0];
                   updateActivePlatformData({ content: title ? `${title}\n${desc}` : desc });
                 }}
                 onTagsChange={(val) => updateActivePlatformData({ hashtags: val })}
-                onVideoUpload={() => setShowMediaLibrary(true)}
+                onCategoryChange={(val) => updateActivePlatformData({ category: val })}
+                onVisibilityChange={(val) => updateActivePlatformData({ visibility: val })}
+                onMediaUpload={() => setShowMediaLibrary(true)}
+                onOpenMediaLibrary={() => setShowMediaLibrary(true)}
               />
             )}
 
             {platformType === 'tiktok' && (
               <TikTokComposer
-                video={data.media[0]}
-                caption={data.content}
-                hashtags={data.hashtags}
-                onVideoChange={(video) => updateActivePlatformData({ media: [video] })}
-                onCaptionChange={(val) => updateActivePlatformData({ content: val })}
+                media={data.media || []}
+                content={data.content}
+                hashtags={data.hashtags || []}
+                privacy={data.privacy || 'public'}
+                sound={data.sound || null}
+                onMediaChange={(media) => updateActivePlatformData({ media })}
+                onContentChange={(val) => updateActivePlatformData({ content: val })}
                 onHashtagsChange={(val) => updateActivePlatformData({ hashtags: val })}
-                onVideoUpload={() => setShowMediaLibrary(true)}
+                onPrivacyChange={(val) => updateActivePlatformData({ privacy: val })}
+                onSoundChange={(val) => updateActivePlatformData({ sound: val })}
+                onMediaUpload={() => setShowMediaLibrary(true)}
+                onOpenMediaLibrary={() => setShowMediaLibrary(true)}
               />
             )}
 
@@ -1984,12 +1997,19 @@ export default function PostComposer({
             {platformType === 'linkedin' && (
               <LinkedInComposer
                 content={data.content}
-                hashtags={data.hashtags}
-                media={data.media}
+                postType={data.postType || 'post'}
+                tone={data.tone || 'professional'}
+                hashtags={data.hashtags || []}
+                media={data.media || []}
+                pollOptions={data.pollOptions || ['', '']}
                 onContentChange={(val) => updateActivePlatformData({ content: val })}
+                onPostTypeChange={(val) => updateActivePlatformData({ postType: val })}
+                onToneChange={(val) => updateActivePlatformData({ tone: val })}
                 onHashtagsChange={(val) => updateActivePlatformData({ hashtags: val })}
                 onMediaChange={(val) => updateActivePlatformData({ media: val })}
+                onPollOptionsChange={(val) => updateActivePlatformData({ pollOptions: val })}
                 onMediaUpload={() => setShowMediaLibrary(true)}
+                onOpenMediaLibrary={() => setShowMediaLibrary(true)}
               />
             )}
 

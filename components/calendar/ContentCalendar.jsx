@@ -179,6 +179,28 @@ const BestTimesButton = styled.button`
   }
 `;
 
+const TimeFormatButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid ${props => props.theme.colors.border.default};
+  background: ${props => props.theme.colors.background.paper};
+  border-radius: 10px;
+  cursor: pointer;
+  color: ${props => props.theme.colors.text.primary};
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+
+  &:hover {
+    background: ${props => props.theme.colors.background.hover};
+    border-color: ${props => props.theme.colors.border.hover};
+  }
+`;
+
 // ==================== WEEKLY VIEW COMPONENTS ====================
 
 const WeeklyViewWrapper = styled.div`
@@ -246,7 +268,7 @@ const TimeColumn = styled.div`
 `;
 
 const TimeLabel = styled.div`
-  height: 60px;
+  height: 100px;
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -287,7 +309,7 @@ const WeekDayColumn = styled.div`
   flex: 1;
   position: relative;
   border-right: 1px solid ${props => props.theme.colors.border.default};
-  min-height: calc(60px * 24); /* 24 hours * 60px per hour */
+  min-height: calc(100px * 24); /* 24 hours * 100px per hour */
   background: ${props => props.$isToday ? `${props.theme.colors.primary.main}08` : 'transparent'};
   box-sizing: border-box;
 
@@ -319,64 +341,99 @@ const TimeSlots = styled.div`
 `;
 
 const TimeSlot = styled.div`
-  min-height: 60px;
+  min-height: 100px;
   border-bottom: 1px solid ${props => props.theme.colors.border.light};
   position: relative;
   width: 100%;
   box-sizing: border-box;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: flex-start;
-  padding: 4px 32px 4px 6px; /* Right padding for the add button */
+  padding: 6px 8px;
 
   &:hover {
-    background: ${props => props.theme.colors.background.hover};
+    background: ${props => props.$isEmpty
+      ? `linear-gradient(135deg, ${props.theme.colors.success.main}08, ${props.theme.colors.success.main}12)`
+      : props.theme.colors.background.hover};
   }
 
   &:hover .slot-add-btn {
     opacity: 1;
   }
 
+  /* Enhanced empty slot hover */
+  &.empty-slot:hover {
+    background: linear-gradient(135deg, ${props => props.theme.colors.success.main}08, ${props => props.theme.colors.success.main}12);
+    border-radius: 8px;
+  }
+
   &.drag-over {
-    background: ${props => `${props.theme.colors.primary.main}15`};
+    background: ${props => `${props.theme.colors.primary.main}20`};
     border: 2px dashed ${props => props.theme.colors.primary.main};
+    border-radius: 8px;
+    box-shadow: inset 0 0 20px ${props => `${props.theme.colors.primary.main}15`},
+                0 4px 12px ${props => `${props.theme.colors.primary.main}25`};
+    transform: scale(1.01);
+
+    &::before {
+      content: 'Drop here to reschedule';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: ${props => props.theme.colors.primary.main};
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0.9;
+      z-index: 5;
+    }
   }
 `;
 
 // Horizontal container for posts in a time slot
 const SlotPostsRow = styled.div`
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 4px;
+  align-items: stretch;
   flex: 1;
   min-width: 0;
-  padding-top: 2px;
+  padding: 4px;
+  overflow: hidden;
 `;
 
 const SlotAddButton = styled.button`
   position: absolute;
-  right: 4px;
+  left: 50%;
   top: 50%;
-  transform: translateY(-50%);
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  border: none;
-  background: ${props => props.theme.colors.success.main};
-  color: white;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px dashed ${props => props.theme.colors.border.default};
+  background: ${props => props.theme.colors.background.paper};
+  color: ${props => props.theme.colors.text.secondary};
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 0;
   z-index: 5;
 
   &:hover {
-    transform: translateY(-50%) scale(1.1);
-    box-shadow: 0 2px 6px ${props => props.theme.colors.success.main}50;
+    transform: translate(-50%, -50%) scale(1.15);
+    background: ${props => props.theme.colors.success.main};
+    color: white;
+    border-color: ${props => props.theme.colors.success.main};
+    border-style: solid;
+    box-shadow: 0 4px 12px ${props => props.theme.colors.success.main}40;
     opacity: 1;
   }
 
@@ -438,14 +495,6 @@ const PostCardWrapper = styled.div`
   right: 4px;
   z-index: 10;
   pointer-events: auto;
-`;
-
-// Inline wrapper for posts in day view (flexbox layout)
-const InlinePostCard = styled.div`
-  flex-shrink: 0;
-  max-width: 280px;
-  min-width: 180px;
-  position: relative;
 `;
 
 const EventTime = styled.div`
@@ -583,20 +632,50 @@ const CurrentTimeLine = styled.div`
   position: absolute;
   left: 0;
   right: 0;
-  height: 2px;
+  height: 3px;
   background: ${props => props.theme.colors.error.main};
-  z-index: 10;
+  z-index: 15;
   pointer-events: none;
+  box-shadow: 0 0 8px ${props => props.theme.colors.error.main}80;
 
   &::before {
     content: '';
     position: absolute;
-    left: 0;
-    top: -4px;
-    width: 10px;
-    height: 10px;
+    left: -2px;
+    top: -5px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     background: ${props => props.theme.colors.error.main};
+    box-shadow: 0 0 0 3px ${props => props.theme.colors.error.main}30,
+                0 0 12px ${props => props.theme.colors.error.main}60;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  &::after {
+    content: attr(data-time);
+    position: absolute;
+    left: 20px;
+    top: -8px;
+    background: ${props => props.theme.colors.error.main};
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 0.8;
+    }
   }
 `;
 
@@ -1125,7 +1204,7 @@ export default function ContentCalendar({
     // Calculate number of time slots based on duration setting
     const minutesInDay = 24 * 60;
     const slotCount = minutesInDay / settings.timeSlotDuration;
-    const slotHeight = 60; // Base height in pixels
+    const slotHeight = 100; // Base height in pixels
 
     // Generate time labels based on slot duration
     const timeLabels = Array.from({ length: slotCount }, (_, index) => {
@@ -1210,9 +1289,13 @@ export default function ContentCalendar({
                       const slotDateTime = new Date(date);
                       slotDateTime.setHours(slotHour, slotMinute, 0, 0);
 
+                      const isEmpty = slotPosts.length === 0;
+
                       return (
                         <TimeSlot
                           key={slotIndex}
+                          className={isEmpty ? 'empty-slot' : ''}
+                          $isEmpty={isEmpty}
                           style={{ minHeight: `${slotHeight}px` }}
                           onDragOver={(e) => {
                             e.preventDefault();
@@ -1235,39 +1318,46 @@ export default function ContentCalendar({
                           }}
                         >
                           <SlotPostsRow>
-                            {/* Render posts for this slot inline */}
-                            {slotPosts.map((post) => {
-                              const platform = getPlatformFromPost(post);
-                              return (
-                                <InlinePostCard key={post.id}>
-                                  <CalendarPostCard
-                                    post={post}
-                                    view={viewMode === 'day' ? 'day' : 'week'}
-                                    platform={platform}
-                                    onClick={(p) => (onPostClick || onPostEdit)?.(p)}
-                                    onEdit={onPostEdit}
-                                    onDelete={onPostDelete}
-                                    onReschedule={onPostReschedule}
-                                    draggable={true}
-                                  />
-                                </InlinePostCard>
-                              );
-                            })}
+                            {/* Render first 2 posts */}
+                            {slotPosts.slice(0, 2).map((post) => (
+                              <CalendarPostPill
+                                key={post.id}
+                                post={post}
+                                platform={getPlatformFromPost(post)}
+                                showTime={true}
+                                onClick={(p) => (onPostClick || onPostEdit)?.(p)}
+                                onEdit={onPostEdit}
+                                onDelete={onPostDelete}
+                              />
+                            ))}
+                            {/* Show "+N more" if there are more than 2 posts */}
+                            {slotPosts.length > 2 && (
+                              <MorePostsIndicator
+                                count={slotPosts.length - 2}
+                                date={date}
+                                onClick={() => {
+                                  setSelectedDayForModal({ date, posts: slotPosts });
+                                  setShowDayPostsModal(true);
+                                }}
+                              />
+                            )}
                           </SlotPostsRow>
-                          {/* Add button positioned on the right */}
-                          <SlotAddButton
-                            className="slot-add-btn"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const clickDate = new Date(date);
-                              clickDate.setHours(slotHour, slotMinute, 0, 0);
-                              onDateClick?.(clickDate);
-                            }}
-                            tabIndex={0}
-                            aria-label={`Add post for ${slotHour}:${String(slotMinute).padStart(2, '0')}`}
-                          >
-                            <Plus size={14} />
-                          </SlotAddButton>
+                          {/* Only show add button for empty slots */}
+                          {isEmpty && (
+                            <SlotAddButton
+                              className="slot-add-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const clickDate = new Date(date);
+                                clickDate.setHours(slotHour, slotMinute, 0, 0);
+                                onDateClick?.(clickDate);
+                              }}
+                              tabIndex={0}
+                              aria-label={`Add post for ${slotHour}:${String(slotMinute).padStart(2, '0')}`}
+                            >
+                              <Plus size={18} />
+                            </SlotAddButton>
+                          )}
                         </TimeSlot>
                       );
                     })}
@@ -1562,17 +1652,17 @@ export default function ContentCalendar({
               <BestTimesButton onClick={() => setShowBestTimesModal(true)}>
                 <Clock size={18} />
               </BestTimesButton>
+              <TimeFormatButton
+                onClick={() => updateSettings({ ...settings, timeFormat: settings.timeFormat === '12' ? '24' : '12' })}
+                title={`Switch to ${settings.timeFormat === '12' ? '24-hour' : '12-hour'} format`}
+              >
+                {settings.timeFormat === '12' ? '12h' : '24h'}
+              </TimeFormatButton>
               <UpcomingButton onClick={() => setShowUpcomingModal(true)}>
                 <Calendar size={16} />
                 Upcoming Posts
               </UpcomingButton>
               <ViewToggle>
-                <ViewButton
-                  $active={viewMode === 'day'}
-                  onClick={() => onViewModeChange?.('day')}
-                >
-                  Day
-                </ViewButton>
                 <ViewButton
                   $active={viewMode === 'week'}
                   onClick={() => onViewModeChange?.('week')}

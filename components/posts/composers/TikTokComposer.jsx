@@ -453,6 +453,7 @@ export default function TikTokComposer({
         allowedTypes: ['video'],
         recommendation: 'Video: MP4, WebM · Vertical 1080×1920 (9:16) · Up to 10 minutes · Max 4 GB',
       }}
+      onMediaChange={onMediaChange}
       onAddMediaFromLibrary={(items) => onMediaChange?.([...media, ...items])}
       onUploadMedia={onMediaUpload}
       onRemoveMedia={removeMedia}

@@ -20,7 +20,8 @@ import {
   Instagram, Facebook, Linkedin, Twitter,
   MoreVertical, Edit2, Trash2, Clock,
   Calendar, ChevronRight, GripVertical,
-  ArrowRight
+  ArrowRight, Image, Video, Film, SquareStack,
+  Copy
 } from 'lucide-react';
 
 // Platform configurations
@@ -37,6 +38,15 @@ const STATUS_COLORS = {
   published: '#10B981', // green
   failed: '#EF4444',    // red
   draft: '#6B7280',     // gray
+};
+
+// Content type configurations
+const CONTENT_TYPE_CONFIG = {
+  image: { icon: Image, label: 'Photo' },
+  video: { icon: Video, label: 'Video' },
+  reel: { icon: Film, label: 'Reel' },
+  story: { icon: Film, label: 'Story' },
+  carousel: { icon: SquareStack, label: 'Carousel' },
 };
 
 // View-specific styles
@@ -62,20 +72,40 @@ const CardContainer = styled.div`
   position: relative;
   display: flex;
   align-items: flex-start;
-  gap: ${props => props.$view === 'month' ? '6px' : '10px'};
+  gap: ${props => props.$view === 'month' ? '8px' : '12px'};
   background: ${props => props.$platformBg || 'rgba(255, 255, 255, 0.05)'};
-  border-radius: ${props => props.$view === 'month' ? '6px' : '8px'};
+  border-radius: ${props => props.$view === 'month' ? '6px' : '10px'};
   cursor: ${props => props.$isDragging ? 'grabbing' : 'pointer'};
-  transition: all 0.2s ease;
-  box-shadow: ${props => props.$isDragging ? '0 8px 24px rgba(0, 0, 0, 0.3)' : '0 1px 3px rgba(0, 0, 0, 0.1)'};
-  border-left: 3px solid ${props => props.$statusColor || '#6B7280'};
-  opacity: ${props => props.$isDragging ? 0.9 : 1};
-  transform: ${props => props.$isDragging ? 'scale(1.02)' : 'none'};
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: ${props => props.$isDragging
+    ? '0 12px 32px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(59, 130, 246, 0.3)'
+    : '0 1px 3px rgba(0, 0, 0, 0.1)'};
+  border-left: 4px solid ${props => props.$platformColor || '#6B7280'};
+  opacity: ${props => props.$isDragging ? 0.75 : 1};
+  transform: ${props => props.$isDragging ? 'scale(1.05) rotate(2deg)' : 'none'};
   ${props => viewStyles[props.$view || 'day']}
 
+  ${props => props.$isDragging && `
+    z-index: 1000;
+    filter: brightness(1.1);
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(135deg,
+        rgba(59, 130, 246, 0.1),
+        rgba(147, 51, 234, 0.1));
+      pointer-events: none;
+    }
+  `}
+
   &:hover {
-    transform: ${props => props.$isDragging ? 'scale(1.02)' : 'translateX(2px)'};
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: ${props => props.$isDragging ? 'scale(1.05) rotate(2deg)' : 'scale(1.02) translateX(2px)'};
+    box-shadow: ${props => props.$isDragging
+      ? '0 12px 32px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(59, 130, 246, 0.3)'
+      : '0 6px 20px rgba(0, 0, 0, 0.2)'};
     background: ${props => props.$platformBg ? props.$platformBg.replace('0.15', '0.25') : 'rgba(255, 255, 255, 0.08)'};
   }
 
@@ -85,7 +115,7 @@ const CardContainer = styled.div`
   }
 
   &:active {
-    transform: translateX(1px);
+    transform: scale(1.01) translateX(1px);
   }
 `;
 
@@ -119,8 +149,8 @@ const DragHandle = styled.div`
 `;
 
 const PlatformIcon = styled.div`
-  width: ${props => props.$view === 'month' ? '20px' : props.$view === 'week' ? '24px' : '32px'};
-  height: ${props => props.$view === 'month' ? '20px' : props.$view === 'week' ? '24px' : '32px'};
+  width: ${props => props.$view === 'month' ? '24px' : props.$view === 'week' ? '28px' : '36px'};
+  height: ${props => props.$view === 'month' ? '24px' : props.$view === 'week' ? '28px' : '36px'};
   border-radius: 50%;
   background: ${props => props.$color || '#6B7280'};
   display: flex;
@@ -128,10 +158,11 @@ const PlatformIcon = styled.div`
   justify-content: center;
   flex-shrink: 0;
   color: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 
   svg {
-    width: ${props => props.$view === 'month' ? '10px' : props.$view === 'week' ? '12px' : '16px'};
-    height: ${props => props.$view === 'month' ? '10px' : props.$view === 'week' ? '12px' : '16px'};
+    width: ${props => props.$view === 'month' ? '12px' : props.$view === 'week' ? '14px' : '18px'};
+    height: ${props => props.$view === 'month' ? '12px' : props.$view === 'week' ? '14px' : '18px'};
   }
 `;
 
@@ -146,10 +177,13 @@ const ContentArea = styled.div`
 const PostTitle = styled.div`
   font-weight: 500;
   color: ${props => props.theme.colors.text.primary};
-  white-space: nowrap;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.3;
+  word-break: break-word;
 `;
 
 const PostTime = styled.div`
@@ -165,13 +199,91 @@ const PostTime = styled.div`
   }
 `;
 
-const StatusBar = styled.div`
+const StatusDot = styled.div`
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 4px;
+  top: 8px;
+  right: 8px;
+  width: ${props => props.$view === 'month' ? '6px' : '8px'};
+  height: ${props => props.$view === 'month' ? '6px' : '8px'};
+  border-radius: 50%;
   background: ${props => props.$color || '#6B7280'};
+  box-shadow: 0 0 0 2px ${props => props.theme.colors.background.paper},
+              0 2px 4px rgba(0, 0, 0, 0.2);
+`;
+
+const ContentTypeIcon = styled.div`
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  width: ${props => props.$view === 'month' ? '16px' : '20px'};
+  height: ${props => props.$view === 'month' ? '16px' : '20px'};
+  border-radius: 4px;
+  background: ${props => props.theme.colors.background.paper};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${props => props.theme.colors.text.secondary};
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  opacity: 0.9;
+
+  svg {
+    width: ${props => props.$view === 'month' ? '10px' : '12px'};
+    height: ${props => props.$view === 'month' ? '10px' : '12px'};
+  }
+`;
+
+const QuickActions = styled.div`
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: all 0.2s ease;
+  pointer-events: none;
+
+  ${CardContainer}:hover & {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+`;
+
+const QuickActionButton = styled.button`
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: ${props => props.$danger
+    ? props.theme.colors.error.main
+    : props.theme.colors.background.paper};
+  border: 1px solid ${props => props.$danger
+    ? props.theme.colors.error.dark
+    : props.theme.colors.border.default};
+  color: ${props => props.$danger ? 'white' : props.theme.colors.text.primary};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    background: ${props => props.$danger
+      ? props.theme.colors.error.dark
+      : props.theme.colors.background.hover};
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
 `;
 
 const MenuButton = styled.button`
@@ -268,6 +380,7 @@ export default function CalendarPostCard({
   platform = 'instagram',
   onEdit,
   onDelete,
+  onDuplicate,
   onReschedule,
   onClick,
   onDragStart,
@@ -286,7 +399,7 @@ export default function CalendarPostCard({
   const PlatformIconComponent = platformConfig.icon;
   const statusColor = STATUS_COLORS[post?.status] || STATUS_COLORS.draft;
 
-  const title = post?.content?.substring(0, 30) || 'Untitled Post';
+  const title = post?.content?.substring(0, 100) || 'Untitled Post';
   const scheduledDate = post?.scheduled_for ? new Date(post.scheduled_for) : null;
   const time = scheduledDate
     ? scheduledDate.toLocaleTimeString('en-US', {
@@ -295,6 +408,24 @@ export default function CalendarPostCard({
         hour12: true,
       })
     : '';
+
+  // Determine content type based on post_media
+  const getContentType = () => {
+    const media = post?.post_media;
+    if (!media || media.length === 0) return null;
+
+    if (media.length > 1) return 'carousel';
+
+    const firstMedia = media[0];
+    if (firstMedia.media_type === 'video') return 'reel';
+    if (firstMedia.media_type === 'image') return 'image';
+
+    return 'image';
+  };
+
+  const contentType = getContentType();
+  const contentTypeConfig = contentType ? CONTENT_TYPE_CONFIG[contentType] : null;
+  const ContentTypeIconComponent = contentTypeConfig?.icon;
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -372,6 +503,12 @@ export default function CalendarPostCard({
     }
   };
 
+  const handleDuplicate = (e) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    onDuplicate?.(post);
+  };
+
   // Quick reschedule options
   const handleQuickReschedule = (hours) => {
     setShowMenu(false);
@@ -430,7 +567,7 @@ export default function CalendarPostCard({
       ref={cardRef}
       $view={view}
       $platformBg={platformConfig.bg}
-      $statusColor={statusColor}
+      $platformColor={platformConfig.color}
       $isDragging={isDragging}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
@@ -453,7 +590,7 @@ export default function CalendarPostCard({
       </PlatformIcon>
 
       <ContentArea>
-        <PostTitle>{title}{title.length >= 30 ? '...' : ''}</PostTitle>
+        <PostTitle>{title}</PostTitle>
         {view !== 'month' && (
           <PostTime $view={view}>
             <Clock />
@@ -462,7 +599,41 @@ export default function CalendarPostCard({
         )}
       </ContentArea>
 
-      <StatusBar $color={statusColor} />
+      <StatusDot $view={view} $color={statusColor} />
+
+      {contentTypeConfig && ContentTypeIconComponent && (
+        <ContentTypeIcon $view={view} title={contentTypeConfig.label}>
+          <ContentTypeIconComponent />
+        </ContentTypeIcon>
+      )}
+
+      {/* Quick action buttons on hover */}
+      {view !== 'month' && (
+        <QuickActions>
+          <QuickActionButton
+            onClick={handleEdit}
+            title="Edit post"
+            aria-label="Edit post"
+          >
+            <Edit2 />
+          </QuickActionButton>
+          <QuickActionButton
+            onClick={handleDuplicate}
+            title="Duplicate post"
+            aria-label="Duplicate post"
+          >
+            <Copy />
+          </QuickActionButton>
+          <QuickActionButton
+            $danger
+            onClick={handleDelete}
+            title="Delete post"
+            aria-label="Delete post"
+          >
+            <Trash2 />
+          </QuickActionButton>
+        </QuickActions>
+      )}
 
       {view !== 'month' && (
         <>

@@ -369,6 +369,7 @@ export default function TwitterComposer({
         allowedTypes: ['image', 'video'],
         recommendation: 'Images: JPG, PNG, GIF · Videos: MP4, MOV · Max 4 items · Recommended: 1600×900 or 16:9 aspect ratio',
       }}
+      onMediaChange={onMediaChange}
       onAddMediaFromLibrary={(items) => onMediaChange?.([...media, ...items])}
       onUploadMedia={onMediaUpload}
       onRemoveMedia={removeMedia}

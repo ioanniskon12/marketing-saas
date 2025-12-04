@@ -447,6 +447,7 @@ export default function LinkedInComposer({
           ? 'Video: MP4, MOV · max 5 GB · 3 seconds to 10 minutes'
           : 'Images: JPG, PNG · Recommended: 1200×627 · up to 9 images',
       }}
+      onMediaChange={onMediaChange}
       onAddMediaFromLibrary={(items) => onMediaChange?.([...media, ...items])}
       onUploadMedia={onMediaUpload}
       onRemoveMedia={removeMedia}

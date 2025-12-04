@@ -618,6 +618,9 @@ export default function BaseComposerLayout({
   hashtagsHint = '',
   showHashtags = true,
 
+  // Media Library
+  showMediaLibrary = true,
+
   // Platform-specific
   platformSpecificFields,
 }) {
@@ -756,13 +759,15 @@ export default function BaseComposerLayout({
       )}
 
       {/* Media Section - Inline Media Panel */}
-      <InlineMediaPanel
-        platform={platform || 'facebook'}
-        selectedMedia={mediaState.selectedMedia || []}
-        onMediaSelect={onMediaChange}
-        maxSelection={mediaState.maxItems || 10}
-        designTheme={designTheme}
-      />
+      {showMediaLibrary && (
+        <InlineMediaPanel
+          platform={platform || 'facebook'}
+          selectedMedia={mediaState.selectedMedia || []}
+          onMediaSelect={onMediaChange}
+          maxSelection={mediaState.maxItems || 10}
+          designTheme={designTheme}
+        />
+      )}
 
       {/* Hashtags Section */}
       {showHashtags && (

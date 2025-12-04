@@ -36,6 +36,7 @@ const TitleInput = styled.input`
   font-weight: ${props => props.theme.typography.fontWeight.semibold};
   transition: border-color ${props => props.theme.transitions.fast};
   color: ${props => props.theme.colors.text.primary};
+  background: ${props => props.theme.colors.background.paper};
 
   &:focus {
     outline: none;
@@ -102,7 +103,7 @@ const TagsInput = styled.div`
   border: 2px solid ${props => props.theme.colors.neutral[300]};
   border-radius: ${props => props.theme.borderRadius.md};
   min-height: 100px;
-  background: white;
+  background: ${props => props.theme.colors.background.paper};
 
   &:focus-within {
     border-color: ${props => props.theme.colors.primary.main};
@@ -143,6 +144,7 @@ const TagInput = styled.input`
   font-size: ${props => props.theme.typography.fontSize.sm};
   padding: ${props => props.theme.spacing.xs};
   color: ${props => props.theme.colors.text.primary};
+  background: transparent;
 
   &::placeholder {
     color: ${props => props.theme.colors.text.secondary};
@@ -201,7 +203,7 @@ const CategorySelect = styled.select`
   border-radius: ${props => props.theme.borderRadius.md};
   font-size: ${props => props.theme.typography.fontSize.base};
   cursor: pointer;
-  background: white;
+  background: ${props => props.theme.colors.background.paper};
   color: ${props => props.theme.colors.text.primary};
 
   &:focus {
@@ -338,7 +340,15 @@ export default function YouTubeComposer({
       <div>
         <Label>
           <TagIcon size={16} />
-          Tags (Max 15)
+          Tags
+          <span style={{
+            marginLeft: 'auto',
+            fontSize: '12px',
+            fontWeight: 'normal',
+            opacity: 0.7
+          }}>
+            {Array.isArray(tags) ? tags.length : 0}/15
+          </span>
         </Label>
         <TagsInput>
           {Array.isArray(tags) && tags.map((tag, index) => (
@@ -448,11 +458,13 @@ export default function YouTubeComposer({
         allowedTypes: ['video'],
         recommendation: 'Video: MP4, MOV, WebM · 16:9 aspect ratio recommended · Up to 256 GB · Max 12 hours',
       }}
+      onMediaChange={onMediaChange}
       onAddMediaFromLibrary={(items) => onMediaChange?.([...media, ...items])}
       onUploadMedia={onMediaUpload}
       onRemoveMedia={removeMedia}
       onOpenMediaLibrary={onOpenMediaLibrary}
       showHashtags={false}
+      showMediaLibrary={false}
       platformSpecificFields={platformSpecificFields}
     />
   );
