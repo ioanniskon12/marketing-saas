@@ -9,10 +9,11 @@
 
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Image as ImageIcon, Video, Upload, X, Check, Loader } from 'lucide-react';
+import { Image as ImageIcon, Video, Upload, X, Check, Loader, Crop, Scissors } from 'lucide-react';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { showToast } from '@/components/ui/Toast';
 import { createClient } from '@/lib/supabase/client';
+import ImageCropper from './ImageCropper';
 
 const PanelContainer = styled.div`
   border: ${props => {
@@ -200,6 +201,44 @@ const SelectionCheck = styled.div`
   }
 `;
 
+const CropButton = styled.button`
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.2s;
+  z-index: 10;
+
+  &:hover {
+    background: rgba(139, 92, 246, 0.9);
+    border-color: rgba(139, 92, 246, 1);
+    transform: scale(1.1);
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+`;
+
+const MediaItemWrapper = styled.div`
+  position: relative;
+
+  &:hover ${CropButton} {
+    opacity: 1;
+  }
+`;
+
 const EmptyLibrary = styled.div`
   grid-column: 1 / -1;
   text-align: center;
@@ -381,8 +420,65 @@ export default function InlineMediaPanel({
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState(null);
 
   const hint = PLATFORM_HINTS[platform] || PLATFORM_HINTS.facebook;
+
+  // Open image cropper
+  const handleOpenCropper = (e, item) => {
+    e.stopPropagation();
+    if (item.type === 'image') {
+      setImageToCrop(item);
+      setCropperOpen(true);
+    }
+  };
+
+  // Handle crop complete
+  const handleCropComplete = async (croppedData) => {
+    if (!currentWorkspace || !imageToCrop) return;
+
+    try {
+      // Upload cropped image
+      const fileName = `cropped-${Date.now()}-${imageToCrop.name}`;
+      const filePath = `${currentWorkspace.id}/${fileName}`;
+
+      const { error } = await supabase.storage
+        .from('media')
+        .upload(filePath, croppedData.file);
+
+      if (error) throw error;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('media')
+        .getPublicUrl(filePath);
+
+      const newMediaItem = {
+        id: `cropped-${Date.now()}`,
+        name: fileName,
+        file_url: urlData.publicUrl,
+        url: urlData.publicUrl,
+        type: 'image',
+        width: croppedData.width,
+        height: croppedData.height,
+      };
+
+      // Add to selection
+      onMediaSelect([...selectedMedia, newMediaItem]);
+
+      // Refresh library
+      loadLibrary();
+
+      showToast.success('Image cropped and saved!');
+    } catch (error) {
+      console.error('Error saving cropped image:', error);
+      showToast.error('Failed to save cropped image');
+    }
+
+    setCropperOpen(false);
+    setImageToCrop(null);
+  };
 
   useEffect(() => {
     loadLibrary();
@@ -536,26 +632,35 @@ export default function InlineMediaPanel({
               {library.map(item => {
                 const isSelected = selectedMedia.some(m => m.id === item.id);
                 return (
-                  <MediaItem
-                    key={item.id}
-                    $selected={isSelected}
-                    $designTheme={designTheme}
-                    onClick={() => handleItemClick(item)}
-                  >
-                    {item.type === 'video' ? (
-                      <video src={item.url} />
-                    ) : (
-                      <img src={item.url} alt={item.name} />
+                  <MediaItemWrapper key={item.id}>
+                    <MediaItem
+                      $selected={isSelected}
+                      $designTheme={designTheme}
+                      onClick={() => handleItemClick(item)}
+                    >
+                      {item.type === 'video' ? (
+                        <video src={item.url} />
+                      ) : (
+                        <img src={item.url} alt={item.name} />
+                      )}
+                      <MediaTypeIcon>
+                        {item.type === 'video' ? <Video /> : <ImageIcon />}
+                      </MediaTypeIcon>
+                      {isSelected && (
+                        <SelectionCheck>
+                          <Check />
+                        </SelectionCheck>
+                      )}
+                    </MediaItem>
+                    {item.type === 'image' && (
+                      <CropButton
+                        onClick={(e) => handleOpenCropper(e, item)}
+                        title="Crop & Resize"
+                      >
+                        <Scissors />
+                      </CropButton>
                     )}
-                    <MediaTypeIcon>
-                      {item.type === 'video' ? <Video /> : <ImageIcon />}
-                    </MediaTypeIcon>
-                    {isSelected && (
-                      <SelectionCheck>
-                        <Check />
-                      </SelectionCheck>
-                    )}
-                  </MediaItem>
+                  </MediaItemWrapper>
                 );
               })}
             </LibraryGrid>
@@ -606,6 +711,29 @@ export default function InlineMediaPanel({
           />
         </UploaderSection>
       </PanelContent>
+
+      {/* Image Cropper Modal */}
+      {cropperOpen && imageToCrop && (
+        <ImageCropper
+          imageUrl={imageToCrop.url || imageToCrop.file_url}
+          imageName={imageToCrop.name}
+          platform={platform}
+          onCropComplete={handleCropComplete}
+          onCancel={() => {
+            setCropperOpen(false);
+            setImageToCrop(null);
+          }}
+          defaultPreset={
+            platform === 'youtube' ? 'youtube_thumbnail' :
+            platform === 'instagram' ? 'instagram_post' :
+            platform === 'tiktok' ? 'tiktok_video' :
+            platform === 'facebook' ? 'facebook_post' :
+            platform === 'linkedin' ? 'linkedin_post' :
+            platform === 'twitter' ? 'twitter_post' :
+            'square'
+          }
+        />
+      )}
     </PanelContainer>
   );
 }

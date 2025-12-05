@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import styled, { keyframes } from 'styled-components';
 import { Instagram, Facebook, Linkedin, Twitter, Music, Youtube, CheckCircle, AlertCircle, Clock, Link2, Unlink, AlertTriangle } from 'lucide-react';
@@ -354,6 +354,9 @@ export default function AccountsPage() {
     }
   }, [currentWorkspace]);
 
+  // Track if we've already shown the toast for this callback
+  const toastShownRef = useRef(false);
+
   // Handle OAuth callback messages
   useEffect(() => {
     const success = searchParams.get('success');
@@ -361,13 +364,18 @@ export default function AccountsPage() {
     const platform = searchParams.get('platform');
     const details = searchParams.get('details');
 
+    // Only show toast once per callback
+    if (toastShownRef.current) return;
+
     if (success === 'account_connected' && platform) {
+      toastShownRef.current = true;
       showToast.success(`${PLATFORM_CONFIG[platform]?.name || platform} connected successfully!`);
       if (currentWorkspace) {
         loadAccounts();
       }
       window.history.replaceState({}, '', '/dashboard/accounts');
     } else if (error) {
+      toastShownRef.current = true;
       let errorMessage = 'Failed to connect account';
       if (error === 'connection_failed' && details) {
         errorMessage = `Connection failed: ${decodeURIComponent(details)}`;

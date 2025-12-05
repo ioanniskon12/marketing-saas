@@ -66,13 +66,17 @@ export async function POST(request, { params }) {
         let result;
 
         if (account.platform === 'facebook') {
-          result = await publishToFacebook(post, account);
+          result = await publishToFacebook(post, account, supabase);
         } else if (account.platform === 'instagram') {
-          result = await publishToInstagram(post, account);
+          result = await publishToInstagram(post, account, supabase);
         } else if (account.platform === 'twitter') {
-          result = await publishToTwitter(post, account);
+          result = await publishToTwitter(post, account, supabase);
         } else if (account.platform === 'youtube') {
-          result = await publishToYouTube(post, account);
+          result = await publishToYouTube(post, account, supabase);
+        } else if (account.platform === 'linkedin') {
+          result = await publishToLinkedIn(post, account, supabase);
+        } else if (account.platform === 'tiktok') {
+          result = await publishToTikTok(post, account, supabase);
         } else {
           errors.push(`Platform ${account.platform} not supported yet`);
           continue;
@@ -126,13 +130,47 @@ export async function POST(request, { params }) {
   }
 }
 
-async function publishToFacebook(post, account) {
+async function publishToFacebook(post, account, supabase) {
   try {
-    const pageAccessToken = account.access_token;
+    let pageAccessToken = account.access_token;
     const pageId = account.platform_account_id;
 
     if (!pageAccessToken || !pageId) {
       return { success: false, error: 'Missing Facebook credentials' };
+    }
+
+    // Check if token needs refresh (Facebook Page tokens are long-lived but can expire)
+    const tokenExpiresAt = account.token_expires_at ? new Date(account.token_expires_at) : null;
+    const isExpired = tokenExpiresAt && tokenExpiresAt < new Date();
+
+    if (isExpired && account.refresh_token) {
+      console.log('Facebook token expired, refreshing...');
+      try {
+        const { refreshAccessToken } = await import('@/lib/oauth/config');
+        const tokenData = await refreshAccessToken('facebook', account.refresh_token);
+        pageAccessToken = tokenData.access_token;
+
+        const expiresAt = tokenData.expires_in
+          ? new Date(Date.now() + tokenData.expires_in * 1000).toISOString()
+          : null;
+
+        await supabase
+          .from('social_accounts')
+          .update({
+            access_token: pageAccessToken,
+            token_expires_at: expiresAt,
+            refresh_token: tokenData.refresh_token || account.refresh_token,
+          })
+          .eq('id', account.id);
+
+        console.log('Facebook token refreshed successfully');
+      } catch (refreshError) {
+        console.error('Failed to refresh Facebook token:', refreshError);
+        return {
+          success: false,
+          error: 'Facebook token expired and refresh failed. Please reconnect your Facebook account.',
+        };
+      }
     }
 
     // Prepare the post message
@@ -263,13 +301,47 @@ async function publishToFacebook(post, account) {
   }
 }
 
-async function publishToInstagram(post, account) {
+async function publishToInstagram(post, account, supabase) {
   try {
-    const accessToken = account.access_token;
+    let accessToken = account.access_token;
     const instagramAccountId = account.platform_account_id;
 
     if (!accessToken || !instagramAccountId) {
       return { success: false, error: 'Missing Instagram credentials' };
+    }
+
+    // Check if token needs refresh
+    const tokenExpiresAt = account.token_expires_at ? new Date(account.token_expires_at) : null;
+    const isExpired = tokenExpiresAt && tokenExpiresAt < new Date();
+
+    if (isExpired && account.refresh_token) {
+      console.log('Instagram token expired, refreshing...');
+      try {
+        const { refreshAccessToken } = await import('@/lib/oauth/config');
+        const tokenData = await refreshAccessToken('instagram', account.refresh_token);
+        accessToken = tokenData.access_token;
+
+        const expiresAt = tokenData.expires_in
+          ? new Date(Date.now() + tokenData.expires_in * 1000).toISOString()
+          : null;
+
+        await supabase
+          .from('social_accounts')
+          .update({
+            access_token: accessToken,
+            token_expires_at: expiresAt,
+            refresh_token: tokenData.refresh_token || account.refresh_token,
+          })
+          .eq('id', account.id);
+
+        console.log('Instagram token refreshed successfully');
+      } catch (refreshError) {
+        console.error('Failed to refresh Instagram token:', refreshError);
+        return {
+          success: false,
+          error: 'Instagram token expired and refresh failed. Please reconnect your Instagram account.',
+        };
+      }
     }
 
     // Prepare caption
@@ -436,13 +508,47 @@ async function publishToInstagram(post, account) {
   }
 }
 
-async function publishToTwitter(post, account) {
+async function publishToTwitter(post, account, supabase) {
   try {
-    const accessToken = account.access_token;
+    let accessToken = account.access_token;
     const userId = account.platform_account_id;
 
     if (!accessToken) {
       return { success: false, error: 'Missing Twitter credentials' };
+    }
+
+    // Check if token needs refresh
+    const tokenExpiresAt = account.token_expires_at ? new Date(account.token_expires_at) : null;
+    const isExpired = tokenExpiresAt && tokenExpiresAt < new Date();
+
+    if (isExpired && account.refresh_token) {
+      console.log('Twitter token expired, refreshing...');
+      try {
+        const { refreshAccessToken } = await import('@/lib/oauth/config');
+        const tokenData = await refreshAccessToken('twitter', account.refresh_token);
+        accessToken = tokenData.access_token;
+
+        const expiresAt = tokenData.expires_in
+          ? new Date(Date.now() + tokenData.expires_in * 1000).toISOString()
+          : null;
+
+        await supabase
+          .from('social_accounts')
+          .update({
+            access_token: accessToken,
+            token_expires_at: expiresAt,
+            refresh_token: tokenData.refresh_token || account.refresh_token,
+          })
+          .eq('id', account.id);
+
+        console.log('Twitter token refreshed successfully');
+      } catch (refreshError) {
+        console.error('Failed to refresh Twitter token:', refreshError);
+        return {
+          success: false,
+          error: 'Twitter token expired and refresh failed. Please reconnect your Twitter account.',
+        };
+      }
     }
 
     // Prepare tweet text
@@ -583,12 +689,47 @@ async function publishToTwitter(post, account) {
   }
 }
 
-async function publishToYouTube(post, account) {
+async function publishToYouTube(post, account, supabase) {
   try {
-    const accessToken = account.access_token;
+    let accessToken = account.access_token;
 
     if (!accessToken) {
       return { success: false, error: 'Missing YouTube credentials' };
+    }
+
+    // Check if token needs refresh (YouTube tokens expire after 1 hour)
+    const tokenExpiresAt = account.token_expires_at ? new Date(account.token_expires_at) : null;
+    const isExpired = tokenExpiresAt && tokenExpiresAt < new Date();
+
+    if (isExpired && account.refresh_token) {
+      console.log('YouTube token expired, refreshing...');
+      try {
+        const { refreshAccessToken } = await import('@/lib/oauth/config');
+        const tokenData = await refreshAccessToken('youtube', account.refresh_token);
+        accessToken = tokenData.access_token;
+
+        // Update the token in the database
+        const expiresAt = tokenData.expires_in
+          ? new Date(Date.now() + tokenData.expires_in * 1000).toISOString()
+          : null;
+
+        await supabase
+          .from('social_accounts')
+          .update({
+            access_token: accessToken,
+            token_expires_at: expiresAt,
+            refresh_token: tokenData.refresh_token || account.refresh_token,
+          })
+          .eq('id', account.id);
+
+        console.log('YouTube token refreshed successfully');
+      } catch (refreshError) {
+        console.error('Failed to refresh YouTube token:', refreshError);
+        return {
+          success: false,
+          error: 'YouTube token expired and refresh failed. Please reconnect your YouTube account.',
+        };
+      }
     }
 
     // YouTube requires video content - check if we have a video
@@ -714,6 +855,418 @@ async function publishToYouTube(post, account) {
 
   } catch (error) {
     console.error('Error publishing to YouTube:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+async function publishToLinkedIn(post, account, supabase) {
+  try {
+    let accessToken = account.access_token;
+
+    if (!accessToken) {
+      return { success: false, error: 'Missing LinkedIn credentials' };
+    }
+
+    // Check if token needs refresh
+    const tokenExpiresAt = account.token_expires_at ? new Date(account.token_expires_at) : null;
+    const isExpired = tokenExpiresAt && tokenExpiresAt < new Date();
+
+    if (isExpired && account.refresh_token) {
+      console.log('LinkedIn token expired, refreshing...');
+      try {
+        const { refreshAccessToken } = await import('@/lib/oauth/config');
+        const tokenData = await refreshAccessToken('linkedin', account.refresh_token);
+        accessToken = tokenData.access_token;
+
+        const expiresAt = tokenData.expires_in
+          ? new Date(Date.now() + tokenData.expires_in * 1000).toISOString()
+          : null;
+
+        await supabase
+          .from('social_accounts')
+          .update({
+            access_token: accessToken,
+            token_expires_at: expiresAt,
+            refresh_token: tokenData.refresh_token || account.refresh_token,
+          })
+          .eq('id', account.id);
+
+        console.log('LinkedIn token refreshed successfully');
+      } catch (refreshError) {
+        console.error('Failed to refresh LinkedIn token:', refreshError);
+        return {
+          success: false,
+          error: 'LinkedIn token expired and refresh failed. Please reconnect your LinkedIn account.',
+        };
+      }
+    }
+
+    // Get user's LinkedIn URN (person ID)
+    const personUrn = account.platform_account_id;
+
+    if (!personUrn) {
+      return { success: false, error: 'Missing LinkedIn person URN' };
+    }
+
+    // Prepare post content
+    let postText = post.content || '';
+
+    // Add hashtags
+    if (post.hashtags && post.hashtags.length > 0) {
+      const hashtagString = post.hashtags.map(tag => `#${tag}`).join(' ');
+      postText = postText + '\n\n' + hashtagString;
+    }
+
+    console.log('Publishing to LinkedIn:', {
+      personUrn,
+      textLength: postText.length,
+      hasMedia: post.post_media && post.post_media.length > 0,
+      mediaCount: post.post_media?.length || 0
+    });
+
+    // Get media if available
+    const media = post.post_media || [];
+    const imageMedia = media.filter(m => m.media_type === 'image');
+
+    let shareContent;
+
+    // Case 1: Post with images
+    if (imageMedia.length > 0) {
+      // LinkedIn requires registering assets first
+      const assetUrns = [];
+
+      for (const mediaItem of imageMedia) {
+        try {
+          // Step 1: Register the upload
+          const registerResponse = await fetch(
+            'https://api.linkedin.com/v2/assets?action=registerUpload',
+            {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                registerUploadRequest: {
+                  recipes: ['urn:li:digitalmediaRecipe:feedshare-image'],
+                  owner: `urn:li:person:${personUrn}`,
+                  serviceRelationships: [
+                    {
+                      relationshipType: 'OWNER',
+                      identifier: 'urn:li:userGeneratedContent',
+                    },
+                  ],
+                },
+              }),
+            }
+          );
+
+          if (!registerResponse.ok) {
+            const error = await registerResponse.text();
+            console.error('LinkedIn asset registration error:', error);
+            continue;
+          }
+
+          const registerData = await registerResponse.json();
+          const uploadUrl = registerData.value?.uploadMechanism?.['com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest']?.uploadUrl;
+          const asset = registerData.value?.asset;
+
+          if (!uploadUrl || !asset) {
+            console.error('Missing upload URL or asset from LinkedIn');
+            continue;
+          }
+
+          // Step 2: Download the image
+          const imageResponse = await fetch(mediaItem.file_url);
+          if (!imageResponse.ok) {
+            console.error('Failed to download image for LinkedIn');
+            continue;
+          }
+
+          const imageBuffer = await imageResponse.arrayBuffer();
+
+          // Step 3: Upload the image to LinkedIn
+          const uploadResponse = await fetch(uploadUrl, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+            },
+            body: Buffer.from(imageBuffer),
+          });
+
+          if (!uploadResponse.ok) {
+            const error = await uploadResponse.text();
+            console.error('LinkedIn image upload error:', error);
+            continue;
+          }
+
+          assetUrns.push(asset);
+        } catch (error) {
+          console.error('Error uploading image to LinkedIn:', error);
+        }
+      }
+
+      if (assetUrns.length > 0) {
+        shareContent = {
+          author: `urn:li:person:${personUrn}`,
+          lifecycleState: 'PUBLISHED',
+          specificContent: {
+            'com.linkedin.ugc.ShareContent': {
+              shareCommentary: {
+                text: postText,
+              },
+              shareMediaCategory: 'IMAGE',
+              media: assetUrns.map(urn => ({
+                status: 'READY',
+                media: urn,
+              })),
+            },
+          },
+          visibility: {
+            'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC',
+          },
+        };
+      }
+    }
+
+    // Case 2: Text-only post
+    if (!shareContent) {
+      shareContent = {
+        author: `urn:li:person:${personUrn}`,
+        lifecycleState: 'PUBLISHED',
+        specificContent: {
+          'com.linkedin.ugc.ShareContent': {
+            shareCommentary: {
+              text: postText,
+            },
+            shareMediaCategory: 'NONE',
+          },
+        },
+        visibility: {
+          'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC',
+        },
+      };
+    }
+
+    // Create the post
+    const postResponse = await fetch(
+      'https://api.linkedin.com/v2/ugcPosts',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'X-Restli-Protocol-Version': '2.0.0',
+        },
+        body: JSON.stringify(shareContent),
+      }
+    );
+
+    if (!postResponse.ok) {
+      const error = await postResponse.text();
+      console.error('LinkedIn post error:', error);
+      return {
+        success: false,
+        error: `Failed to post to LinkedIn: ${error}`,
+      };
+    }
+
+    // Get post ID from response header
+    const postId = postResponse.headers.get('X-RestLi-Id');
+
+    if (postId) {
+      return {
+        success: true,
+        postId: postId,
+        postUrl: `https://www.linkedin.com/feed/update/${postId}/`,
+      };
+    }
+
+    return { success: false, error: 'Unknown error posting to LinkedIn' };
+
+  } catch (error) {
+    console.error('Error publishing to LinkedIn:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+async function publishToTikTok(post, account, supabase) {
+  try {
+    let accessToken = account.access_token;
+
+    if (!accessToken) {
+      return { success: false, error: 'Missing TikTok credentials' };
+    }
+
+    // Check if token needs refresh
+    const tokenExpiresAt = account.token_expires_at ? new Date(account.token_expires_at) : null;
+    const isExpired = tokenExpiresAt && tokenExpiresAt < new Date();
+
+    if (isExpired && account.refresh_token) {
+      console.log('TikTok token expired, refreshing...');
+      try {
+        const { refreshAccessToken } = await import('@/lib/oauth/config');
+        const tokenData = await refreshAccessToken('tiktok', account.refresh_token);
+        accessToken = tokenData.access_token;
+
+        const expiresAt = tokenData.expires_in
+          ? new Date(Date.now() + tokenData.expires_in * 1000).toISOString()
+          : null;
+
+        await supabase
+          .from('social_accounts')
+          .update({
+            access_token: accessToken,
+            token_expires_at: expiresAt,
+            refresh_token: tokenData.refresh_token || account.refresh_token,
+          })
+          .eq('id', account.id);
+
+        console.log('TikTok token refreshed successfully');
+      } catch (refreshError) {
+        console.error('Failed to refresh TikTok token:', refreshError);
+        return {
+          success: false,
+          error: 'TikTok token expired and refresh failed. Please reconnect your TikTok account.',
+        };
+      }
+    }
+
+    // TikTok requires video content
+    const media = post.post_media || [];
+    const videoMedia = media.filter(m => m.media_type === 'video');
+
+    if (videoMedia.length === 0) {
+      return {
+        success: false,
+        error: 'TikTok requires a video file. Please add a video to this post.',
+      };
+    }
+
+    const openId = account.platform_account_id;
+
+    if (!openId) {
+      return { success: false, error: 'Missing TikTok user ID' };
+    }
+
+    // Prepare caption
+    let caption = post.content || '';
+
+    // Add hashtags
+    if (post.hashtags && post.hashtags.length > 0) {
+      const hashtagString = post.hashtags.map(tag => `#${tag}`).join(' ');
+      caption = caption + ' ' + hashtagString;
+    }
+
+    // TikTok caption limit is 150 characters
+    if (caption.length > 150) {
+      caption = caption.substring(0, 147) + '...';
+    }
+
+    console.log('Publishing to TikTok:', {
+      openId,
+      captionLength: caption.length,
+      hasVideo: true,
+    });
+
+    // Download the video
+    const videoUrl = videoMedia[0].file_url;
+    const videoResponse = await fetch(videoUrl);
+
+    if (!videoResponse.ok) {
+      return {
+        success: false,
+        error: `Failed to download video: ${videoResponse.statusText}`,
+      };
+    }
+
+    const videoBuffer = await videoResponse.arrayBuffer();
+    const videoSize = videoBuffer.byteLength;
+
+    // Step 1: Initialize upload
+    const initResponse = await fetch(
+      'https://open.tiktokapis.com/v2/post/publish/video/init/',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          post_info: {
+            title: caption,
+            privacy_level: 'PUBLIC_TO_EVERYONE',
+            disable_duet: false,
+            disable_comment: false,
+            disable_stitch: false,
+          },
+          source_info: {
+            source: 'FILE_UPLOAD',
+            video_size: videoSize,
+            chunk_size: videoSize, // Single chunk upload
+            total_chunk_count: 1,
+          },
+        }),
+      }
+    );
+
+    if (!initResponse.ok) {
+      const error = await initResponse.text();
+      console.error('TikTok init error:', error);
+      return {
+        success: false,
+        error: `Failed to initialize TikTok upload: ${error}`,
+      };
+    }
+
+    const initData = await initResponse.json();
+
+    if (initData.error?.code) {
+      return {
+        success: false,
+        error: initData.error.message || 'TikTok API error',
+      };
+    }
+
+    const uploadUrl = initData.data?.upload_url;
+    const publishId = initData.data?.publish_id;
+
+    if (!uploadUrl || !publishId) {
+      return {
+        success: false,
+        error: 'Failed to get upload URL from TikTok',
+      };
+    }
+
+    // Step 2: Upload video
+    const uploadResponse = await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'video/mp4',
+        'Content-Range': `bytes 0-${videoSize - 1}/${videoSize}`,
+      },
+      body: Buffer.from(videoBuffer),
+    });
+
+    if (!uploadResponse.ok) {
+      const error = await uploadResponse.text();
+      console.error('TikTok upload error:', error);
+      return {
+        success: false,
+        error: `Failed to upload video to TikTok: ${error}`,
+      };
+    }
+
+    // Return success with publish ID
+    // Note: TikTok videos go through processing and may not be immediately available
+    return {
+      success: true,
+      postId: publishId,
+      postUrl: `https://www.tiktok.com/@${account.platform_username}`,
+    };
+
+  } catch (error) {
+    console.error('Error publishing to TikTok:', error);
     return { success: false, error: error.message };
   }
 }

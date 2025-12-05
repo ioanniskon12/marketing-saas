@@ -162,16 +162,30 @@ export async function POST(request) {
     if ((!content || content.trim() === '') && platform_data) {
       // Get content from the first platform's data
       const firstPlatformKey = Object.keys(platform_data)[0];
-      if (firstPlatformKey && platform_data[firstPlatformKey]?.content) {
-        postContent = platform_data[firstPlatformKey].content;
+      if (firstPlatformKey) {
+        const platformContent = platform_data[firstPlatformKey];
+        // Check various content fields based on platform
+        postContent = platformContent?.content ||
+                      platformContent?.caption ||
+                      platformContent?.description ||
+                      platformContent?.title || '';
       }
     }
 
+    // For YouTube, content can be empty if title is provided
+    const isYouTube = platform_data && Object.keys(platform_data).includes('youtube');
+    const hasYouTubeTitle = isYouTube && platform_data.youtube?.title?.trim();
+
     if (!postContent || postContent.trim() === '') {
-      return NextResponse.json(
-        { error: 'Content is required' },
-        { status: 400 }
-      );
+      // Allow empty content for YouTube if title exists
+      if (!hasYouTubeTitle) {
+        return NextResponse.json(
+          { error: 'Content is required' },
+          { status: 400 }
+        );
+      }
+      // Use YouTube title as content if description is empty
+      postContent = platform_data.youtube.title;
     }
 
     // For scheduled posts, platforms are required. For drafts, they can be added later.

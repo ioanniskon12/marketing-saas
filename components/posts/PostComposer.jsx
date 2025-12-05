@@ -1913,6 +1913,7 @@ export default function PostComposer({
                 tags={data.hashtags || []}
                 category={data.category || ''}
                 visibility={data.visibility || 'public'}
+                thumbnail={data.thumbnail || null}
                 onMediaChange={(media) => updateActivePlatformData({ media })}
                 onTitleChange={(title) => {
                   const desc = data.content.split('\n').slice(1).join('\n');
@@ -1925,6 +1926,7 @@ export default function PostComposer({
                 onTagsChange={(val) => updateActivePlatformData({ hashtags: val })}
                 onCategoryChange={(val) => updateActivePlatformData({ category: val })}
                 onVisibilityChange={(val) => updateActivePlatformData({ visibility: val })}
+                onThumbnailChange={(val) => updateActivePlatformData({ thumbnail: val })}
                 onMediaUpload={() => setShowMediaLibrary(true)}
                 onOpenMediaLibrary={() => setShowMediaLibrary(true)}
               />

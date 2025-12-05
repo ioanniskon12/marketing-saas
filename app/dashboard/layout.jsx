@@ -9,7 +9,6 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import Sidebar from '@/components/dashboard/Sidebar';
-import { InboxProvider } from '@/contexts/InboxContext';
 
 const LayoutContainer = styled.div`
   display: flex;
@@ -77,22 +76,20 @@ export default function DashboardLayout({ children }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   return (
-    <InboxProvider>
-      <LayoutContainer>
-        <Sidebar
-          collapsed={sidebarCollapsed}
-          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-          mobileOpen={mobileSidebarOpen}
-          onMobileOpen={() => setMobileSidebarOpen(true)}
-          onMobileClose={() => setMobileSidebarOpen(false)}
-        />
+    <LayoutContainer>
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        mobileOpen={mobileSidebarOpen}
+        onMobileOpen={() => setMobileSidebarOpen(true)}
+        onMobileClose={() => setMobileSidebarOpen(false)}
+      />
 
-        <MainContent $sidebarCollapsed={sidebarCollapsed}>
-          <ContentArea>
-            {children}
-          </ContentArea>
-        </MainContent>
-      </LayoutContainer>
-    </InboxProvider>
+      <MainContent $sidebarCollapsed={sidebarCollapsed}>
+        <ContentArea>
+          {children}
+        </ContentArea>
+      </MainContent>
+    </LayoutContainer>
   );
 }

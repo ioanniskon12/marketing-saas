@@ -17,7 +17,6 @@ import {
   FileText,
   Image,
   Users,
-  Inbox,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -671,7 +670,6 @@ const navItems = [
     section: 'Manage',
     items: [
       { href: '/dashboard/team', label: 'Team', icon: Users },
-      { href: '/dashboard/inbox', label: 'Inbox', icon: Inbox },
       { href: '/dashboard/settings', label: 'Settings', icon: Settings },
     ],
   },

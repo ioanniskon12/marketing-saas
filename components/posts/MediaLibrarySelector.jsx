@@ -169,21 +169,23 @@ const Stats = styled.div`
   flex-wrap: wrap;
 `;
 
-export default function MediaLibrarySelector({ isOpen, onClose, onSelect, multiple = true }) {
+export default function MediaLibrarySelector({ isOpen, onClose, onSelect, multiple = true, filterType = 'all' }) {
   const { currentWorkspace } = useWorkspace();
   const [mediaItems, setMediaItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState('all'); // 'all', 'image', 'video'
+  const [filter, setFilter] = useState(filterType); // 'all', 'image', 'video'
   const [searchQuery, setSearchQuery] = useState('');
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
     if (isOpen && currentWorkspace) {
       loadMedia();
+      // Reset filter when opening with a specific filterType
+      setFilter(filterType);
     }
-  }, [isOpen, currentWorkspace]);
+  }, [isOpen, currentWorkspace, filterType]);
 
   useEffect(() => {
     // Apply filters and search

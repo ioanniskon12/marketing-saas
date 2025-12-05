@@ -842,9 +842,15 @@ export default function CreatePostPage() {
           return { platform, success: false, error: 'Account not found' };
         }
 
+        // Get content based on platform - YouTube uses description, others use caption
+        let contentValue = data.caption || '';
+        if (platform === 'youtube') {
+          contentValue = data.description || data.title || '';
+        }
+
         const postData = {
           workspace_id: currentWorkspace.id,
-          content: data.caption || '',
+          content: contentValue,
           platforms: [account.id],
           media: data.media || [],
           hashtags: data.hashtags || '',
@@ -1015,6 +1021,7 @@ export default function CreatePostPage() {
             tags={data.tags ? data.tags.split(',').filter(Boolean) : []}
             category={data.category || ''}
             visibility={data.visibility || 'public'}
+            thumbnail={data.thumbnail || null}
             onTitleChange={(title) => updatePlatformData('youtube', { title })}
             onContentChange={(description) => updatePlatformData('youtube', { description })}
             onMediaChange={(media) => updatePlatformData('youtube', { media })}
@@ -1023,6 +1030,7 @@ export default function CreatePostPage() {
             onTagsChange={(tags) => updatePlatformData('youtube', { tags: tags.join(',') })}
             onCategoryChange={(category) => updatePlatformData('youtube', { category })}
             onVisibilityChange={(visibility) => updatePlatformData('youtube', { visibility })}
+            onThumbnailChange={(thumbnail) => updatePlatformData('youtube', { thumbnail })}
           />
         );
       default:

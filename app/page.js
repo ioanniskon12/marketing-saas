@@ -646,14 +646,14 @@ export default function Home() {
         </FeatureContainer>
       </FeatureSection>
 
-      {/* Orange Section - Comment Management */}
+      {/* Orange Section - Media Library */}
       <FeatureSection $bg="linear-gradient(135deg, #ffd89b 0%, #ffc371 100%)">
         <FeatureContainer>
           <FeatureMockup $reverse />
           <FeatureContent $reverse>
-            <FeatureTitle $color="#7c2d12">Never miss a comment</FeatureTitle>
+            <FeatureTitle $color="#7c2d12">Organize your media</FeatureTitle>
             <FeatureDescription $color="#9a3412">
-              Respond to comments and messages across all platforms from one unified inbox. Keep your audience engaged.
+              Store, organize, and reuse your images and videos in a powerful media library. Keep your brand assets in one place.
             </FeatureDescription>
             <Button href="/register" $variant="primary">
               Get started <ArrowRight size={16} />
