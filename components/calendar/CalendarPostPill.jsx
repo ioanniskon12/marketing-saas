@@ -7,13 +7,15 @@
  * - Status color
  * - Hover tooltip
  * - Edit/Delete handlers
+ * - Action popup menu
  */
 
 'use client';
 
-import { useState } from 'react';
-import styled from 'styled-components';
-import { Instagram, Facebook, Linkedin, Twitter } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import styled, { useTheme, ThemeProvider } from 'styled-components';
+import { Instagram, Facebook, Linkedin, Twitter, Edit2, Trash2, Clock, Calendar, ArrowRight, Copy } from 'lucide-react';
 
 // Platform configurations
 const PLATFORM_CONFIG = {
@@ -113,6 +115,67 @@ const Tooltip = styled.div`
   }
 `;
 
+const DropdownMenu = styled.div`
+  position: fixed;
+  background: ${props => props.theme.colors.background.paper};
+  border: 1px solid ${props => props.theme.colors.border.default};
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  z-index: 9999;
+  min-width: 200px;
+  overflow: hidden;
+  padding: 6px 0;
+`;
+
+const MenuItem = styled.button`
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: ${props => props.$danger ? props.theme.colors.error.main : props.theme.colors.text.primary};
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: ${props => props.$danger ? 'rgba(239, 68, 68, 0.1)' : props.theme.colors.background.hover};
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+`;
+
+const MenuDivider = styled.div`
+  height: 1px;
+  background: ${props => props.theme.colors.border.default};
+  margin: 6px 0;
+`;
+
+const MenuLabel = styled.div`
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: ${props => props.theme.colors.text.secondary};
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+`;
+
+const SubMenuItem = styled(MenuItem)`
+  padding-left: 24px;
+  font-size: 12px;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+`;
+
 const MoreIndicator = styled.button`
   display: flex;
   align-items: center;
@@ -144,16 +207,24 @@ export default function CalendarPostPill({
   showTime = true,
   onEdit,
   onDelete,
+  onReschedule,
+  onDuplicate,
   onClick,
 }) {
   const [showTooltip, setShowTooltip] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const pillRef = useRef(null);
+  const menuRef = useRef(null);
+  const theme = useTheme();
 
   const platformConfig = PLATFORM_CONFIG[platform] || PLATFORM_CONFIG.instagram;
   const PlatformIcon = platformConfig.icon;
   const statusColor = STATUS_COLORS[post?.status] || STATUS_COLORS.draft;
 
-  const time = post?.scheduled_for
-    ? new Date(post.scheduled_for).toLocaleTimeString('en-US', {
+  const scheduledDate = post?.scheduled_for ? new Date(post.scheduled_for) : null;
+  const time = scheduledDate
+    ? scheduledDate.toLocaleTimeString('en-US', {
         hour: 'numeric',
         minute: '2-digit',
         hour12: true,
@@ -163,9 +234,63 @@ export default function CalendarPostPill({
   const title = post?.content?.substring(0, 20) || 'Untitled';
   const fullTitle = post?.content || 'Untitled Post';
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    if (!showMenu) return;
+
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target) &&
+          pillRef.current && !pillRef.current.contains(e.target)) {
+        setShowMenu(false);
+      }
+    };
+
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        setShowMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [showMenu]);
+
   const handleClick = (e) => {
     e.stopPropagation();
-    onClick?.(post);
+
+    // Calculate position for dropdown menu
+    if (pillRef.current) {
+      const rect = pillRef.current.getBoundingClientRect();
+      const menuHeight = 280;
+      const menuWidth = 200;
+      const viewportHeight = window.innerHeight;
+      const viewportWidth = window.innerWidth;
+
+      // Position below if space, otherwise above
+      let top = rect.bottom + 4;
+      if (top + menuHeight > viewportHeight) {
+        top = rect.top - menuHeight - 4;
+      }
+
+      // Position to the right, but keep in viewport
+      let left = rect.left;
+      if (left + menuWidth > viewportWidth) {
+        left = viewportWidth - menuWidth - 8;
+      }
+
+      setMenuPosition({
+        top: Math.max(8, top),
+        left: Math.max(8, left),
+      });
+    }
+
+    setShowMenu(true);
+    setShowTooltip(false);
   };
 
   const handleKeyDown = (e) => {
@@ -175,31 +300,131 @@ export default function CalendarPostPill({
     }
   };
 
-  return (
-    <PillContainer
-      $bg={platformConfig.bg}
-      $statusColor={statusColor}
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
-      onMouseEnter={() => setShowTooltip(true)}
-      onMouseLeave={() => setShowTooltip(false)}
-      onFocus={() => setShowTooltip(true)}
-      onBlur={() => setShowTooltip(false)}
-      tabIndex={0}
-      role="button"
-      aria-label={`${fullTitle} at ${time}`}
-    >
-      <PlatformDot $color={platformConfig.color}>
-        <PlatformIcon />
-      </PlatformDot>
-      <PillText>{showTime ? time : title}</PillText>
+  const handleEdit = (e) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    onEdit?.(post);
+  };
 
-      <Tooltip $visible={showTooltip}>
-        {fullTitle.length > 40 ? fullTitle.substring(0, 40) + '...' : fullTitle}
-        <br />
-        <span style={{ opacity: 0.7 }}>{time}</span>
-      </Tooltip>
-    </PillContainer>
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    if (window.confirm(`Delete this post?\n\n"${fullTitle.substring(0, 50)}..."`)) {
+      onDelete?.(post);
+    }
+  };
+
+  const handleDuplicate = (e) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    onDuplicate?.(post);
+  };
+
+  // Quick reschedule options
+  const handleQuickReschedule = (hours) => {
+    setShowMenu(false);
+    const newDate = new Date();
+    newDate.setHours(newDate.getHours() + hours);
+    newDate.setMinutes(0, 0, 0);
+    onReschedule?.(post, newDate);
+  };
+
+  const handleRescheduleToTomorrow = () => {
+    setShowMenu(false);
+    if (!scheduledDate) return;
+    const newDate = new Date();
+    newDate.setDate(newDate.getDate() + 1);
+    newDate.setHours(scheduledDate.getHours(), scheduledDate.getMinutes(), 0, 0);
+    onReschedule?.(post, newDate);
+  };
+
+  const handleRescheduleCustom = (e) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    onReschedule?.(post);
+  };
+
+  return (
+    <>
+      <PillContainer
+        ref={pillRef}
+        $bg={platformConfig.bg}
+        $statusColor={statusColor}
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
+        onMouseEnter={() => !showMenu && setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+        onFocus={() => !showMenu && setShowTooltip(true)}
+        onBlur={() => setShowTooltip(false)}
+        tabIndex={0}
+        role="button"
+        aria-label={`${fullTitle} at ${time}`}
+      >
+        <PlatformDot $color={platformConfig.color}>
+          <PlatformIcon />
+        </PlatformDot>
+        <PillText>{showTime ? time : title}</PillText>
+
+        <Tooltip $visible={showTooltip && !showMenu}>
+          {fullTitle.length > 40 ? fullTitle.substring(0, 40) + '...' : fullTitle}
+          <br />
+          <span style={{ opacity: 0.7 }}>{time}</span>
+        </Tooltip>
+      </PillContainer>
+
+      {showMenu && typeof document !== 'undefined' && createPortal(
+        <ThemeProvider theme={theme}>
+          <DropdownMenu
+            ref={menuRef}
+            style={{ top: menuPosition.top, left: menuPosition.left }}
+          >
+            <MenuItem onClick={handleEdit}>
+              <Edit2 />
+              Edit Post
+            </MenuItem>
+
+            {onDuplicate && (
+              <MenuItem onClick={handleDuplicate}>
+                <Copy />
+                Duplicate Post
+              </MenuItem>
+            )}
+
+            <MenuDivider />
+            <MenuLabel>Quick Reschedule</MenuLabel>
+
+            <SubMenuItem onClick={() => handleQuickReschedule(1)}>
+              <ArrowRight />
+              In 1 hour
+            </SubMenuItem>
+            <SubMenuItem onClick={() => handleQuickReschedule(2)}>
+              <ArrowRight />
+              In 2 hours
+            </SubMenuItem>
+            <SubMenuItem onClick={() => handleQuickReschedule(4)}>
+              <ArrowRight />
+              In 4 hours
+            </SubMenuItem>
+            <SubMenuItem onClick={handleRescheduleToTomorrow}>
+              <Calendar />
+              Tomorrow (same time)
+            </SubMenuItem>
+            <SubMenuItem onClick={handleRescheduleCustom}>
+              <Clock />
+              Choose date & time...
+            </SubMenuItem>
+
+            <MenuDivider />
+
+            <MenuItem $danger onClick={handleDelete}>
+              <Trash2 />
+              Delete Post
+            </MenuItem>
+          </DropdownMenu>
+        </ThemeProvider>,
+        document.body
+      )}
+    </>
   );
 }
 

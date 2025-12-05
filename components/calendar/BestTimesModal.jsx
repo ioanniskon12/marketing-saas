@@ -8,7 +8,7 @@
 
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { X, Clock, Search, Check, Calendar } from 'lucide-react';
+import { X, Clock, Search, Check, Calendar, MapPin, Loader2 } from 'lucide-react';
 import { countries, getDayByDayPostingTimes, platformInfo } from '@/lib/data/best-posting-times';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 
@@ -96,11 +96,6 @@ const CloseButton = styled.button`
 
 const Content = styled.div`
   padding: ${props => props.theme.spacing.xl};
-`;
-
-const SearchWrapper = styled.div`
-  position: relative;
-  margin-bottom: ${props => props.theme.spacing.lg};
 `;
 
 const SearchInput = styled.input`
@@ -305,6 +300,57 @@ const EmptyState = styled.div`
   color: ${props => props.theme.colors.text.secondary};
 `;
 
+const SearchRow = styled.div`
+  display: flex;
+  gap: ${props => props.theme.spacing.md};
+  margin-bottom: ${props => props.theme.spacing.lg};
+`;
+
+const SearchInputWrapper = styled.div`
+  position: relative;
+  flex: 1;
+`;
+
+const DetectLocationButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: ${props => props.theme.spacing.sm};
+  padding: ${props => props.theme.spacing.md} ${props => props.theme.spacing.lg};
+  background: linear-gradient(135deg, ${props => props.theme.colors.primary.main}, ${props => props.theme.colors.primary.dark});
+  color: white;
+  border: none;
+  border-radius: ${props => props.theme.borderRadius.lg};
+  font-size: ${props => props.theme.typography.fontSize.sm};
+  font-weight: ${props => props.theme.typography.fontWeight.semibold};
+  cursor: pointer;
+  transition: all ${props => props.theme.transitions.fast};
+  white-space: nowrap;
+  box-shadow: ${props => props.theme.shadows.md};
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: ${props => props.theme.shadows.lg};
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .spinning {
+    animation: spin 1s linear infinite;
+  }
+`;
+
 const daysOfWeek = [
   { key: 'monday', label: 'Monday' },
   { key: 'tuesday', label: 'Tuesday' },
@@ -319,6 +365,54 @@ export default function BestTimesModal({ isOpen, onClose, onTimezoneChange }) {
   const { currentWorkspace } = useWorkspace();
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [detectingLocation, setDetectingLocation] = useState(false);
+
+  // Detect user's country via IP geolocation
+  const detectMyLocation = async () => {
+    setDetectingLocation(true);
+    try {
+      // Use ip-api.com (free, no API key required)
+      const response = await fetch('http://ip-api.com/json/?fields=status,country,countryCode,city,timezone');
+      const data = await response.json();
+
+      if (data.status === 'success') {
+        // Try to find a matching country in our list
+        // First try to match by timezone
+        let matchedCountry = countries.find(c => c.timezone === data.timezone);
+
+        // If no exact timezone match, try to match by country name
+        if (!matchedCountry) {
+          matchedCountry = countries.find(c =>
+            c.name.toLowerCase().includes(data.country.toLowerCase()) ||
+            c.name.toLowerCase().includes(data.city.toLowerCase())
+          );
+        }
+
+        // If still no match, try country code
+        if (!matchedCountry) {
+          matchedCountry = countries.find(c =>
+            c.code.startsWith(data.countryCode)
+          );
+        }
+
+        if (matchedCountry) {
+          handleCountrySelect(matchedCountry);
+          // Scroll to show the selected country
+          setSearchQuery('');
+        } else {
+          console.log('Could not find matching country for:', data);
+          alert(`Detected location: ${data.city}, ${data.country}\nTimezone: ${data.timezone}\n\nNo exact match found in our list. Please select manually.`);
+        }
+      } else {
+        throw new Error('Geolocation failed');
+      }
+    } catch (error) {
+      console.error('Error detecting location:', error);
+      alert('Could not detect your location. Please select your country manually.');
+    } finally {
+      setDetectingLocation(false);
+    }
+  };
 
   useEffect(() => {
     // Load saved country preference if exists
@@ -390,17 +484,30 @@ export default function BestTimesModal({ isOpen, onClose, onTimezoneChange }) {
         </Header>
 
         <Content>
-          <SearchWrapper>
-            <SearchIcon>
-              <Search size={20} />
-            </SearchIcon>
-            <SearchInput
-              type="text"
-              placeholder="Search for your audience's location..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </SearchWrapper>
+          <SearchRow>
+            <SearchInputWrapper>
+              <SearchIcon>
+                <Search size={20} />
+              </SearchIcon>
+              <SearchInput
+                type="text"
+                placeholder="Search for your audience's location..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </SearchInputWrapper>
+            <DetectLocationButton
+              onClick={detectMyLocation}
+              disabled={detectingLocation}
+            >
+              {detectingLocation ? (
+                <Loader2 size={18} className="spinning" />
+              ) : (
+                <MapPin size={18} />
+              )}
+              {detectingLocation ? 'Detecting...' : 'Detect My Location'}
+            </DetectLocationButton>
+          </SearchRow>
 
           <CountryList>
             {filteredCountries.map((country) => (

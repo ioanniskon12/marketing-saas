@@ -9,7 +9,7 @@
 
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { ChevronLeft, ChevronRight, Settings, Instagram, Facebook, Linkedin, Twitter, Plus, Calendar, X, Clock, Globe } from 'lucide-react';
 import BestTimesModal from './BestTimesModal';
@@ -17,6 +17,7 @@ import CalendarPostCard from './CalendarPostCard';
 import AddPostButton from './AddPostButton';
 import CalendarPostPill, { MorePostsIndicator } from './CalendarPostPill';
 import DayPostsModal from './DayPostsModal';
+import { countries, getDayByDayPostingTimes } from '@/lib/data/best-posting-times';
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -274,9 +275,26 @@ const TimeLabel = styled.div`
   justify-content: center;
   padding-top: 4px;
   font-size: 11px;
-  color: ${props => props.theme.colors.text.secondary};
-  font-weight: 500;
+  color: ${props => props.$isBestTime ? '#10B981' : props.theme.colors.text.secondary};
+  font-weight: ${props => props.$isBestTime ? '700' : '500'};
   border-bottom: 1px solid ${props => props.theme.colors.border.light};
+  position: relative;
+  background: ${props => props.$isBestTime ? 'rgba(16, 185, 129, 0.08)' : 'transparent'};
+
+  /* Best time indicator dot */
+  ${props => props.$isBestTime && `
+    &::before {
+      content: '';
+      position: absolute;
+      right: 4px;
+      top: 6px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10B981;
+      box-shadow: 0 0 4px rgba(16, 185, 129, 0.5);
+    }
+  `}
 `;
 
 const WeeklyGrid = styled.div`
@@ -352,10 +370,19 @@ const TimeSlot = styled.div`
   align-items: flex-start;
   padding: 6px 8px;
 
+  /* Best time slot highlight - more visible */
+  ${props => props.$isBestTime && `
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(16, 185, 129, 0.18)) !important;
+    border-left: 4px solid #10B981 !important;
+    box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.2);
+  `}
+
   &:hover {
-    background: ${props => props.$isEmpty
-      ? `linear-gradient(135deg, ${props.theme.colors.success.main}08, ${props.theme.colors.success.main}12)`
-      : props.theme.colors.background.hover};
+    background: ${props => props.$isBestTime
+      ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(16, 185, 129, 0.25))'
+      : props.$isEmpty
+        ? `linear-gradient(135deg, ${props.theme.colors.success.main}08, ${props.theme.colors.success.main}12)`
+        : props.theme.colors.background.hover};
   }
 
   &:hover .slot-add-btn {
@@ -982,6 +1009,12 @@ export default function ContentCalendar({
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedTimezone, setSelectedTimezone] = useState('Europe/Rome');
   const [selectedLocation, setSelectedLocation] = useState('Rome (Italy)');
+  const [selectedRegion, setSelectedRegion] = useState('europe');
+  const [selectedCountryCode, setSelectedCountryCode] = useState('IT-ROM');
+  const [aiBestTimes, setAiBestTimes] = useState(null);
+  const [loadingBestTimes, setLoadingBestTimes] = useState(false);
+  const scrollContainerRef = useRef(null);
+  const hasScrolledRef = useRef(false);
 
   // Helper function to get platform from post's account IDs
   const getPlatformFromPost = (post) => {
@@ -1032,6 +1065,149 @@ export default function ContentCalendar({
 
     return () => clearInterval(interval);
   }, []);
+
+  // Reset scroll flag when view mode changes
+  useEffect(() => {
+    hasScrolledRef.current = false;
+  }, [viewMode]);
+
+  // Fetch AI-generated best times when country changes
+  useEffect(() => {
+    const fetchAIBestTimes = async () => {
+      if (!selectedLocation || !selectedTimezone) return;
+
+      setLoadingBestTimes(true);
+      try {
+        const response = await fetch('/api/ai/best-times', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            country: selectedLocation,
+            countryCode: selectedCountryCode,
+            timezone: selectedTimezone,
+            platform: 'instagram',
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.bestTimes) {
+            setAiBestTimes(data.bestTimes);
+            console.log('AI best times loaded for:', selectedLocation, data.bestTimes);
+          }
+        } else {
+          console.log('AI best times not available, using fallback');
+          setAiBestTimes(null);
+        }
+      } catch (error) {
+        console.error('Error fetching AI best times:', error);
+        setAiBestTimes(null);
+      } finally {
+        setLoadingBestTimes(false);
+      }
+    };
+
+    fetchAIBestTimes();
+  }, [selectedLocation, selectedTimezone, selectedCountryCode]);
+
+  // Get best posting times - prefer AI-generated, fallback to static data
+  const bestTimesData = useMemo(() => {
+    // If we have AI-generated times, use those
+    if (aiBestTimes) {
+      console.log('Using AI-generated best times for:', selectedLocation);
+      return aiBestTimes;
+    }
+
+    // Fallback to static region-based data
+    const data = getDayByDayPostingTimes(selectedRegion, 'instagram');
+    console.log('Using fallback best times for region:', selectedRegion, data);
+    return data;
+  }, [aiBestTimes, selectedRegion, selectedLocation]);
+
+  // Helper function to parse hour from time slot
+  const parseHourFromTimeSlot = (timeSlot) => {
+    let hour = null;
+
+    if (timeSlot.time) {
+      // Parse from time field like "08:00", "13:00"
+      const [h] = timeSlot.time.split(':');
+      hour = parseInt(h, 10);
+    }
+
+    if (hour === null && timeSlot.label) {
+      // Parse from label like "8:00 AM", "1:00 PM"
+      const match = timeSlot.label.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+      if (match) {
+        hour = parseInt(match[1], 10);
+        const period = match[3];
+        if (period && period.toUpperCase() === 'PM' && hour !== 12) {
+          hour += 12;
+        } else if (period && period.toUpperCase() === 'AM' && hour === 12) {
+          hour = 0;
+        }
+      }
+    }
+
+    return hour;
+  };
+
+  // Helper function to check if a time slot is a "best time" slot
+  const isBestTimeSlot = (dayOfWeek, slotHour) => {
+    if (!bestTimesData) return false;
+
+    // Map day of week number (0=Sunday) to key
+    const dayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const dayKey = dayKeys[dayOfWeek];
+
+    const dayTimes = bestTimesData[dayKey];
+    if (!dayTimes || !Array.isArray(dayTimes)) return false;
+
+    // Check if any of the best times fall within this slot hour
+    return dayTimes.some(timeSlot => {
+      const hour = parseHourFromTimeSlot(timeSlot);
+      return hour !== null && hour === slotHour;
+    });
+  };
+
+  // Auto-scroll to current time on initial load and when view changes
+  useEffect(() => {
+    // Only scroll for week/day view
+    if (viewMode === 'month') return;
+
+    const scrollToCurrentTime = () => {
+      if (!scrollContainerRef.current || hasScrolledRef.current) return;
+
+      // Get current time in selected timezone
+      const now = new Date();
+      const timeStr = now.toLocaleString('en-US', {
+        timeZone: selectedTimezone,
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+      const [hours, minutes] = timeStr.split(':').map(Number);
+
+      // Calculate scroll position using same formula as current time indicator
+      // Each slot is 100px, slot duration is in minutes
+      const slotHeight = 100;
+      const minutesSinceMidnight = hours * 60 + minutes;
+      const pixelsPerMinute = slotHeight / settings.timeSlotDuration;
+
+      // Scroll to 1 hour before current time to show context
+      const currentTimePosition = minutesSinceMidnight * pixelsPerMinute;
+      const scrollTo = Math.max(0, currentTimePosition - 150); // 150px offset to show time above
+
+      scrollContainerRef.current.scrollTop = scrollTo;
+      hasScrolledRef.current = true;
+      console.log('Auto-scrolled to:', scrollTo, 'for time:', hours + ':' + minutes, 'in timezone:', selectedTimezone);
+    };
+
+    // Use multiple attempts to ensure DOM is ready
+    const timeouts = [100, 300, 500];
+    timeouts.forEach(delay => {
+      setTimeout(scrollToCurrentTime, delay);
+    });
+  }, [viewMode, settings.timeSlotDuration, selectedTimezone]);
 
   // Get current month/week/day data
   const calendarData = useMemo(() => {
@@ -1145,6 +1321,14 @@ export default function ContentCalendar({
   const handleTimezoneChange = (timezone, location) => {
     setSelectedTimezone(timezone);
     setSelectedLocation(location);
+    // Find the country and get its region and code
+    const country = countries.find(c => c.timezone === timezone && c.name === location);
+    if (country) {
+      setSelectedRegion(country.region);
+      setSelectedCountryCode(country.code);
+      // Clear AI times to trigger a new fetch
+      setAiBestTimes(null);
+    }
   };
 
   // Helper function to format date in selected timezone
@@ -1245,12 +1429,26 @@ export default function ContentCalendar({
         </WeeklyHeader>
 
         {/* Scrollable content */}
-        <WeeklyScrollContainer>
+        <WeeklyScrollContainer ref={scrollContainerRef}>
           {/* Time column */}
           <TimeColumn>
-            {timeLabels.map((label, index) => (
-              <TimeLabel key={index}>{label}</TimeLabel>
-            ))}
+            {timeLabels.map((label, index) => {
+              // Calculate the hour for this slot
+              const totalMinutes = index * settings.timeSlotDuration;
+              const hour = Math.floor(totalMinutes / 60);
+
+              // Check if this hour is a best time for any of the visible days
+              const isAnyDayBestTime = calendarData.some(date => {
+                const dayOfWeek = date.getDay();
+                return isBestTimeSlot(dayOfWeek, hour);
+              });
+
+              return (
+                <TimeLabel key={index} $isBestTime={isAnyDayBestTime}>
+                  {label}
+                </TimeLabel>
+              );
+            })}
           </TimeColumn>
 
           {/* Day columns */}
@@ -1265,8 +1463,11 @@ export default function ContentCalendar({
               const isToday = todayInTimezone === thisDateInTimezone;
 
               // Calculate current time position (in pixels from top) using selected timezone
+              // Each slot is slotHeight pixels, and slot duration is in minutes
               const { hours, minutes } = getCurrentTimeInTimezone();
-              const currentTimeTop = hours * 60 + minutes;
+              const minutesSinceMidnight = hours * 60 + minutes;
+              const pixelsPerMinute = slotHeight / settings.timeSlotDuration;
+              const currentTimeTop = minutesSinceMidnight * pixelsPerMinute;
 
               return (
                 <WeekDayColumn key={index} $isToday={isToday} style={{ minHeight: `${slotCount * slotHeight}px` }}>
@@ -1291,11 +1492,16 @@ export default function ContentCalendar({
 
                       const isEmpty = slotPosts.length === 0;
 
+                      // Check if this slot is a best time slot
+                      const dayOfWeek = date.getDay(); // 0 = Sunday
+                      const isBestTime = isBestTimeSlot(dayOfWeek, slotHour);
+
                       return (
                         <TimeSlot
                           key={slotIndex}
                           className={isEmpty ? 'empty-slot' : ''}
                           $isEmpty={isEmpty}
+                          $isBestTime={isBestTime}
                           style={{ minHeight: `${slotHeight}px` }}
                           onDragOver={(e) => {
                             e.preventDefault();
@@ -1325,9 +1531,9 @@ export default function ContentCalendar({
                                 post={post}
                                 platform={getPlatformFromPost(post)}
                                 showTime={true}
-                                onClick={(p) => (onPostClick || onPostEdit)?.(p)}
                                 onEdit={onPostEdit}
                                 onDelete={onPostDelete}
+                                onReschedule={onPostReschedule}
                               />
                             ))}
                             {/* Show "+N more" if there are more than 2 posts */}
@@ -1418,9 +1624,9 @@ export default function ContentCalendar({
                     post={post}
                     platform={getPlatformFromPost(post)}
                     showTime={true}
-                    onClick={(p) => (onPostClick || onPostEdit)?.(p)}
                     onEdit={onPostEdit}
                     onDelete={onPostDelete}
+                    onReschedule={onPostReschedule}
                   />
                 ))}
                 {dayPosts.length > 3 && (
@@ -1645,6 +1851,7 @@ export default function ContentCalendar({
               <TimezoneBadge>
                 <Globe size={12} />
                 {selectedLocation}
+                {loadingBestTimes && ' (loading...)'}
               </TimezoneBadge>
             </MonthNavigation>
 
