@@ -15,7 +15,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import styled, { useTheme, ThemeProvider } from 'styled-components';
-import { Instagram, Facebook, Linkedin, Twitter, Edit2, Trash2, Clock, Calendar, ArrowRight, Copy } from 'lucide-react';
+import { Instagram, Facebook, Linkedin, Twitter, Edit2, Trash2, Clock, Calendar, ArrowRight, Copy, CheckSquare, Square } from 'lucide-react';
 
 // Platform configurations
 const PLATFORM_CONFIG = {
@@ -93,16 +93,17 @@ const Tooltip = styled.div`
   transform: translateX(-50%);
   background: ${props => props.theme.colors.background.elevated || '#1a1a2e'};
   color: ${props => props.theme.colors.text.primary};
-  padding: 8px 12px;
-  border-radius: 6px;
+  padding: 12px;
+  border-radius: 10px;
   font-size: 12px;
-  white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   z-index: 100;
   pointer-events: none;
   opacity: ${props => props.$visible ? 1 : 0};
   visibility: ${props => props.$visible ? 'visible' : 'hidden'};
   transition: opacity 0.2s, visibility 0.2s;
+  min-width: 220px;
+  max-width: 280px;
 
   &::after {
     content: '';
@@ -112,6 +113,110 @@ const Tooltip = styled.div`
     transform: translateX(-50%);
     border: 6px solid transparent;
     border-top-color: ${props => props.theme.colors.background.elevated || '#1a1a2e'};
+  }
+`;
+
+const TooltipHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const TooltipPlatform = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: ${props => props.$color || '#6B7280'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+`;
+
+const TooltipTime = styled.div`
+  font-size: 11px;
+  color: ${props => props.theme.colors.text.secondary};
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const TooltipStatus = styled.span`
+  margin-left: auto;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: ${props => props.$color}20;
+  color: ${props => props.$color};
+`;
+
+const TooltipMedia = styled.div`
+  width: 100%;
+  height: 100px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  background: rgba(0, 0, 0, 0.2);
+
+  img, video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+const TooltipContent = styled.div`
+  font-size: 12px;
+  line-height: 1.4;
+  color: ${props => props.theme.colors.text.primary};
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: normal;
+  word-break: break-word;
+`;
+
+const TooltipMeta = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 10px;
+  color: ${props => props.theme.colors.text.secondary};
+`;
+
+const SelectionCheckbox = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: ${props => props.$selected ? props.theme.colors.primary.main : 'rgba(255, 255, 255, 0.1)'};
+  border: 2px solid ${props => props.$selected ? props.theme.colors.primary.main : 'rgba(255, 255, 255, 0.3)'};
+  color: white;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  &:hover {
+    border-color: ${props => props.theme.colors.primary.main};
+    background: ${props => props.$selected ? props.theme.colors.primary.main : `${props.theme.colors.primary.main}30`};
   }
 `;
 
@@ -210,6 +315,9 @@ export default function CalendarPostPill({
   onReschedule,
   onDuplicate,
   onClick,
+  bulkSelectMode = false,
+  isSelected = false,
+  onToggleSelect,
 }) {
   const [showTooltip, setShowTooltip] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -263,6 +371,12 @@ export default function CalendarPostPill({
   const handleClick = (e) => {
     e.stopPropagation();
 
+    // In bulk select mode, toggle selection instead of showing menu
+    if (bulkSelectMode) {
+      onToggleSelect?.(post.id);
+      return;
+    }
+
     // Calculate position for dropdown menu
     if (pillRef.current) {
       const rect = pillRef.current.getBoundingClientRect();
@@ -309,9 +423,7 @@ export default function CalendarPostPill({
   const handleDelete = (e) => {
     e.stopPropagation();
     setShowMenu(false);
-    if (window.confirm(`Delete this post?\n\n"${fullTitle.substring(0, 50)}..."`)) {
-      onDelete?.(post);
-    }
+    onDelete?.(post);
   };
 
   const handleDuplicate = (e) => {
@@ -352,23 +464,63 @@ export default function CalendarPostPill({
         $statusColor={statusColor}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
-        onMouseEnter={() => !showMenu && setShowTooltip(true)}
+        onMouseEnter={() => !showMenu && !bulkSelectMode && setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
-        onFocus={() => !showMenu && setShowTooltip(true)}
+        onFocus={() => !showMenu && !bulkSelectMode && setShowTooltip(true)}
         onBlur={() => setShowTooltip(false)}
         tabIndex={0}
         role="button"
         aria-label={`${fullTitle} at ${time}`}
+        style={bulkSelectMode && isSelected ? { outline: '2px solid #6366f1' } : undefined}
       >
+        {/* Show selection checkbox in bulk mode */}
+        {bulkSelectMode && (
+          <SelectionCheckbox $selected={isSelected}>
+            {isSelected && <CheckSquare size={12} />}
+          </SelectionCheckbox>
+        )}
         <PlatformDot $color={platformConfig.color}>
           <PlatformIcon />
         </PlatformDot>
         <PillText>{showTime ? time : title}</PillText>
 
         <Tooltip $visible={showTooltip && !showMenu}>
-          {fullTitle.length > 40 ? fullTitle.substring(0, 40) + '...' : fullTitle}
-          <br />
-          <span style={{ opacity: 0.7 }}>{time}</span>
+          {/* Header with platform, time, and status */}
+          <TooltipHeader>
+            <TooltipPlatform $color={platformConfig.color}>
+              <PlatformIcon />
+            </TooltipPlatform>
+            <TooltipTime>
+              <Clock size={10} />
+              {time}
+            </TooltipTime>
+            <TooltipStatus $color={statusColor}>
+              {post?.status || 'draft'}
+            </TooltipStatus>
+          </TooltipHeader>
+
+          {/* Media preview if available */}
+          {post?.post_media?.[0]?.media_url && (
+            <TooltipMedia>
+              {post.post_media[0].media_type === 'video' ? (
+                <video src={post.post_media[0].media_url} muted />
+              ) : (
+                <img src={post.post_media[0].media_url} alt="Post preview" />
+              )}
+            </TooltipMedia>
+          )}
+
+          {/* Content preview */}
+          <TooltipContent>
+            {fullTitle || 'No content'}
+          </TooltipContent>
+
+          {/* Meta info */}
+          {post?.post_media?.length > 1 && (
+            <TooltipMeta>
+              📎 {post.post_media.length} media files
+            </TooltipMeta>
+          )}
         </Tooltip>
       </PillContainer>
 

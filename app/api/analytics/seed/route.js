@@ -20,10 +20,10 @@ export async function POST(request) {
       );
     }
 
-    // Verify workspace exists
+    // Verify workspace exists and get owner
     const { data: workspace, error: workspaceError } = await supabase
       .from('workspaces')
-      .select('id')
+      .select('id, owner_id')
       .eq('id', workspaceId)
       .single();
 
@@ -33,6 +33,8 @@ export async function POST(request) {
         { status: 404 }
       );
     }
+
+    const createdBy = workspace.owner_id;
 
     // Get social accounts for this workspace
     const { data: accounts } = await supabase
@@ -48,9 +50,7 @@ export async function POST(request) {
       );
     }
 
-    // Generate sample posts with analytics data
-    const samplePosts = [];
-    const platforms = ['facebook', 'instagram', 'twitter', 'linkedin'];
+    const now = new Date();
     const sampleContents = [
       "Check out our latest product update! 🚀",
       "Happy Monday! Here's some motivation for the week ahead 💪",
@@ -62,46 +62,26 @@ export async function POST(request) {
       "Thank you for 10k followers! 🎉",
     ];
 
-    // Create posts for the last 30 days
-    const now = new Date();
+    // 1. Generate sample posts
+    const samplePosts = [];
     for (let i = 0; i < 30; i++) {
       const postDate = new Date(now);
       postDate.setDate(postDate.getDate() - i);
 
-      // Create 1-3 posts per day
       const postsPerDay = Math.floor(Math.random() * 3) + 1;
 
       for (let j = 0; j < postsPerDay; j++) {
         const account = accounts[Math.floor(Math.random() * accounts.length)];
         const content = sampleContents[Math.floor(Math.random() * sampleContents.length)];
 
-        // Random metrics
-        const likes = Math.floor(Math.random() * 500) + 50;
-        const comments = Math.floor(Math.random() * 50) + 5;
-        const shares = Math.floor(Math.random() * 30) + 2;
-        const reach = likes * (Math.random() * 5 + 2); // Reach is typically 2-7x likes
-        const impressions = reach * (Math.random() * 1.5 + 1); // Impressions > Reach
-
         samplePosts.push({
           workspace_id: workspaceId,
-          social_account_id: account.id,
+          created_by: createdBy,
           content: content,
           platforms: [account.platform],
           status: 'published',
           scheduled_for: postDate.toISOString(),
           published_at: postDate.toISOString(),
-          created_at: postDate.toISOString(),
-          updated_at: postDate.toISOString(),
-          analytics: {
-            likes,
-            comments,
-            shares,
-            reach: Math.floor(reach),
-            impressions: Math.floor(impressions),
-            engagement_rate: ((likes + comments + shares) / reach * 100).toFixed(2),
-            clicks: Math.floor(Math.random() * 20) + 1,
-            saves: Math.floor(Math.random() * 15) + 1,
-          },
         });
       }
     }
@@ -120,40 +100,87 @@ export async function POST(request) {
       );
     }
 
-    // Generate follower growth data
-    const followerGrowth = [];
-    let currentFollowers = Math.floor(Math.random() * 5000) + 1000; // Start with 1000-6000 followers
+    // 2. Generate analytics_snapshots for each day (this is what the analytics page reads)
+    const analyticsSnapshots = [];
+    let currentFollowers = Math.floor(Math.random() * 5000) + 1000;
 
     for (let i = 30; i >= 0; i--) {
       const date = new Date(now);
       date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
 
-      // Random daily growth (-50 to +200)
       const dailyGrowth = Math.floor(Math.random() * 250) - 50;
-      currentFollowers += dailyGrowth;
+      currentFollowers = Math.max(500, currentFollowers + dailyGrowth);
 
       for (const account of accounts) {
-        followerGrowth.push({
+        const likes = Math.floor(Math.random() * 500) + 50;
+        const comments = Math.floor(Math.random() * 50) + 5;
+        const shares = Math.floor(Math.random() * 30) + 2;
+        const reach = Math.floor(likes * (Math.random() * 5 + 2));
+        const impressions = Math.floor(reach * (Math.random() * 1.5 + 1));
+        const accountFollowers = Math.floor(currentFollowers / accounts.length);
+
+        analyticsSnapshots.push({
           workspace_id: workspaceId,
           social_account_id: account.id,
-          platform: account.platform,
-          date: date.toISOString().split('T')[0],
-          followers: Math.floor(currentFollowers / accounts.length),
-          following: Math.floor(Math.random() * 500) + 100,
-          posts_count: Math.floor(Math.random() * 200) + 50,
-          engagement_rate: (Math.random() * 5 + 2).toFixed(2), // 2-7%
+          snapshot_date: dateStr,
+          followers_count: accountFollowers,
+          followers_change: dailyGrowth,
+          likes_count: likes,
+          comments_count: comments,
+          shares_count: shares,
+          reach: reach,
+          impressions: impressions,
+          engagement_rate: ((likes + comments + shares) / Math.max(accountFollowers, 1) * 100).toFixed(2),
         });
       }
     }
 
-    // Insert follower growth data
-    const { error: growthError } = await supabase
-      .from('analytics_daily')
-      .insert(followerGrowth);
+    // Insert analytics snapshots (use upsert to handle duplicate dates)
+    const { error: snapshotsError } = await supabase
+      .from('analytics_snapshots')
+      .upsert(analyticsSnapshots, {
+        onConflict: 'social_account_id,snapshot_date',
+        ignoreDuplicates: false
+      });
 
-    if (growthError) {
-      console.error('Error inserting follower growth:', growthError);
-      // Don't fail if analytics table doesn't exist, just log
+    if (snapshotsError) {
+      console.error('Error inserting analytics snapshots:', snapshotsError);
+      // Continue anyway - might be duplicate dates
+    }
+
+    // 3. Generate post_analytics for each post
+    const postAnalytics = [];
+    for (const post of insertedPosts || []) {
+      const account = accounts.find(a => post.platforms?.includes(a.platform)) || accounts[0];
+      const likes = Math.floor(Math.random() * 500) + 50;
+      const comments = Math.floor(Math.random() * 50) + 5;
+      const shares = Math.floor(Math.random() * 30) + 2;
+      const reach = Math.floor(likes * (Math.random() * 5 + 2));
+      const impressions = Math.floor(reach * (Math.random() * 1.5 + 1));
+
+      postAnalytics.push({
+        workspace_id: workspaceId,
+        post_id: post.id,
+        social_account_id: account.id,
+        likes_count: likes,
+        comments_count: comments,
+        shares_count: shares,
+        saves_count: Math.floor(Math.random() * 20),
+        reach: reach,
+        impressions: impressions,
+        engagement_rate: ((likes + comments + shares) / Math.max(reach, 1) * 100).toFixed(2),
+      });
+    }
+
+    // Insert post analytics
+    const { error: postAnalyticsError } = await supabase
+      .from('post_analytics')
+      .insert(postAnalytics);
+
+    if (postAnalyticsError) {
+      console.error('Error inserting post analytics:', postAnalyticsError);
+      // Continue anyway
     }
 
     return NextResponse.json({
@@ -161,8 +188,10 @@ export async function POST(request) {
       message: 'Sample analytics data generated successfully',
       data: {
         postsCreated: insertedPosts?.length || 0,
+        snapshotsCreated: analyticsSnapshots.length,
+        postAnalyticsCreated: postAnalytics.length,
         dateRange: {
-          from: new Date(now.setDate(now.getDate() - 30)).toISOString().split('T')[0],
+          from: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           to: new Date().toISOString().split('T')[0],
         },
       },

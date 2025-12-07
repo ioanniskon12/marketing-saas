@@ -217,6 +217,70 @@ const PlatformTab = styled.button`
   }
 `;
 
+// Meta Mode Header (for Facebook + Instagram)
+const MetaHeader = styled.div`
+  background: linear-gradient(135deg, #0668E1 0%, #E4405F 100%);
+  border-radius: ${props => props.theme.borderRadius.xl};
+  padding: ${props => props.theme.spacing.md} ${props => props.theme.spacing.lg};
+  margin-bottom: ${props => props.theme.spacing.xl};
+  display: flex;
+  align-items: center;
+  gap: ${props => props.theme.spacing.md};
+  color: white;
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+`;
+
+const MetaHeaderTitle = styled.span`
+  font-size: ${props => props.theme.typography.fontSize.lg};
+  font-weight: ${props => props.theme.typography.fontWeight.bold};
+`;
+
+const MetaHeaderSubtitle = styled.span`
+  font-size: ${props => props.theme.typography.fontSize.sm};
+  opacity: 0.9;
+`;
+
+// Preview Tabs for Meta Mode
+const PreviewTabs = styled.div`
+  display: flex;
+  gap: ${props => props.theme.spacing.xs};
+  margin-bottom: ${props => props.theme.spacing.md};
+  background: ${props => props.theme.colors.neutral[100]};
+  padding: 4px;
+  border-radius: ${props => props.theme.borderRadius.lg};
+`;
+
+const PreviewTab = styled.button`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${props => props.theme.spacing.xs};
+  padding: ${props => props.theme.spacing.sm} ${props => props.theme.spacing.md};
+  background: ${props => props.$active ? 'white' : 'transparent'};
+  color: ${props => props.$active ? props.$color : props.theme.colors.text.secondary};
+  border: none;
+  border-radius: ${props => props.theme.borderRadius.md};
+  font-size: ${props => props.theme.typography.fontSize.sm};
+  font-weight: ${props => props.theme.typography.fontWeight.medium};
+  cursor: pointer;
+  transition: all ${props => props.theme.transitions.fast};
+  box-shadow: ${props => props.$active ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'};
+
+  &:hover {
+    color: ${props => props.$color};
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+`;
+
 const TabErrorIndicator = styled.div`
   position: absolute;
   top: -4px;
@@ -559,6 +623,7 @@ export default function CreatePostPage() {
   const [platformData, setPlatformData] = useState(createInitialPlatformData());
   const [activePlatform, setActivePlatform] = useState(null);
   const [selectedPlatforms, setSelectedPlatforms] = useState([]);
+  const [previewPlatform, setPreviewPlatform] = useState(null); // For Meta mode preview tabs
 
   // Scheduling state
   const [scheduleType, setScheduleType] = useState('now');
@@ -586,6 +651,9 @@ export default function CreatePostPage() {
     return 'side-by-side';
   });
   const [previewOpen, setPreviewOpen] = useState(true);
+
+  // Temporary platform selection (for multi-select UI)
+  const [tempSelectedPlatforms, setTempSelectedPlatforms] = useState([]);
 
   // Design theme - Modern only
   const designTheme = 'modern';
@@ -620,15 +688,43 @@ export default function CreatePostPage() {
     }
   }, [searchParams]);
 
-  // Read platforms from query param
+  // Read platforms and scheduled date from query params (from calendar)
   useEffect(() => {
     const platformsParam = searchParams.get('platforms');
+    const scheduledForParam = searchParams.get('scheduledFor');
+    let hasParams = false;
+
+    // Handle platforms
     if (platformsParam) {
       const platforms = platformsParam.split(',').filter(p => PLATFORM_CONFIG[p]);
       if (platforms.length > 0) {
         setSelectedPlatforms(platforms);
         setActivePlatform(platforms[0]);
+        // Set preview platform for Meta mode
+        if (platforms.includes('facebook') && platforms.includes('instagram')) {
+          setPreviewPlatform('facebook');
+        }
+        hasParams = true;
       }
+    }
+
+    // Handle scheduled date
+    if (scheduledForParam) {
+      try {
+        const date = new Date(decodeURIComponent(scheduledForParam));
+        if (!isNaN(date.getTime())) {
+          setScheduledDate(date.toISOString());
+          setScheduleType('schedule');
+          hasParams = true;
+        }
+      } catch (e) {
+        console.error('Invalid scheduled date:', e);
+      }
+    }
+
+    // Clean up URL after reading params
+    if (hasParams) {
+      window.history.replaceState({}, '', '/dashboard/create-post');
     }
   }, [searchParams]);
 
@@ -1038,13 +1134,18 @@ export default function CreatePostPage() {
     }
   };
 
-  // Render preview for active platform
+  // Check if we're in Meta mode (both Facebook and Instagram selected)
+  const isMetaMode = selectedPlatforms.includes('facebook') && selectedPlatforms.includes('instagram') && selectedPlatforms.length === 2;
+
+  // Render preview for active platform (or preview platform in Meta mode)
   const renderPreview = () => {
-    if (!activePlatform) return null;
+    // In Meta mode, use previewPlatform for preview, otherwise use activePlatform
+    const platformToPreview = isMetaMode ? (previewPlatform || 'facebook') : activePlatform;
+    if (!platformToPreview) return null;
 
-    const data = platformData[activePlatform];
+    const data = platformData[platformToPreview];
 
-    switch (activePlatform) {
+    switch (platformToPreview) {
       case 'facebook':
         return <FacebookPostPreview data={data} />;
       case 'instagram':
@@ -1075,13 +1176,63 @@ export default function CreatePostPage() {
   const connectedAccounts = accounts.filter(acc => acc.is_active);
   const connectedPlatforms = [...new Set(connectedAccounts.map(acc => acc.platform))];
 
+  // Only Facebook + Instagram can be multi-selected together
+  const MULTI_SELECT_GROUP = ['facebook', 'instagram'];
+
+  // Toggle platform selection helper with compatibility check
+  const togglePlatformSelection = (platform) => {
+    setTempSelectedPlatforms(prev => {
+      // If already selected, remove it
+      if (prev.includes(platform)) {
+        return prev.filter(p => p !== platform);
+      }
+
+      // If no platforms selected yet, just add it
+      if (prev.length === 0) {
+        return [platform];
+      }
+
+      // Only allow multi-select for Facebook + Instagram
+      const isCurrentInGroup = prev.every(p => MULTI_SELECT_GROUP.includes(p));
+      const isNewInGroup = MULTI_SELECT_GROUP.includes(platform);
+
+      if (isCurrentInGroup && isNewInGroup) {
+        return [...prev, platform];
+      }
+
+      // Otherwise, replace selection with new platform
+      return [platform];
+    });
+  };
+
+  const confirmPlatformSelection = () => {
+    if (tempSelectedPlatforms.length > 0) {
+      setSelectedPlatforms(tempSelectedPlatforms);
+      setActivePlatform(tempSelectedPlatforms[0]);
+      setTempSelectedPlatforms([]); // Reset temp selection
+    }
+  };
+
+  // Supported platforms for publishing
+  const SUPPORTED_PLATFORMS = ['facebook', 'instagram', 'linkedin', 'youtube', 'tiktok'];
+
   // If no platforms selected and we have connected accounts, show platform selection
   if (selectedPlatforms.length === 0 && connectedPlatforms.length > 0) {
+    // Count available platforms (connected + supported)
+    const availablePlatforms = PLATFORMS_ORDER.filter(p =>
+      connectedPlatforms.includes(p) && SUPPORTED_PLATFORMS.includes(p)
+    );
+
     return (
       <Container>
         <Header>
           <Title>Select Platforms</Title>
-          <Subtitle>Choose which platforms you want to post to</Subtitle>
+          <Subtitle>
+            Choose which platforms you want to post to
+            {availablePlatforms.length === 1
+              ? ` (only ${PLATFORM_CONFIG[availablePlatforms[0]].name} is connected)`
+              : ` (${availablePlatforms.length} platforms connected)`}
+          </Subtitle>
         </Header>
 
         <ComposerColumn>
@@ -1090,37 +1241,73 @@ export default function CreatePostPage() {
             {PLATFORMS_ORDER.map(platform => {
               const config = PLATFORM_CONFIG[platform];
               const isConnected = connectedPlatforms.includes(platform);
+              const isSupported = SUPPORTED_PLATFORMS.includes(platform);
+              const isAvailable = isConnected && isSupported;
+              const isSelected = tempSelectedPlatforms.includes(platform);
               const Icon = config.icon;
 
               return (
                 <div
                   key={platform}
                   onClick={() => {
-                    if (isConnected) {
-                      setSelectedPlatforms([platform]);
-                      setActivePlatform(platform);
+                    if (isAvailable) {
+                      togglePlatformSelection(platform);
                     }
                   }}
                   style={{
                     padding: '20px',
                     textAlign: 'center',
                     border: '2px solid',
-                    borderColor: isConnected ? config.color : '#e5e7eb',
+                    borderColor: isSelected ? config.color : (isAvailable ? '#d1d5db' : '#e5e7eb'),
+                    backgroundColor: isSelected ? `${config.color}15` : 'transparent',
                     borderRadius: '12px',
-                    cursor: isConnected ? 'pointer' : 'not-allowed',
-                    opacity: isConnected ? 1 : 0.5,
+                    cursor: isAvailable ? 'pointer' : 'not-allowed',
+                    opacity: isAvailable ? 1 : 0.4,
                     transition: 'all 0.2s',
+                    position: 'relative',
                   }}
                 >
+                  {isSelected && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '8px',
+                      right: '8px',
+                      width: '20px',
+                      height: '20px',
+                      borderRadius: '50%',
+                      backgroundColor: config.color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                      <Check size={12} color="white" />
+                    </div>
+                  )}
                   <div style={{ color: config.color, marginBottom: '8px' }}>
                     <Icon size={32} />
                   </div>
                   <div style={{ fontSize: '14px', fontWeight: 600 }}>{config.name}</div>
                   {!isConnected && <div style={{ fontSize: '12px', color: '#9ca3af' }}>Not connected</div>}
+                  {isConnected && !isSupported && <div style={{ fontSize: '12px', color: '#9ca3af' }}>Coming soon</div>}
                 </div>
               );
             })}
           </div>
+
+          {tempSelectedPlatforms.length > 0 && (
+            <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center' }}>
+              <Button
+                onClick={confirmPlatformSelection}
+                style={{
+                  padding: '12px 32px',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                }}
+              >
+                Continue with {tempSelectedPlatforms.length} platform{tempSelectedPlatforms.length > 1 ? 's' : ''} →
+              </Button>
+            </div>
+          )}
         </ComposerColumn>
       </Container>
     );
@@ -1168,46 +1355,59 @@ export default function CreatePostPage() {
         ) : null}
       </Header>
 
-      {/* Platform Tabs */}
-      <PlatformTabsContainer>
-        {selectedPlatforms.map(platform => {
-          const config = PLATFORM_CONFIG[platform];
-          const Icon = config.icon;
-          const hasErrors = validationResults[platform] && !validationResults[platform].isValid;
+      {/* Platform Header - Meta mode or individual tabs */}
+      {isMetaMode ? (
+        <MetaHeader>
+          <Facebook />
+          <Instagram />
+          <div>
+            <MetaHeaderTitle>Meta</MetaHeaderTitle>
+            <MetaHeaderSubtitle> · Facebook & Instagram</MetaHeaderSubtitle>
+          </div>
+        </MetaHeader>
+      ) : (
+        <>
+          <PlatformTabsContainer>
+            {selectedPlatforms.map(platform => {
+              const config = PLATFORM_CONFIG[platform];
+              const Icon = config.icon;
+              const hasErrors = validationResults[platform] && !validationResults[platform].isValid;
 
-          return (
-            <PlatformTab
-              key={platform}
-              $active={activePlatform === platform}
-              $color={config.color}
-              onClick={() => setActivePlatform(platform)}
-            >
-              {hasErrors && <TabErrorIndicator />}
-              <Icon />
-              {config.name}
-            </PlatformTab>
-          );
-        })}
-      </PlatformTabsContainer>
+              return (
+                <PlatformTab
+                  key={platform}
+                  $active={activePlatform === platform}
+                  $color={config.color}
+                  onClick={() => setActivePlatform(platform)}
+                >
+                  {hasErrors && <TabErrorIndicator />}
+                  <Icon />
+                  {config.name}
+                </PlatformTab>
+              );
+            })}
+          </PlatformTabsContainer>
 
-      {/* Cross-posting Helpers */}
-      {selectedPlatforms.length > 1 && activePlatform && (
-        <CrossPostHelpers>
-          <HelperButton onClick={() => copyAllToAllPlatforms('caption')}>
-            <Copy />
-            Copy caption to all
-          </HelperButton>
-          <HelperButton onClick={() => copyAllToAllPlatforms('media')}>
-            <Copy />
-            Copy media to all
-          </HelperButton>
-          {selectedPlatforms.filter(p => p !== activePlatform).map(platform => (
-            <HelperButton key={platform} onClick={() => copyCaption(activePlatform, platform)}>
-              <ArrowRight />
-              Copy to {PLATFORM_CONFIG[platform].name}
-            </HelperButton>
-          ))}
-        </CrossPostHelpers>
+          {/* Cross-posting Helpers - only show when not in Meta mode */}
+          {selectedPlatforms.length > 1 && activePlatform && (
+            <CrossPostHelpers>
+              <HelperButton onClick={() => copyAllToAllPlatforms('caption')}>
+                <Copy />
+                Copy caption to all
+              </HelperButton>
+              <HelperButton onClick={() => copyAllToAllPlatforms('media')}>
+                <Copy />
+                Copy media to all
+              </HelperButton>
+              {selectedPlatforms.filter(p => p !== activePlatform).map(platform => (
+                <HelperButton key={platform} onClick={() => copyCaption(activePlatform, platform)}>
+                  <ArrowRight />
+                  Copy to {PLATFORM_CONFIG[platform].name}
+                </HelperButton>
+              ))}
+            </CrossPostHelpers>
+          )}
+        </>
       )}
 
 
@@ -1296,6 +1496,26 @@ export default function CreatePostPage() {
 
         <PreviewColumn>
           <SectionTitle>Preview</SectionTitle>
+          {isMetaMode && (
+            <PreviewTabs>
+              <PreviewTab
+                $active={!previewPlatform || previewPlatform === 'facebook'}
+                $color="#1877F2"
+                onClick={() => setPreviewPlatform('facebook')}
+              >
+                <Facebook size={16} />
+                Facebook
+              </PreviewTab>
+              <PreviewTab
+                $active={previewPlatform === 'instagram'}
+                $color="#E4405F"
+                onClick={() => setPreviewPlatform('instagram')}
+              >
+                <Instagram size={16} />
+                Instagram
+              </PreviewTab>
+            </PreviewTabs>
+          )}
           {renderPreview()}
         </PreviewColumn>
         </SideBySideLayout>
@@ -1392,6 +1612,26 @@ export default function CreatePostPage() {
             </PreviewToggle>
             <PreviewContent $visible={previewOpen}>
               <SectionTitle>Preview</SectionTitle>
+              {isMetaMode && (
+                <PreviewTabs>
+                  <PreviewTab
+                    $active={!previewPlatform || previewPlatform === 'facebook'}
+                    $color="#1877F2"
+                    onClick={() => setPreviewPlatform('facebook')}
+                  >
+                    <Facebook size={16} />
+                    Facebook
+                  </PreviewTab>
+                  <PreviewTab
+                    $active={previewPlatform === 'instagram'}
+                    $color="#E4405F"
+                    onClick={() => setPreviewPlatform('instagram')}
+                  >
+                    <Instagram size={16} />
+                    Instagram
+                  </PreviewTab>
+                </PreviewTabs>
+              )}
               {renderPreview()}
             </PreviewContent>
           </CollapsiblePreview>
@@ -1482,6 +1722,26 @@ export default function CreatePostPage() {
 
           <PreviewColumn>
             <SectionTitle>Preview</SectionTitle>
+            {isMetaMode && (
+              <PreviewTabs>
+                <PreviewTab
+                  $active={!previewPlatform || previewPlatform === 'facebook'}
+                  $color="#1877F2"
+                  onClick={() => setPreviewPlatform('facebook')}
+                >
+                  <Facebook size={16} />
+                  Facebook
+                </PreviewTab>
+                <PreviewTab
+                  $active={previewPlatform === 'instagram'}
+                  $color="#E4405F"
+                  onClick={() => setPreviewPlatform('instagram')}
+                >
+                  <Instagram size={16} />
+                  Instagram
+                </PreviewTab>
+              </PreviewTabs>
+            )}
             {renderPreview()}
           </PreviewColumn>
         </StackedLayout>

@@ -83,47 +83,33 @@ export async function GET(request) {
     const tokenData = await tokenResponse.json();
     const { access_token, expires_in } = tokenData;
 
-    // Get user profile
-    const profileResponse = await fetch('https://api.linkedin.com/v2/me', {
+    // Get user profile using new userinfo endpoint (OpenID Connect)
+    const profileResponse = await fetch('https://api.linkedin.com/v2/userinfo', {
       headers: {
         Authorization: `Bearer ${access_token}`,
       },
     });
 
     if (!profileResponse.ok) {
+      const errorData = await profileResponse.json();
+      console.error('LinkedIn profile fetch error:', errorData);
       throw new Error('Failed to fetch user profile');
     }
 
     const profileData = await profileResponse.json();
+    console.log('LinkedIn profile data:', profileData);
 
-    // Get profile picture
-    const pictureResponse = await fetch(
-      'https://api.linkedin.com/v2/me?projection=(id,profilePicture(displayImage~:playableStreams))',
-      {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-      }
-    );
-
-    let profilePictureUrl = null;
-    if (pictureResponse.ok) {
-      const pictureData = await pictureResponse.json();
-      const elements = pictureData.profilePicture?.['displayImage~']?.elements;
-      if (elements && elements.length > 0) {
-        // Get the largest image
-        const largest = elements[elements.length - 1];
-        profilePictureUrl = largest.identifiers?.[0]?.identifier;
-      }
-    }
+    // Profile data from userinfo endpoint includes: sub (id), name, given_name, family_name, picture, email
+    const profilePictureUrl = profileData.picture || null;
 
     // Calculate token expiration
     const expiresAt = new Date(Date.now() + expires_in * 1000);
 
     // Format display name
-    const firstName = profileData.localizedFirstName || '';
-    const lastName = profileData.localizedLastName || '';
-    const displayName = `${firstName} ${lastName}`.trim();
+    const displayName = profileData.name || `${profileData.given_name || ''} ${profileData.family_name || ''}`.trim();
+
+    // LinkedIn user ID is in the 'sub' field from OpenID Connect
+    const linkedinUserId = profileData.sub;
 
     // Store or update social account
     const { data: existingAccount } = await supabase
@@ -131,7 +117,7 @@ export async function GET(request) {
       .select('id')
       .eq('workspace_id', oauthState.workspace_id)
       .eq('platform', 'linkedin')
-      .eq('platform_user_id', profileData.id)
+      .eq('platform_account_id', linkedinUserId)
       .single();
 
     if (existingAccount) {
@@ -140,11 +126,11 @@ export async function GET(request) {
         .from('social_accounts')
         .update({
           access_token,
-          expires_at: expiresAt.toISOString(),
-          display_name: displayName,
-          profile_picture_url: profilePictureUrl,
+          token_expires_at: expiresAt.toISOString(),
+          platform_display_name: displayName,
+          platform_profile_picture: profilePictureUrl,
           is_active: true,
-          last_sync_at: new Date().toISOString(),
+          last_used_at: new Date().toISOString(),
         })
         .eq('id', existingAccount.id);
     } else {
@@ -153,13 +139,15 @@ export async function GET(request) {
         workspace_id: oauthState.workspace_id,
         user_id: oauthState.user_id,
         platform: 'linkedin',
-        platform_user_id: profileData.id,
-        display_name: displayName,
-        profile_picture_url: profilePictureUrl,
+        platform_account_id: linkedinUserId,
+        platform_display_name: displayName,
+        platform_profile_picture: profilePictureUrl,
         access_token,
-        expires_at: expiresAt.toISOString(),
+        token_expires_at: expiresAt.toISOString(),
+        scopes: ['openid', 'profile', 'email', 'w_member_social'],
+        account_type: 'personal',
         is_active: true,
-        last_sync_at: new Date().toISOString(),
+        connected_at: new Date().toISOString(),
       });
     }
 

@@ -370,22 +370,6 @@ export default function FacebookComposer({
         </PostTypeBar>
       </div>
 
-      {/* Feelings */}
-      <div>
-        <Label>Feeling/Activity (optional)</Label>
-        <FeelingBar>
-          {feelings.slice(0, 6).map((feel) => (
-            <FeelingChip
-              key={feel}
-              $selected={feeling === feel}
-              onClick={() => onFeelingChange?.(feeling === feel ? null : feel)}
-            >
-              {feel}
-            </FeelingChip>
-          ))}
-        </FeelingBar>
-      </div>
-
       {/* Background Options (for text posts without media) */}
       {postType === 'text' && media.length === 0 && (
         <div>

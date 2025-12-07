@@ -11,7 +11,7 @@
 
 import { useState, useMemo, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { ChevronLeft, ChevronRight, Settings, Instagram, Facebook, Linkedin, Twitter, Plus, Calendar, X, Clock, Globe } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Settings, Instagram, Facebook, Linkedin, Twitter, Plus, Calendar, X, Clock, Globe, Trash2, CheckSquare, Square, CheckCircle } from 'lucide-react';
 import BestTimesModal from './BestTimesModal';
 import CalendarPostCard from './CalendarPostCard';
 import AddPostButton from './AddPostButton';
@@ -137,6 +137,112 @@ const SettingsButton = styled.button`
   &:hover {
     background: ${props => props.theme.colors.background.hover};
     border-color: ${props => props.theme.colors.border.hover};
+  }
+`;
+
+const BulkSelectButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: ${props => props.theme.spacing.xs};
+  padding: ${props => props.theme.spacing.sm} ${props => props.theme.spacing.md};
+  border: 1px solid ${props => props.$active ? props.theme.colors.primary.main : props.theme.colors.border.default};
+  background: ${props => props.$active ? `${props.theme.colors.primary.main}15` : props.theme.colors.background.paper};
+  border-radius: 10px;
+  cursor: pointer;
+  color: ${props => props.$active ? props.theme.colors.primary.main : props.theme.colors.text.secondary};
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+
+  &:hover {
+    background: ${props => props.$active ? `${props.theme.colors.primary.main}25` : props.theme.colors.background.hover};
+    border-color: ${props => props.theme.colors.primary.main};
+    color: ${props => props.theme.colors.primary.main};
+  }
+`;
+
+const BulkActionBar = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: ${props => props.theme.spacing.sm} ${props => props.theme.spacing.xl};
+  background: linear-gradient(135deg, ${props => props.theme.colors.primary.main}15, ${props => props.theme.colors.primary.main}05);
+  border-bottom: 1px solid ${props => props.theme.colors.primary.main}30;
+  animation: slideDown 0.2s ease;
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`;
+
+const BulkActionInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${props => props.theme.spacing.md};
+  font-size: 14px;
+  color: ${props => props.theme.colors.text.primary};
+
+  strong {
+    color: ${props => props.theme.colors.primary.main};
+  }
+`;
+
+const BulkActionButtons = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${props => props.theme.spacing.sm};
+`;
+
+const BulkActionButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: ${props => props.theme.spacing.xs};
+  padding: ${props => props.theme.spacing.sm} ${props => props.theme.spacing.md};
+  border: none;
+  background: ${props => props.$danger ? props.theme.colors.error.main : props.theme.colors.primary.main};
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+
+  &:hover {
+    background: ${props => props.$danger ? props.theme.colors.error.dark : props.theme.colors.primary.dark};
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+`;
+
+const CancelBulkButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: ${props => props.theme.spacing.xs};
+  padding: ${props => props.theme.spacing.sm} ${props => props.theme.spacing.md};
+  border: 1px solid ${props => props.theme.colors.border.default};
+  background: transparent;
+  color: ${props => props.theme.colors.text.secondary};
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+
+  &:hover {
+    background: ${props => props.theme.colors.background.hover};
+    color: ${props => props.theme.colors.text.primary};
   }
 `;
 
@@ -995,6 +1101,7 @@ export default function ContentCalendar({
   onPostEdit,
   onPostReschedule,
   onPostDelete,
+  onPostDuplicate,
   onDateClick,
   onPostMove,
   viewMode = 'week',
@@ -1013,8 +1120,51 @@ export default function ContentCalendar({
   const [selectedCountryCode, setSelectedCountryCode] = useState('IT-ROM');
   const [aiBestTimes, setAiBestTimes] = useState(null);
   const [loadingBestTimes, setLoadingBestTimes] = useState(false);
+  const [bulkSelectMode, setBulkSelectMode] = useState(false);
+  const [selectedPosts, setSelectedPosts] = useState(new Set());
   const scrollContainerRef = useRef(null);
   const hasScrolledRef = useRef(false);
+
+  // Bulk selection handlers
+  const toggleBulkSelectMode = () => {
+    setBulkSelectMode(!bulkSelectMode);
+    setSelectedPosts(new Set());
+  };
+
+  const togglePostSelection = (postId) => {
+    setSelectedPosts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
+  };
+
+  const selectAllPosts = () => {
+    setSelectedPosts(new Set(posts.map(p => p.id)));
+  };
+
+  const clearSelection = () => {
+    setSelectedPosts(new Set());
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedPosts.size === 0) return;
+
+    // Delete each selected post
+    for (const postId of selectedPosts) {
+      const post = posts.find(p => p.id === postId);
+      if (post && onPostDelete) {
+        await onPostDelete(post);
+      }
+    }
+    // Clear selection and exit bulk mode
+    setSelectedPosts(new Set());
+    setBulkSelectMode(false);
+  };
 
   // Helper function to get platform from post's account IDs
   const getPlatformFromPost = (post) => {
@@ -1534,6 +1684,10 @@ export default function ContentCalendar({
                                 onEdit={onPostEdit}
                                 onDelete={onPostDelete}
                                 onReschedule={onPostReschedule}
+                                onDuplicate={onPostDuplicate}
+                                bulkSelectMode={bulkSelectMode}
+                                isSelected={selectedPosts.has(post.id)}
+                                onToggleSelect={togglePostSelection}
                               />
                             ))}
                             {/* Show "+N more" if there are more than 2 posts */}
@@ -1627,6 +1781,10 @@ export default function ContentCalendar({
                     onEdit={onPostEdit}
                     onDelete={onPostDelete}
                     onReschedule={onPostReschedule}
+                    onDuplicate={onPostDuplicate}
+                    bulkSelectMode={bulkSelectMode}
+                    isSelected={selectedPosts.has(post.id)}
+                    onToggleSelect={togglePostSelection}
                   />
                 ))}
                 {dayPosts.length > 3 && (
@@ -1865,6 +2023,14 @@ export default function ContentCalendar({
               >
                 {settings.timeFormat === '12' ? '12h' : '24h'}
               </TimeFormatButton>
+              <BulkSelectButton
+                $active={bulkSelectMode}
+                onClick={toggleBulkSelectMode}
+                title={bulkSelectMode ? 'Exit bulk select mode' : 'Select multiple posts'}
+              >
+                {bulkSelectMode ? <CheckSquare size={16} /> : <Square size={16} />}
+                {bulkSelectMode ? 'Exit Select' : 'Select'}
+              </BulkSelectButton>
               <UpcomingButton onClick={() => setShowUpcomingModal(true)}>
                 <Calendar size={16} />
                 Upcoming Posts
@@ -1888,6 +2054,34 @@ export default function ContentCalendar({
               </SettingsButton>
             </HeaderActions>
           </CalendarHeader>
+
+          {/* Bulk Action Bar - shows when in bulk select mode */}
+          {bulkSelectMode && (
+            <BulkActionBar>
+              <BulkActionInfo>
+                <CheckCircle size={18} />
+                <span><strong>{selectedPosts.size}</strong> post{selectedPosts.size !== 1 ? 's' : ''} selected</span>
+              </BulkActionInfo>
+              <BulkActionButtons>
+                <CancelBulkButton onClick={selectAllPosts}>
+                  Select All ({posts.length})
+                </CancelBulkButton>
+                {selectedPosts.size > 0 && (
+                  <CancelBulkButton onClick={clearSelection}>
+                    Clear Selection
+                  </CancelBulkButton>
+                )}
+                <BulkActionButton
+                  $danger
+                  onClick={handleBulkDelete}
+                  disabled={selectedPosts.size === 0}
+                >
+                  <Trash2 size={16} />
+                  Delete Selected
+                </BulkActionButton>
+              </BulkActionButtons>
+            </BulkActionBar>
+          )}
 
           {viewMode === 'month' ? renderMonthlyView() : renderWeeklyView()}
         </CalendarMain>

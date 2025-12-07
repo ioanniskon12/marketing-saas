@@ -144,6 +144,47 @@ const CheckBadge = styled.div`
   }
 `;
 
+// Meta combined avatar (Facebook + Instagram)
+const MetaCircle = styled(CircleBase)`
+  background: linear-gradient(135deg, #0668E1 0%, #E4405F 100%);
+  overflow: visible;
+`;
+
+const MetaBadgeContainer = styled.div`
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  display: flex;
+  gap: 0;
+`;
+
+const MetaPlatformBadge = styled.div`
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: ${props => props.$color || '#6B7280'};
+  border: 2px solid ${props => props.theme.colors.background.paper};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  z-index: ${props => props.$zIndex || 1};
+  margin-left: ${props => props.$overlap ? '-8px' : '0'};
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+  svg {
+    width: 10px;
+    height: 10px;
+  }
+`;
+
+const MetaLabel = styled.span`
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+`;
+
 const AddCircle = styled(CircleBase)`
   background: ${props => props.theme.colors.background.elevated};
   border: 2px dashed ${props => props.theme.colors.border.default};
@@ -212,6 +253,19 @@ export default function AccountSelector({
   const connectedAccounts = accounts.filter(acc => acc.connected || acc.is_active);
   const connectedPlatforms = new Set(connectedAccounts.map(acc => acc.platform));
 
+  // Check if both Facebook and Instagram are connected (Meta mode)
+  const hasFacebook = connectedAccounts.some(acc => acc.platform === 'facebook');
+  const hasInstagram = connectedAccounts.some(acc => acc.platform === 'instagram');
+  const isMetaMode = hasFacebook && hasInstagram;
+
+  // Get Meta accounts (Facebook + Instagram) and other accounts
+  const metaAccounts = isMetaMode
+    ? connectedAccounts.filter(acc => acc.platform === 'facebook' || acc.platform === 'instagram')
+    : [];
+  const otherAccounts = isMetaMode
+    ? connectedAccounts.filter(acc => acc.platform !== 'facebook' && acc.platform !== 'instagram')
+    : connectedAccounts;
+
   // Platforms that are not connected
   const unconnectedPlatforms = showUnconnected
     ? Object.keys(PLATFORM_CONFIG).filter(p => !connectedPlatforms.has(p))
@@ -248,8 +302,45 @@ export default function AccountSelector({
         </CircleWrapper>
       )}
 
-      {/* Connected accounts */}
-      {connectedAccounts.map((account) => {
+      {/* Meta combined avatar (when both Facebook and Instagram are connected) */}
+      {isMetaMode && (
+        <CircleWrapper>
+          <MetaCircle
+            $selected={metaAccounts.some(acc => acc.selected) && !isAllSelected}
+            onClick={() => {
+              // Toggle both Meta accounts
+              metaAccounts.forEach(acc => onToggleSelect?.(acc.id, acc.platform));
+            }}
+            onKeyDown={(e) => handleKeyDown(e, () => {
+              metaAccounts.forEach(acc => onToggleSelect?.(acc.id, acc.platform));
+            })}
+            tabIndex={0}
+            aria-label="Meta - Facebook & Instagram"
+            aria-pressed={metaAccounts.some(acc => acc.selected)}
+          >
+            <MetaLabel>M</MetaLabel>
+
+            <MetaBadgeContainer>
+              <MetaPlatformBadge $color="#1877F2" $zIndex={2}>
+                <Facebook />
+              </MetaPlatformBadge>
+              <MetaPlatformBadge $color="#E4405F" $zIndex={1} $overlap>
+                <Instagram />
+              </MetaPlatformBadge>
+            </MetaBadgeContainer>
+
+            {metaAccounts.some(acc => acc.selected) && !isAllSelected && (
+              <CheckBadge>
+                <Check />
+              </CheckBadge>
+            )}
+          </MetaCircle>
+          <Tooltip>Meta · Facebook & Instagram</Tooltip>
+        </CircleWrapper>
+      )}
+
+      {/* Other connected accounts (non-Meta) */}
+      {otherAccounts.map((account) => {
         const config = PLATFORM_CONFIG[account.platform] || PLATFORM_CONFIG.facebook;
         const Icon = config.icon;
         const isSelected = account.selected;

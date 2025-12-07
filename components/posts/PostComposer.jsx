@@ -8,7 +8,7 @@
 
 import { useState, useEffect } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
-import { Calendar, Clock, Instagram, Facebook, Linkedin, Hash, Pin, ImageIcon, X, Info, ChevronLeft, Plus, Check, Send, Trash2 } from 'lucide-react';
+import { Calendar, Clock, Instagram, Facebook, Linkedin, Hash, Pin, ImageIcon, X, Info, ChevronLeft, Plus, Check, Send, Trash2, Sparkles, Loader2 } from 'lucide-react';
 
 // Platform descriptions for consistency across the app
 const PLATFORM_DESCRIPTIONS = {
@@ -250,6 +250,67 @@ const ScheduleHint = styled.div`
   svg {
     color: ${props => props.theme.colors.primary.main};
     flex-shrink: 0;
+  }
+`;
+
+const BestTimeButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: ${props => props.theme.spacing.sm};
+  padding: ${props => props.theme.spacing.sm} ${props => props.theme.spacing.md};
+  background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
+  color: white;
+  border: none;
+  border-radius: ${props => props.theme.borderRadius.md};
+  font-size: ${props => props.theme.typography.fontSize.sm};
+  font-weight: ${props => props.theme.typography.fontWeight.medium};
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: ${props => props.theme.spacing.md};
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .spinner {
+    animation: spin 1s linear infinite;
+  }
+`;
+
+const BestTimeResult = styled.div`
+  margin-top: ${props => props.theme.spacing.sm};
+  padding: ${props => props.theme.spacing.sm} ${props => props.theme.spacing.md};
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: ${props => props.theme.borderRadius.md};
+  font-size: ${props => props.theme.typography.fontSize.xs};
+  color: ${props => props.theme.colors.text.primary};
+  display: flex;
+  align-items: center;
+  gap: ${props => props.theme.spacing.sm};
+
+  svg {
+    color: #8B5CF6;
+    flex-shrink: 0;
+  }
+
+  strong {
+    color: #8B5CF6;
   }
 `;
 
@@ -1125,6 +1186,103 @@ export default function PostComposer({
   const [activePlatformTab, setActivePlatformTab] = useState(null); // Track which platform tab is active
   const [platformData, setPlatformData] = useState({}); // Store per-platform data: { accountId: { content, media, hashtags, etc. }
   const [postNow, setPostNow] = useState(false); // Toggle between "Post Now" and "Schedule for Later"
+  const [loadingBestTime, setLoadingBestTime] = useState(false);
+  const [bestTimeApplied, setBestTimeApplied] = useState(null);
+
+  // Fetch AI-generated best posting time
+  const fetchBestTime = async () => {
+    setLoadingBestTime(true);
+    setBestTimeApplied(null);
+
+    try {
+      // Get user's location first
+      const geoResponse = await fetch('http://ip-api.com/json/?fields=status,country,countryCode,timezone');
+      const geoData = await geoResponse.json();
+
+      if (geoData.status !== 'success') {
+        throw new Error('Could not detect location');
+      }
+
+      // Fetch best times from AI
+      const response = await fetch('/api/ai/best-times', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          country: geoData.country,
+          countryCode: geoData.countryCode,
+          timezone: geoData.timezone,
+          platform: 'instagram', // Default to instagram
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to get best times');
+      }
+
+      // Determine if today is weekend or weekday
+      const now = new Date();
+      const dayOfWeek = now.getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const dayName = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][dayOfWeek];
+
+      // Get times for today
+      const todayTimes = data.bestTimes[dayName] || (isWeekend ? data.bestTimes.weekend : data.bestTimes.weekday);
+
+      if (!todayTimes || todayTimes.length === 0) {
+        throw new Error('No best times available');
+      }
+
+      // Find the next best time that's in the future
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      let selectedTime = null;
+      let selectedDate = new Date();
+
+      for (const slot of todayTimes) {
+        const [hours, minutes] = slot.time.split(':').map(Number);
+        if (hours > currentHour || (hours === currentHour && minutes > currentMinute)) {
+          selectedTime = slot;
+          break;
+        }
+      }
+
+      // If no time left today, use tomorrow's first slot
+      if (!selectedTime) {
+        selectedDate.setDate(selectedDate.getDate() + 1);
+        const tomorrowDayOfWeek = selectedDate.getDay();
+        const tomorrowIsWeekend = tomorrowDayOfWeek === 0 || tomorrowDayOfWeek === 6;
+        const tomorrowDayName = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][tomorrowDayOfWeek];
+        const tomorrowTimes = data.bestTimes[tomorrowDayName] || (tomorrowIsWeekend ? data.bestTimes.weekend : data.bestTimes.weekday);
+        selectedTime = tomorrowTimes[0];
+      }
+
+      if (!selectedTime) {
+        throw new Error('Could not determine best time');
+      }
+
+      // Format date as YYYY-MM-DD for input
+      const dateStr = selectedDate.toISOString().split('T')[0];
+
+      // Set the scheduled date and time
+      setScheduledDate(dateStr);
+      setScheduledTime(selectedTime.time);
+      setTimezone(geoData.timezone);
+      setBestTimeApplied({
+        time: selectedTime.label,
+        engagement: selectedTime.engagement,
+        country: geoData.country,
+      });
+
+      showToast.success(`Best time set: ${selectedTime.label} (${selectedTime.engagement} engagement)`);
+    } catch (error) {
+      console.error('Error fetching best time:', error);
+      showToast.error(error.message || 'Failed to get best posting time');
+    } finally {
+      setLoadingBestTime(false);
+    }
+  };
 
   // Load connected accounts
   useEffect(() => {
@@ -2111,6 +2269,36 @@ export default function PostComposer({
                       />
                     </InputGroup>
                   </ScheduleGrid>
+
+                  {/* Best Time Button */}
+                  <BestTimeButton
+                    type="button"
+                    onClick={fetchBestTime}
+                    disabled={loadingBestTime || loading}
+                  >
+                    {loadingBestTime ? (
+                      <>
+                        <Loader2 className="spinner" />
+                        Finding best time...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles />
+                        Suggest Best Time
+                      </>
+                    )}
+                  </BestTimeButton>
+
+                  {/* Show applied best time */}
+                  {bestTimeApplied && (
+                    <BestTimeResult>
+                      <Sparkles />
+                      <span>
+                        AI suggests <strong>{bestTimeApplied.time}</strong> for{' '}
+                        <strong>{bestTimeApplied.engagement}</strong> engagement in {bestTimeApplied.country}
+                      </span>
+                    </BestTimeResult>
+                  )}
 
                   {!scheduledDate && !scheduledTime ? (
                     <ScheduleHint>

@@ -416,6 +416,43 @@ export default function CalendarPage() {
     setShowDeleteModal(true);
   };
 
+  const handlePostDuplicate = async (post) => {
+    try {
+      // Create a duplicate post with a new scheduled time (1 hour later)
+      const originalDate = new Date(post.scheduled_for);
+      const newDate = new Date(originalDate);
+      newDate.setHours(newDate.getHours() + 1);
+
+      const duplicateData = {
+        workspace_id: currentWorkspace.id,
+        content: post.content,
+        platforms: post.platforms,
+        scheduled_for: newDate.toISOString(),
+        status: 'scheduled',
+        // Copy media if exists
+        media_urls: post.post_media?.map(m => m.media_url) || [],
+      };
+
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(duplicateData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to duplicate post');
+      }
+
+      showToast.success('Post duplicated! Scheduled for 1 hour later.');
+      await loadPosts();
+    } catch (error) {
+      console.error('Error duplicating post:', error);
+      showToast.error(error.message || 'Failed to duplicate post');
+    }
+  };
+
   const confirmDelete = async () => {
     if (!deletingPost) return;
 
@@ -452,8 +489,31 @@ export default function CalendarPage() {
   };
 
   const handleCreateNewPost = (date) => {
-    // Navigate to unified create post page
-    router.push('/dashboard/create-post');
+    // Navigate to unified create post page with pre-selected date/time and platforms
+    const params = new URLSearchParams();
+
+    if (date) {
+      params.set('scheduledFor', date.toISOString());
+    }
+
+    // Only pass platform if a specific one is selected (not "All")
+    if (platformFilter !== 'all') {
+      // Check if this is a Meta account (need to pass both facebook and instagram)
+      const hasFacebook = accounts.some(acc => acc.is_active && acc.platform === 'facebook');
+      const hasInstagram = accounts.some(acc => acc.is_active && acc.platform === 'instagram');
+
+      if ((platformFilter === 'facebook' || platformFilter === 'instagram') && hasFacebook && hasInstagram) {
+        // Meta mode - pass both platforms
+        params.set('platforms', 'facebook,instagram');
+      } else {
+        // Single platform selected
+        params.set('platforms', platformFilter);
+      }
+    }
+    // If "All" is selected, don't pass platforms - let create-post show platform selection
+
+    const queryString = params.toString();
+    router.push(`/dashboard/create-post${queryString ? `?${queryString}` : ''}`);
   };
 
   const handleComposerClose = () => {
@@ -581,6 +641,7 @@ export default function CalendarPage() {
         onPostEdit={handlePostEdit}
         onPostReschedule={handlePostReschedule}
         onPostDelete={handlePostDelete}
+        onPostDuplicate={handlePostDuplicate}
         onDateClick={handleCreateNewPost}
         viewMode={viewMode}
         onViewModeChange={setViewMode}

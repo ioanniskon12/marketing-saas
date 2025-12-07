@@ -75,7 +75,18 @@ export async function GET(request) {
 
     if (snapshotsError) throw snapshotsError;
 
-    // Get post analytics
+    // Get social accounts for the workspace (for platform lookup)
+    const { data: socialAccounts } = await supabase
+      .from('social_accounts')
+      .select('id, platform, platform_display_name')
+      .eq('workspace_id', workspaceId);
+
+    const accountMap = (socialAccounts || []).reduce((map, acc) => {
+      map[acc.id] = acc;
+      return map;
+    }, {});
+
+    // Get post analytics with media
     let postAnalyticsQuery = supabase
       .from('post_analytics')
       .select(`
@@ -84,7 +95,14 @@ export async function GET(request) {
           id,
           content,
           published_at,
-          platforms
+          platforms,
+          post_media (
+            id,
+            file_url,
+            media_type,
+            thumbnail_url,
+            display_order
+          )
         )
       `)
       .eq('workspace_id', workspaceId)
@@ -103,10 +121,10 @@ export async function GET(request) {
     const latestSnapshot = snapshots[snapshots.length - 1];
     const previousSnapshot = snapshots[snapshots.length - 2];
 
-    const totalEngagement = snapshots.reduce(
-      (sum, s) => sum + s.likes_count + s.comments_count + s.shares_count,
-      0
-    );
+    const totalLikes = snapshots.reduce((sum, s) => sum + (s.likes_count || 0), 0);
+    const totalComments = snapshots.reduce((sum, s) => sum + (s.comments_count || 0), 0);
+    const totalShares = snapshots.reduce((sum, s) => sum + (s.shares_count || 0), 0);
+    const totalEngagement = totalLikes + totalComments + totalShares;
 
     const avgEngagementRate = snapshots.length > 0
       ? snapshots.reduce((sum, s) => sum + parseFloat(s.engagement_rate || 0), 0) / snapshots.length
@@ -126,6 +144,9 @@ export async function GET(request) {
       followersChange: latestSnapshot?.followers_change || 0,
       followersGrowth: parseFloat(followersGrowth.toFixed(2)),
       totalEngagement,
+      totalLikes,
+      totalComments,
+      totalShares,
       avgEngagementRate: parseFloat(avgEngagementRate.toFixed(2)),
       totalReach,
       totalImpressions,
@@ -142,19 +163,40 @@ export async function GET(request) {
       engagementRate: parseFloat(snapshot.engagement_rate || 0),
     }));
 
-    // Top performing posts
-    const topPosts = postAnalytics.map(pa => ({
-      postId: pa.post_id,
-      content: pa.posts?.content?.substring(0, 100) + (pa.posts?.content?.length > 100 ? '...' : ''),
-      publishedAt: pa.posts?.published_at,
-      likes: pa.likes_count,
-      comments: pa.comments_count,
-      shares: pa.shares_count,
-      reach: pa.reach,
-      impressions: pa.impressions,
-      engagementRate: parseFloat(pa.engagement_rate || 0),
-      totalEngagement: pa.likes_count + pa.comments_count + pa.shares_count,
-    }));
+    // Top performing posts with media
+    const topPosts = postAnalytics.map(pa => {
+      // Get media sorted by display_order
+      const media = (pa.posts?.post_media || [])
+        .sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
+        .map(m => ({
+          id: m.id,
+          url: m.file_url,
+          type: m.media_type,
+          thumbnail: m.thumbnail_url,
+        }));
+
+      // Get platform from accountMap using social_account_id
+      const account = accountMap[pa.social_account_id];
+      const platform = account?.platform || null;
+      const platformDisplayName = account?.platform_display_name || null;
+
+      return {
+        postId: pa.post_id,
+        content: pa.posts?.content?.substring(0, 150) + (pa.posts?.content?.length > 150 ? '...' : ''),
+        fullContent: pa.posts?.content,
+        publishedAt: pa.posts?.published_at,
+        platform,
+        platformDisplayName,
+        media,
+        likes: pa.likes_count,
+        comments: pa.comments_count,
+        shares: pa.shares_count,
+        reach: pa.reach,
+        impressions: pa.impressions,
+        engagementRate: parseFloat(pa.engagement_rate || 0),
+        totalEngagement: pa.likes_count + pa.comments_count + pa.shares_count,
+      };
+    });
 
     return NextResponse.json({
       summary,

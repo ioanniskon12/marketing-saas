@@ -66,12 +66,12 @@ export async function GET(request) {
     });
 
     // Build LinkedIn OAuth URL
-    // Permissions: w_member_social (share content), r_liteprofile (basic profile)
+    // New scopes (2024+): openid, profile, email for user info; w_member_social for posting
     const params = new URLSearchParams({
       response_type: 'code',
       client_id: LINKEDIN_CLIENT_ID,
       redirect_uri: LINKEDIN_REDIRECT_URI,
-      scope: 'r_liteprofile w_member_social r_basicprofile',
+      scope: 'openid profile email w_member_social',
       state,
     });
 

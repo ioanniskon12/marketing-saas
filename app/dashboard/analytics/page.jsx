@@ -11,7 +11,8 @@ import styled, { useTheme } from 'styled-components';
 import {
   Users, TrendingUp, Eye, Activity, Calendar, Download, Share2, Heart,
   MessageCircle, Repeat2, Target, Clock, BarChart3, PieChart,
-  Zap, ArrowUp, ArrowDown, Minus, TrendingDown, MousePointer, Star
+  Zap, ArrowUp, ArrowDown, Minus, TrendingDown, MousePointer, Star,
+  Play, Image as ImageIcon, Instagram, Facebook, Twitter, Linkedin, Youtube
 } from 'lucide-react';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { showToast } from '@/components/ui/Toast';
@@ -615,6 +616,174 @@ const PostMetrics = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: ${props => props.theme.spacing.md};
+`;
+
+const PostCardLayout = styled.div`
+  display: flex;
+  gap: ${props => props.theme.spacing.xl};
+
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    flex-direction: column;
+  }
+`;
+
+const PostMediaSection = styled.div`
+  flex-shrink: 0;
+  width: 200px;
+
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    width: 100%;
+  }
+`;
+
+const PostMediaGrid = styled.div`
+  display: grid;
+  grid-template-columns: ${props => props.$count === 1 ? '1fr' : 'repeat(2, 1fr)'};
+  gap: 8px;
+  border-radius: ${props => props.theme.borderRadius.lg};
+  overflow: hidden;
+`;
+
+const PostMediaItem = styled.div`
+  position: relative;
+  aspect-ratio: 1;
+  background: ${props => props.theme.colors.neutral[100]};
+  border-radius: ${props => props.theme.borderRadius.md};
+  overflow: hidden;
+  cursor: pointer;
+  transition: all ${props => props.theme.transitions.fast};
+
+  &:hover {
+    transform: scale(1.02);
+    box-shadow: ${props => props.theme.shadows.md};
+  }
+
+  ${props => props.$isFirst && props.$count > 1 && `
+    grid-column: 1 / -1;
+    aspect-ratio: 16/9;
+  `}
+`;
+
+const PostImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const PostVideo = styled.div`
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: ${props => props.theme.colors.neutral[900]};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+const VideoPlayButton = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: all ${props => props.theme.transitions.fast};
+
+  &:hover {
+    background: ${props => props.theme.colors.primary.main};
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+`;
+
+const MoreMediaBadge = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: ${props => props.theme.typography.fontSize.xl};
+  font-weight: ${props => props.theme.typography.fontWeight.bold};
+`;
+
+const NoMediaPlaceholder = styled.div`
+  width: 100%;
+  aspect-ratio: 1;
+  background: ${props => props.theme.colors.neutral[100]};
+  border-radius: ${props => props.theme.borderRadius.lg};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: ${props => props.theme.colors.text.tertiary};
+  gap: ${props => props.theme.spacing.sm};
+
+  svg {
+    width: 40px;
+    height: 40px;
+    opacity: 0.5;
+  }
+`;
+
+const PostContentSection = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+const PostHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${props => props.theme.spacing.md};
+  margin-bottom: ${props => props.theme.spacing.md};
+`;
+
+const PlatformBadges = styled.div`
+  display: flex;
+  gap: ${props => props.theme.spacing.xs};
+`;
+
+const PlatformBadge = styled.div`
+  width: 28px;
+  height: 28px;
+  border-radius: ${props => props.theme.borderRadius.md};
+  background: ${props => props.$color || props.theme.colors.neutral[200]};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+`;
+
+const PostDate = styled.div`
+  font-size: ${props => props.theme.typography.fontSize.sm};
+  color: ${props => props.theme.colors.text.tertiary};
+`;
+
+const PlatformLabel = styled.span`
+  font-size: ${props => props.theme.typography.fontSize.sm};
+  font-weight: ${props => props.theme.typography.fontWeight.semibold};
+  color: ${props => props.$color || props.theme.colors.text.primary};
+  text-transform: capitalize;
 `;
 
 const Metric = styled.div`
@@ -1315,35 +1484,125 @@ export default function AnalyticsPage() {
             Top Performing Posts
           </SectionTitle>
           <PostsList>
-            {topPosts.map((post, index) => (
-              <PostCard key={post.postId || index}>
-                <PostContent>{post.content}</PostContent>
-                <PostMetrics>
-                  <Metric>
-                    <MetricLabel>Likes</MetricLabel>
-                    <MetricValueText>{post.likes?.toLocaleString() || 0}</MetricValueText>
-                  </Metric>
-                  <Metric>
-                    <MetricLabel>Comments</MetricLabel>
-                    <MetricValueText>{post.comments?.toLocaleString() || 0}</MetricValueText>
-                  </Metric>
-                  <Metric>
-                    <MetricLabel>Shares</MetricLabel>
-                    <MetricValueText>{post.shares?.toLocaleString() || 0}</MetricValueText>
-                  </Metric>
-                  <Metric>
-                    <MetricLabel>Engagement</MetricLabel>
-                    <MetricValueText>{post.engagementRate?.toFixed(2)}%</MetricValueText>
-                  </Metric>
-                  {post.reach > 0 && (
-                    <Metric>
-                      <MetricLabel>Reach</MetricLabel>
-                      <MetricValueText>{post.reach?.toLocaleString()}</MetricValueText>
-                    </Metric>
-                  )}
-                </PostMetrics>
-              </PostCard>
-            ))}
+            {topPosts.map((post, index) => {
+              const getPlatformIcon = (platform) => {
+                switch (platform?.toLowerCase()) {
+                  case 'instagram': return { icon: Instagram, color: '#E4405F' };
+                  case 'facebook': return { icon: Facebook, color: '#1877F2' };
+                  case 'twitter': return { icon: Twitter, color: '#1DA1F2' };
+                  case 'linkedin': return { icon: Linkedin, color: '#0A66C2' };
+                  case 'youtube': return { icon: Youtube, color: '#FF0000' };
+                  default: return { icon: Share2, color: '#6366f1' };
+                }
+              };
+
+              const mediaItems = post.media || [];
+              const displayMedia = mediaItems.slice(0, 4);
+              const remainingCount = mediaItems.length - 4;
+
+              return (
+                <PostCard key={post.postId || index}>
+                  <PostCardLayout>
+                    {/* Media Section */}
+                    <PostMediaSection>
+                      {mediaItems.length > 0 ? (
+                        <PostMediaGrid $count={displayMedia.length}>
+                          {displayMedia.map((media, idx) => (
+                            <PostMediaItem
+                              key={media.id || idx}
+                              $isFirst={idx === 0}
+                              $count={displayMedia.length}
+                            >
+                              {media.type === 'video' ? (
+                                <PostVideo>
+                                  <img
+                                    src={media.thumbnail || media.url}
+                                    alt="Video thumbnail"
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                  />
+                                  <VideoPlayButton>
+                                    <Play size={20} />
+                                  </VideoPlayButton>
+                                </PostVideo>
+                              ) : (
+                                <PostImage src={media.url} alt="Post media" />
+                              )}
+                              {idx === 3 && remainingCount > 0 && (
+                                <MoreMediaBadge>+{remainingCount}</MoreMediaBadge>
+                              )}
+                            </PostMediaItem>
+                          ))}
+                        </PostMediaGrid>
+                      ) : (
+                        <NoMediaPlaceholder>
+                          <ImageIcon />
+                          <span>No media</span>
+                        </NoMediaPlaceholder>
+                      )}
+                    </PostMediaSection>
+
+                    {/* Content Section */}
+                    <PostContentSection>
+                      <PostHeader>
+                        {post.platform && (
+                          <PlatformBadges>
+                            {(() => {
+                              const { icon: Icon, color } = getPlatformIcon(post.platform);
+                              return (
+                                <>
+                                  <PlatformBadge $color={color}>
+                                    <Icon />
+                                  </PlatformBadge>
+                                  <PlatformLabel $color={color}>
+                                    {post.platformDisplayName || post.platform}
+                                  </PlatformLabel>
+                                </>
+                              );
+                            })()}
+                          </PlatformBadges>
+                        )}
+                        {post.publishedAt && (
+                          <PostDate>
+                            {new Date(post.publishedAt).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}
+                          </PostDate>
+                        )}
+                      </PostHeader>
+
+                      <PostContent>{post.content || 'No caption'}</PostContent>
+
+                      <PostMetrics>
+                        <Metric>
+                          <MetricLabel>Likes</MetricLabel>
+                          <MetricValueText>{post.likes?.toLocaleString() || 0}</MetricValueText>
+                        </Metric>
+                        <Metric>
+                          <MetricLabel>Comments</MetricLabel>
+                          <MetricValueText>{post.comments?.toLocaleString() || 0}</MetricValueText>
+                        </Metric>
+                        <Metric>
+                          <MetricLabel>Shares</MetricLabel>
+                          <MetricValueText>{post.shares?.toLocaleString() || 0}</MetricValueText>
+                        </Metric>
+                        <Metric>
+                          <MetricLabel>Engagement</MetricLabel>
+                          <MetricValueText>{post.engagementRate?.toFixed(2)}%</MetricValueText>
+                        </Metric>
+                        {post.reach > 0 && (
+                          <Metric>
+                            <MetricLabel>Reach</MetricLabel>
+                            <MetricValueText>{post.reach?.toLocaleString()}</MetricValueText>
+                          </Metric>
+                        )}
+                      </PostMetrics>
+                    </PostContentSection>
+                  </PostCardLayout>
+                </PostCard>
+              );
+            })}
           </PostsList>
         </TopPostsSection>
       )}
