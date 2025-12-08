@@ -11,7 +11,7 @@ import styled from 'styled-components';
 import { Plus, Filter, MessageSquare, Heart, Share2, TrendingUp, Flag, Check } from 'lucide-react';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { showToast } from '@/components/ui/Toast';
-import { Button, Modal, Input, Select } from '@/components/ui';
+import { Button, Modal, Input, Select, PageSpinner } from '@/components/ui';
 
 const Container = styled.div`
   max-width: 1400px;
@@ -315,11 +315,7 @@ export default function ListeningPage() {
   };
 
   if (loading) {
-    return (
-      <Container>
-        <div>Loading...</div>
-      </Container>
-    );
+    return <PageSpinner label="Loading..." />;
   }
 
   return (

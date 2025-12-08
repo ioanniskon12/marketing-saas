@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { MessageSquare, CheckCircle, XCircle, Eye, Calendar, ExternalLink, Mail, User, Clock, Play, Image } from 'lucide-react';
+import { PageSpinner } from '@/components/ui';
 import { PLATFORM_CONFIG } from '@/lib/config/platforms';
 import NotificationSettings from '@/components/notifications/NotificationSettings';
 
@@ -125,14 +126,7 @@ export default function PlanFeedbackPage() {
   };
 
   if (loading) {
-    return (
-      <PageContainer>
-        <Header>
-          <Title>📊 Plan Feedback Dashboard</Title>
-          <Description>Loading feedback...</Description>
-        </Header>
-      </PageContainer>
-    );
+    return <PageSpinner label="Loading..." />;
   }
 
   if (shares.length === 0) {
@@ -413,6 +407,14 @@ const PageContainer = styled.div`
   min-height: 100vh;
   background: ${props => props.theme.colors.background.default};
   padding: 40px 20px;
+
+  @media (max-width: 768px) {
+    padding: 24px 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 16px 12px;
+  }
 `;
 
 const Header = styled.div`
@@ -421,6 +423,14 @@ const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  @media (max-width: 768px) {
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 480px) {
+    margin-bottom: 20px;
+  }
 `;
 
 const Title = styled.h1`
@@ -428,12 +438,28 @@ const Title = styled.h1`
   font-weight: 700;
   color: ${props => props.theme.colors.text.primary};
   margin: 0 0 8px 0;
+
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.25rem;
+  }
 `;
 
 const Description = styled.p`
   font-size: 1rem;
   color: ${props => props.theme.colors.text.secondary};
   margin: 0;
+
+  @media (max-width: 768px) {
+    font-size: 0.875rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.8125rem;
+  }
 `;
 
 const ContentLayout = styled.div`
@@ -456,6 +482,16 @@ const Sidebar = styled.div`
   max-height: calc(100vh - 140px);
   overflow-y: auto;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 1024px) {
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  @media (max-width: 480px) {
+    padding: 16px;
+    border-radius: 10px;
+  }
 `;
 
 const SidebarHeader = styled.div`
@@ -562,6 +598,11 @@ const ContentHeader = styled.div`
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 480px) {
+    padding: 16px;
+    border-radius: 10px;
+  }
 `;
 
 const ContentTitle = styled.h2`
@@ -569,6 +610,10 @@ const ContentTitle = styled.h2`
   font-weight: 700;
   color: ${props => props.theme.colors.text.primary};
   margin: 0 0 8px 0;
+
+  @media (max-width: 480px) {
+    font-size: 1.25rem;
+  }
 `;
 
 const ShareLink = styled.div`
@@ -640,6 +685,17 @@ const FilterBar = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 16px;
+    border-radius: 10px;
+  }
 `;
 
 const FilterLabel = styled.div`
@@ -652,6 +708,10 @@ const FilterButtons = styled.div`
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 const FilterButton = styled.button`
@@ -677,6 +737,13 @@ const FilterButton = styled.button`
       background: ${props.theme.colors.background.hover};
     `}
   }
+
+  @media (max-width: 480px) {
+    padding: 6px 12px;
+    font-size: 0.8125rem;
+    flex: 1;
+    text-align: center;
+  }
 `;
 
 const ActivitiesList = styled.div`
@@ -696,6 +763,11 @@ const ActivityCard = styled.div`
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
+
+  @media (max-width: 480px) {
+    padding: 16px;
+    border-radius: 10px;
+  }
 `;
 
 const ActivityHeader = styled.div`
@@ -703,6 +775,11 @@ const ActivityHeader = styled.div`
   align-items: flex-start;
   gap: 12px;
   margin-bottom: 12px;
+  flex-wrap: wrap;
+
+  @media (max-width: 480px) {
+    gap: 8px;
+  }
 `;
 
 const UserAvatar = styled.div`
@@ -726,6 +803,12 @@ const UserAvatar = styled.div`
     transform: scale(1.1);
     box-shadow: 0 4px 12px ${props => props.$color}60;
   }
+
+  @media (max-width: 480px) {
+    width: 36px;
+    height: 36px;
+    font-size: 0.75rem;
+  }
 `;
 
 const ActivityIcon = styled.div`
@@ -738,6 +821,16 @@ const ActivityIcon = styled.div`
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+
+  @media (max-width: 480px) {
+    width: 28px;
+    height: 28px;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
 `;
 
 const ActivityMeta = styled.div`
@@ -780,6 +873,11 @@ const ActivityType = styled.div`
   font-size: 0.75rem;
   font-weight: 600;
   flex-shrink: 0;
+
+  @media (max-width: 480px) {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
 `;
 
 const ActivityContent = styled.div`

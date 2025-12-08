@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
 import { useUser } from '@/lib/supabase/hooks';
+import { PageSpinner } from '@/components/ui';
 import {
   Users,
   DollarSign,
@@ -788,13 +789,7 @@ export default function AdminPage() {
   const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
   if (loading) {
-    return (
-      <PageContainer>
-        <LoadingContainer>
-          <LoadingSpinner />
-        </LoadingContainer>
-      </PageContainer>
-    );
+    return <PageSpinner label="Loading Admin Panel" />;
   }
 
   if (!isAdmin) {

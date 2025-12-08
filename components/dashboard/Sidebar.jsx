@@ -1,7 +1,7 @@
 /**
  * Dashboard Sidebar
  *
- * Clean, modern navigation sidebar matching admin panel style.
+ * Clean, modern navigation sidebar with collapse/expand on hover.
  */
 
 'use client';
@@ -28,6 +28,12 @@ import {
   Menu,
   Shield,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  PanelLeftClose,
+  PanelLeft,
+  MousePointer2,
+  Check,
 } from 'lucide-react';
 import BrandSwitcher from './BrandSwitcher';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
@@ -39,11 +45,14 @@ import { useRouter } from 'next/navigation';
 // Admin email for showing admin panel link
 const ADMIN_EMAIL = 'gianniskon12@gmail.com';
 
+const SIDEBAR_WIDTH_EXPANDED = 260;
+const SIDEBAR_WIDTH_COLLAPSED = 72;
+
 const SidebarWrapper = styled.aside`
-  width: 260px;
+  width: ${props => props.$expanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED}px;
   background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
   min-height: 100vh;
-  padding: 24px 16px;
+  padding: ${props => props.$expanded ? '24px 16px' : '24px 12px'};
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -51,9 +60,12 @@ const SidebarWrapper = styled.aside`
   top: 0;
   bottom: 0;
   z-index: 100;
-  transition: transform 0.3s ease;
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: visible;
 
   @media (max-width: 1024px) {
+    width: ${SIDEBAR_WIDTH_EXPANDED}px;
+    padding: 24px 16px;
     transform: ${props => props.$isOpen ? 'translateX(0)' : 'translateX(-100%)'};
   }
 `;
@@ -77,14 +89,17 @@ const LogoSection = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0 12px 24px;
+  padding: ${props => props.$expanded ? '0 12px 24px' : '0 4px 24px'};
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   margin-bottom: 16px;
+  justify-content: ${props => props.$expanded ? 'flex-start' : 'center'};
+  transition: padding 0.25s cubic-bezier(0.4, 0, 0.2, 1), justify-content 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
 const LogoIcon = styled.div`
   width: 40px;
   height: 40px;
+  min-width: 40px;
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   border-radius: 12px;
   display: flex;
@@ -105,6 +120,10 @@ const LogoIcon = styled.div`
 const LogoText = styled.div`
   display: flex;
   flex-direction: column;
+  opacity: ${props => props.$expanded ? 1 : 0};
+  width: ${props => props.$expanded ? 'auto' : '0'};
+  overflow: hidden;
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
 const LogoTitle = styled.span`
@@ -147,10 +166,99 @@ const CloseButton = styled.button`
   }
 `;
 
+const CollapseButton = styled.button`
+  position: absolute;
+  bottom: 80px;
+  right: -14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border: 2px solid #1e293b;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 110;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.6);
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  @media (max-width: 1024px) {
+    display: none;
+  }
+`;
+
+const CollapseDropdown = styled.div`
+  position: absolute;
+  bottom: 70px;
+  right: -160px;
+  width: 150px;
+  background: #1e293b;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px;
+  opacity: ${props => props.$show ? 1 : 0};
+  visibility: ${props => props.$show ? 'visible' : 'hidden'};
+  transform: ${props => props.$show ? 'translateX(0)' : 'translateX(-10px)'};
+  transition: all 0.2s ease;
+  z-index: 200;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+
+  @media (max-width: 1024px) {
+    display: none;
+  }
+`;
+
+const CollapseOption = styled.button`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: ${props => props.$active ? 'rgba(99, 102, 241, 0.2)' : 'transparent'};
+  border: none;
+  color: ${props => props.$active ? 'white' : 'rgba(255, 255, 255, 0.7)'};
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+
+  &:hover {
+    background: ${props => props.$active ? 'rgba(99, 102, 241, 0.3)' : 'rgba(255, 255, 255, 0.1)'};
+    color: white;
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+    color: ${props => props.$active ? '#a5b4fc' : 'rgba(255, 255, 255, 0.5)'};
+  }
+`;
+
+const CheckMark = styled.div`
+  margin-left: auto;
+  color: #6366f1;
+  display: ${props => props.$show ? 'block' : 'none'};
+`;
+
 const BrandSwitcherWrapper = styled.div`
   padding: 0 4px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   margin-bottom: 16px;
+  display: ${props => props.$expanded ? 'block' : 'none'};
 `;
 
 const NavSection = styled.nav`
@@ -159,6 +267,20 @@ const NavSection = styled.nav`
   flex-direction: column;
   gap: 4px;
   overflow-y: auto;
+  overflow-x: hidden;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+  }
 `;
 
 const NavSectionTitle = styled.div`
@@ -167,21 +289,27 @@ const NavSectionTitle = styled.div`
   color: rgba(255, 255, 255, 0.4);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  padding: 16px 16px 8px;
+  padding: ${props => props.$expanded ? '16px 16px 8px' : '16px 8px 8px'};
+  opacity: ${props => props.$expanded ? 1 : 0};
+  height: ${props => props.$expanded ? 'auto' : '0'};
+  overflow: hidden;
+  transition: opacity 0.2s ease;
 `;
 
 const NavItem = styled(Link)`
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;
+  padding: ${props => props.$expanded ? '12px 16px' : '12px'};
   border-radius: 10px;
   color: ${props => props.$active ? 'white' : 'rgba(255, 255, 255, 0.6)'};
   background: ${props => props.$active ? 'rgba(99, 102, 241, 0.2)' : 'transparent'};
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  justify-content: ${props => props.$expanded ? 'flex-start' : 'center'};
+  position: relative;
 
   &:hover {
     background: ${props => props.$active ? 'rgba(99, 102, 241, 0.25)' : 'rgba(255, 255, 255, 0.08)'};
@@ -191,6 +319,40 @@ const NavItem = styled(Link)`
   svg {
     color: ${props => props.$active ? '#a5b4fc' : 'rgba(255, 255, 255, 0.5)'};
     flex-shrink: 0;
+    min-width: 20px;
+  }
+`;
+
+const NavLabel = styled.span`
+  display: ${props => props.$expanded ? 'inline' : 'none'};
+  white-space: nowrap;
+  opacity: ${props => props.$expanded ? 1 : 0};
+  transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+`;
+
+const NavTooltip = styled.div`
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 8px;
+  padding: 6px 12px;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  pointer-events: none;
+  z-index: 200;
+
+  ${NavItem}:hover & {
+    opacity: ${props => props.$show ? 1 : 0};
+    visibility: ${props => props.$show ? 'visible' : 'hidden'};
   }
 `;
 
@@ -204,13 +366,14 @@ const UserSection = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
+  padding: ${props => props.$expanded ? '12px' : '8px'};
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.05);
   margin-bottom: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
+  justify-content: ${props => props.$expanded ? 'flex-start' : 'center'};
 
   &:hover {
     background: rgba(255, 255, 255, 0.08);
@@ -220,6 +383,7 @@ const UserSection = styled.div`
 const UserAvatar = styled.div`
   width: 36px;
   height: 36px;
+  min-width: 36px;
   border-radius: 10px;
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   display: flex;
@@ -234,6 +398,7 @@ const UserAvatar = styled.div`
 const UserInfo = styled.div`
   flex: 1;
   min-width: 0;
+  display: ${props => props.$expanded ? 'block' : 'none'};
 `;
 
 const UserName = styled.div`
@@ -257,6 +422,7 @@ const UserDropdownIcon = styled.div`
   color: rgba(255, 255, 255, 0.5);
   transition: transform 0.2s ease;
   transform: ${props => props.$open ? 'rotate(180deg)' : 'rotate(0)'};
+  display: ${props => props.$expanded ? 'block' : 'none'};
 `;
 
 const UserDropdown = styled.div`
@@ -274,6 +440,7 @@ const UserDropdown = styled.div`
   transform: ${props => props.$show ? 'translateY(0)' : 'translateY(10px)'};
   transition: all 0.2s ease;
   z-index: 10;
+  min-width: 180px;
 `;
 
 const DropdownItem = styled.button`
@@ -307,15 +474,17 @@ const FooterControls = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-direction: ${props => props.$expanded ? 'row' : 'column'};
 `;
 
 const FooterButton = styled.button`
-  flex: 1;
+  flex: ${props => props.$expanded ? 1 : 'none'};
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px;
+  padding: ${props => props.$expanded ? '10px' : '10px'};
+  width: ${props => props.$expanded ? 'auto' : '100%'};
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.05);
   border: none;
@@ -334,6 +503,10 @@ const FooterButton = styled.button`
   svg {
     flex-shrink: 0;
   }
+`;
+
+const FooterLabel = styled.span`
+  display: ${props => props.$expanded ? 'inline' : 'none'};
 `;
 
 const NotificationBadge = styled.div`
@@ -403,14 +576,35 @@ const getNavItems = (userEmail) => [
   },
 ];
 
-export default function Sidebar({ mobileOpen, onMobileClose }) {
+// Sidebar modes: 'open' (always expanded), 'collapsed' (always collapsed), 'auto' (collapsed with hover expand)
+const SIDEBAR_MODES = {
+  OPEN: 'open',
+  AUTO: 'auto',
+  COLLAPSED: 'collapsed',
+};
+
+export default function Sidebar({ mobileOpen, onMobileClose, onCollapseChange }) {
   const pathname = usePathname();
   const router = useRouter();
   const { currentWorkspace } = useWorkspace();
   const { isDarkMode, toggleTheme } = useTheme();
   const { user } = useUser();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showCollapseMenu, setShowCollapseMenu] = useState(false);
+  const [sidebarMode, setSidebarMode] = useState(SIDEBAR_MODES.OPEN);
+  const [isHovered, setIsHovered] = useState(false);
   const userMenuRef = useRef(null);
+  const collapseMenuRef = useRef(null);
+
+  // Calculate if sidebar should be expanded based on mode and hover state
+  const isExpanded = sidebarMode === SIDEBAR_MODES.OPEN ||
+                     (sidebarMode === SIDEBAR_MODES.AUTO && isHovered);
+
+  // For backwards compatibility with layout
+  const isCollapsed = sidebarMode === SIDEBAR_MODES.COLLAPSED ||
+                      (sidebarMode === SIDEBAR_MODES.AUTO && !isHovered);
+
+  console.log('Sidebar state:', { sidebarMode, isHovered, isExpanded, isCollapsed });
 
   const notifications = [];
   const notificationCount = notifications.length;
@@ -420,16 +614,42 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setShowUserMenu(false);
       }
+      if (collapseMenuRef.current && !collapseMenuRef.current.contains(event.target)) {
+        setShowCollapseMenu(false);
+      }
     };
 
-    if (showUserMenu) {
+    if (showUserMenu || showCollapseMenu) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showUserMenu]);
+  }, [showUserMenu, showCollapseMenu]);
+
+  // Load sidebar mode from localStorage
+  useEffect(() => {
+    const savedMode = localStorage.getItem('sidebarMode');
+    if (savedMode && Object.values(SIDEBAR_MODES).includes(savedMode)) {
+      setSidebarMode(savedMode);
+      console.log('Loaded sidebar mode from localStorage:', savedMode);
+    }
+  }, []);
+
+  // Notify parent when collapse state changes
+  useEffect(() => {
+    if (onCollapseChange) {
+      onCollapseChange(isCollapsed);
+    }
+  }, [isCollapsed, onCollapseChange]);
+
+  const handleModeChange = (mode) => {
+    console.log('Changing sidebar mode to:', mode);
+    setSidebarMode(mode);
+    localStorage.setItem('sidebarMode', mode);
+    setShowCollapseMenu(false);
+  };
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -472,28 +692,72 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
         <Menu size={24} />
       </MobileMenuButton>
 
-      <SidebarWrapper $isOpen={mobileOpen}>
+      <SidebarWrapper
+        $isOpen={mobileOpen}
+        $expanded={isExpanded}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {/* Collapse button with dropdown */}
+        <div ref={collapseMenuRef}>
+          <CollapseButton
+            onClick={() => setShowCollapseMenu(!showCollapseMenu)}
+            title="Sidebar options"
+          >
+            {isExpanded ? <ChevronLeft /> : <ChevronRight />}
+          </CollapseButton>
+          <CollapseDropdown $show={showCollapseMenu}>
+            <CollapseOption
+              $active={sidebarMode === SIDEBAR_MODES.OPEN}
+              onClick={() => handleModeChange(SIDEBAR_MODES.OPEN)}
+            >
+              <PanelLeft />
+              Open
+              <CheckMark $show={sidebarMode === SIDEBAR_MODES.OPEN}>
+                <Check size={16} />
+              </CheckMark>
+            </CollapseOption>
+            <CollapseOption
+              $active={sidebarMode === SIDEBAR_MODES.AUTO}
+              onClick={() => handleModeChange(SIDEBAR_MODES.AUTO)}
+            >
+              <MousePointer2 />
+              Auto
+              <CheckMark $show={sidebarMode === SIDEBAR_MODES.AUTO}>
+                <Check size={16} />
+              </CheckMark>
+            </CollapseOption>
+            <CollapseOption
+              $active={sidebarMode === SIDEBAR_MODES.COLLAPSED}
+              onClick={() => handleModeChange(SIDEBAR_MODES.COLLAPSED)}
+            >
+              <PanelLeftClose />
+              Mini
+              <CheckMark $show={sidebarMode === SIDEBAR_MODES.COLLAPSED}>
+                <Check size={16} />
+              </CheckMark>
+            </CollapseOption>
+          </CollapseDropdown>
+        </div>
+
         <CloseButton onClick={onMobileClose}>
           <X size={20} />
         </CloseButton>
 
-        <LogoSection>
+        <LogoSection $expanded={isExpanded}>
           {currentWorkspace?.logo_url ? (
             <>
               <LogoIcon>
                 <img src={currentWorkspace.logo_url} alt={currentWorkspace.name} />
               </LogoIcon>
-              <LogoText>
-                <WorkspaceLogo
-                  src={currentWorkspace.logo_url}
-                  alt={currentWorkspace.name}
-                />
+              <LogoText $expanded={isExpanded}>
+                <LogoTitle>{currentWorkspace.name || 'Workspace'}</LogoTitle>
               </LogoText>
             </>
           ) : (
             <>
               <LogoIcon>SH</LogoIcon>
-              <LogoText>
+              <LogoText $expanded={isExpanded}>
                 <LogoTitle>SocialHub</LogoTitle>
                 <LogoSubtitle>Dashboard</LogoSubtitle>
               </LogoText>
@@ -501,14 +765,14 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
           )}
         </LogoSection>
 
-        <BrandSwitcherWrapper>
+        <BrandSwitcherWrapper $expanded={isExpanded}>
           <BrandSwitcher />
         </BrandSwitcherWrapper>
 
         <NavSection>
           {getNavItems(user?.email).map((section) => (
             <div key={section.section}>
-              <NavSectionTitle>{section.section}</NavSectionTitle>
+              <NavSectionTitle $expanded={isExpanded}>{section.section}</NavSectionTitle>
               {section.items.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -516,10 +780,12 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
                     key={item.href}
                     href={item.href}
                     $active={isActive(item.href, item.exact)}
+                    $expanded={isExpanded}
                     onClick={onMobileClose}
                   >
                     <Icon size={20} />
-                    {item.label}
+                    <NavLabel $expanded={isExpanded}>{item.label}</NavLabel>
+                    <NavTooltip $show={!isExpanded}>{item.label}</NavTooltip>
                   </NavItem>
                 );
               })}
@@ -529,13 +795,13 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
 
         <SidebarFooter>
           <div ref={userMenuRef} style={{ position: 'relative' }}>
-            <UserSection onClick={() => setShowUserMenu(!showUserMenu)}>
+            <UserSection $expanded={isExpanded} onClick={() => setShowUserMenu(!showUserMenu)}>
               <UserAvatar>{getUserInitials()}</UserAvatar>
-              <UserInfo>
+              <UserInfo $expanded={isExpanded}>
                 <UserName>{getUserDisplayName()}</UserName>
                 <UserEmail>{user?.email || ''}</UserEmail>
               </UserInfo>
-              <UserDropdownIcon $open={showUserMenu}>
+              <UserDropdownIcon $open={showUserMenu} $expanded={isExpanded}>
                 <ChevronDown size={16} />
               </UserDropdownIcon>
             </UserSection>
@@ -552,14 +818,14 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
             </UserDropdown>
           </div>
 
-          <FooterControls>
-            <FooterButton onClick={toggleTheme} title={isDarkMode ? "Light mode" : "Dark mode"}>
+          <FooterControls $expanded={isExpanded}>
+            <FooterButton $expanded={isExpanded} onClick={toggleTheme} title={isDarkMode ? "Light mode" : "Dark mode"}>
               {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-              {isDarkMode ? 'Light' : 'Dark'}
+              <FooterLabel $expanded={isExpanded}>{isDarkMode ? 'Light' : 'Dark'}</FooterLabel>
             </FooterButton>
-            <FooterButton title="Notifications">
+            <FooterButton $expanded={isExpanded} title="Notifications">
               <Bell size={18} />
-              Alerts
+              <FooterLabel $expanded={isExpanded}>Alerts</FooterLabel>
               {notificationCount > 0 && <NotificationBadge />}
             </FooterButton>
           </FooterControls>

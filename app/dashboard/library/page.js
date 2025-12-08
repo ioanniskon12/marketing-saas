@@ -11,6 +11,7 @@ import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Image as ImageIcon, Video, Filter, Loader, FileX, Play, X, Download, Trash2, Upload, Edit2, RefreshCw } from 'lucide-react';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { PageSpinner } from '@/components/ui';
 
 const Container = styled.div`
   max-width: 1400px;
@@ -29,6 +30,14 @@ const Header = styled.div`
 const Title = styled.h1`
   font-size: ${props => props.theme.typography.fontSize['3xl']};
   font-weight: ${props => props.theme.typography.fontWeight.bold};
+
+  @media (max-width: 768px) {
+    font-size: ${props => props.theme.typography.fontSize['2xl']};
+  }
+
+  @media (max-width: 480px) {
+    font-size: ${props => props.theme.typography.fontSize.xl};
+  }
 `;
 
 const UploadButton = styled.button`
@@ -52,6 +61,19 @@ const UploadButton = styled.button`
     cursor: not-allowed;
     transform: none;
   }
+
+  @media (max-width: 768px) {
+    padding: ${props => props.theme.spacing.sm} ${props => props.theme.spacing.md};
+    font-size: ${props => props.theme.typography.fontSize.sm};
+  }
+
+  @media (max-width: 480px) {
+    padding: ${props => props.theme.spacing.sm};
+
+    span {
+      display: none;
+    }
+  }
 `;
 
 const HiddenFileInput = styled.input`
@@ -63,6 +85,16 @@ const Stats = styled.div`
   gap: ${props => props.theme.spacing.lg};
   font-size: ${props => props.theme.typography.fontSize.sm};
   color: ${props => props.theme.colors.text.secondary};
+
+  @media (max-width: 768px) {
+    gap: ${props => props.theme.spacing.md};
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 480px) {
+    gap: ${props => props.theme.spacing.sm};
+    font-size: ${props => props.theme.typography.fontSize.xs};
+  }
 `;
 
 const StatItem = styled.div`
@@ -76,6 +108,11 @@ const FilterBar = styled.div`
   gap: ${props => props.theme.spacing.md};
   margin-bottom: ${props => props.theme.spacing.xl};
   flex-wrap: wrap;
+
+  @media (max-width: 480px) {
+    gap: ${props => props.theme.spacing.sm};
+    margin-bottom: ${props => props.theme.spacing.lg};
+  }
 `;
 
 const FilterButton = styled.button`
@@ -99,25 +136,48 @@ const FilterButton = styled.button`
       ? props.theme.colors.primary.dark
       : `${props.theme.colors.primary.main}10`};
   }
+
+  @media (max-width: 480px) {
+    padding: ${props => props.theme.spacing.xs} ${props => props.theme.spacing.md};
+    font-size: ${props => props.theme.typography.fontSize.sm};
+    flex: 1;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    gap: ${props => props.theme.spacing.xs};
+  }
 `;
 
 const MediaGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: ${props => props.theme.spacing.md};
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: ${props => props.theme.spacing.sm};
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: ${props => props.theme.spacing.sm};
+  }
 `;
 
 const MediaCard = styled.div`
   background: ${props => props.theme.colors.background.paper};
   border-radius: ${props => props.theme.borderRadius.xl};
   overflow: hidden;
-  box-shadow: ${props => props.theme.shadows.sm};
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
   cursor: pointer;
-  transition: all ${props => props.theme.transitions.fast};
+  transition: border-color 0.15s ease;
 
   &:hover {
-    box-shadow: ${props => props.theme.shadows.lg};
-    transform: translateY(-2px);
+    border-color: ${props => props.theme.colors.neutral[300]};
+  }
+
+  @media (max-width: 480px) {
+    border-radius: ${props => props.theme.borderRadius.lg};
   }
 `;
 
@@ -155,6 +215,10 @@ const VideoOverlay = styled.div`
 
 const MediaInfo = styled.div`
   padding: ${props => props.theme.spacing.md};
+
+  @media (max-width: 480px) {
+    padding: ${props => props.theme.spacing.sm};
+  }
 `;
 
 const MediaName = styled.div`
@@ -165,6 +229,10 @@ const MediaName = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   margin-bottom: ${props => props.theme.spacing.xs};
+
+  @media (max-width: 480px) {
+    font-size: ${props => props.theme.typography.fontSize.xs};
+  }
 `;
 
 const MediaMeta = styled.div`
@@ -460,6 +528,12 @@ const ModalFooter = styled.div`
   border-top: 1px solid ${props => props.theme.colors.neutral[200]};
   display: flex;
   gap: ${props => props.theme.spacing.md};
+
+  @media (max-width: 480px) {
+    padding: ${props => props.theme.spacing.md};
+    gap: ${props => props.theme.spacing.sm};
+    flex-wrap: wrap;
+  }
 `;
 
 const ActionButton = styled.button`
@@ -486,6 +560,11 @@ const ActionButton = styled.button`
       background: ${props.theme.colors.neutral[200]};
     }
   `}
+
+  @media (max-width: 480px) {
+    padding: ${props => props.theme.spacing.sm} ${props => props.theme.spacing.md};
+    font-size: ${props => props.theme.typography.fontSize.sm};
+  }
 `;
 
 const PaginationContainer = styled.div`
@@ -495,6 +574,11 @@ const PaginationContainer = styled.div`
   margin-top: ${props => props.theme.spacing.xl};
   flex-wrap: wrap;
   gap: ${props => props.theme.spacing.md};
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: ${props => props.theme.spacing.lg};
+  }
 `;
 
 const ItemsPerPageSelector = styled.div`
@@ -529,6 +613,12 @@ const PaginationControls = styled.div`
   display: flex;
   align-items: center;
   gap: ${props => props.theme.spacing.sm};
+  flex-wrap: wrap;
+  justify-content: center;
+
+  @media (max-width: 480px) {
+    gap: ${props => props.theme.spacing.xs};
+  }
 `;
 
 const PageButton = styled.button`
@@ -558,12 +648,22 @@ const PageButton = styled.button`
     opacity: 0.4;
     cursor: not-allowed;
   }
+
+  @media (max-width: 480px) {
+    padding: ${props => props.theme.spacing.xs} ${props => props.theme.spacing.sm};
+    font-size: ${props => props.theme.typography.fontSize.xs};
+  }
 `;
 
 const PageInfo = styled.span`
   font-size: ${props => props.theme.typography.fontSize.sm};
   color: ${props => props.theme.colors.text.secondary};
   padding: 0 ${props => props.theme.spacing.md};
+
+  @media (max-width: 480px) {
+    font-size: ${props => props.theme.typography.fontSize.xs};
+    padding: 0 ${props => props.theme.spacing.xs};
+  }
 `;
 
 export default function Library() {
@@ -867,14 +967,7 @@ export default function Library() {
   };
 
   if (loading) {
-    return (
-      <Container>
-        <LoadingContainer>
-          <SpinnerIcon size={48} />
-          <p>Loading media library...</p>
-        </LoadingContainer>
-      </Container>
-    );
+    return <PageSpinner label="Loading..." />;
   }
 
   return (

@@ -38,7 +38,7 @@ import {
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { createClient } from '@/lib/supabase/client';
-import { Spinner } from '@/components/ui';
+import { PageSpinner } from '@/components/ui';
 import { showToast } from '@/components/ui/Toast';
 
 const DashboardContainer = styled.div`
@@ -86,6 +86,12 @@ const HeroSection = styled.div`
     border-radius: 50%;
     filter: blur(50px);
   }
+
+  @media (max-width: 768px) {
+    padding: ${props => props.theme.spacing.lg};
+    margin-bottom: ${props => props.theme.spacing.md};
+    border-radius: ${props => props.theme.borderRadius.xl};
+  }
 `;
 
 const HeroContent = styled.div`
@@ -114,6 +120,16 @@ const HeroStats = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: ${props => props.theme.spacing.lg};
   margin-top: ${props => props.theme.spacing.xl};
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: ${props => props.theme.spacing.sm};
+    margin-top: ${props => props.theme.spacing.md};
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr 1fr;
+  }
 `;
 
 const HeroStatCard = styled.div`
@@ -129,12 +145,21 @@ const HeroStatCard = styled.div`
     background: rgba(255, 255, 255, 0.25);
     transform: translateY(-4px);
   }
+
+  @media (max-width: 768px) {
+    padding: ${props => props.theme.spacing.md};
+    border-radius: ${props => props.theme.borderRadius.lg};
+  }
 `;
 
 const HeroStatValue = styled.div`
   font-size: ${props => props.theme.typography.fontSize['3xl']};
   font-weight: ${props => props.theme.typography.fontWeight.bold};
   margin-bottom: ${props => props.theme.spacing.xs};
+
+  @media (max-width: 768px) {
+    font-size: ${props => props.theme.typography.fontSize.xl};
+  }
 `;
 
 const HeroStatLabel = styled.div`
@@ -176,6 +201,11 @@ const Card = styled.div`
   &:hover {
     box-shadow: ${props => props.theme.shadows['2xl']};
   }
+
+  @media (max-width: 768px) {
+    padding: ${props => props.theme.spacing.md};
+    border-radius: ${props => props.theme.borderRadius.xl};
+  }
 `;
 
 const CardHeader = styled.div`
@@ -209,6 +239,14 @@ const StatsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: ${props => props.theme.spacing.lg};
+
+  @media (max-width: 768px) {
+    gap: ${props => props.theme.spacing.sm};
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const MiniStatCard = styled.div`
@@ -280,6 +318,11 @@ const QuickActionsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: ${props => props.theme.spacing.md};
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: ${props => props.theme.spacing.sm};
+  }
 `;
 
 const QuickActionBtn = styled(Link)`
@@ -709,11 +752,7 @@ export default function DashboardPage() {
   };
 
   if (loading) {
-    return (
-      <LoadingContainer>
-        <Spinner size="lg" label="Loading your dashboard..." />
-      </LoadingContainer>
-    );
+    return <PageSpinner label="Loading..." />;
   }
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';

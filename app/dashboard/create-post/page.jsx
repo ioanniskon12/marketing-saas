@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { showToast } from '@/components/ui/Toast';
-import { Button } from '@/components/ui';
+import { Button, PageSpinner } from '@/components/ui';
 import MediaLibrarySelector from '@/components/media/MediaLibrarySelector';
 import InlineMediaPanel from '@/components/media/InlineMediaPanel';
 import DateTimeWheelPicker, { ModalOverlay, ScheduledTimeDisplay } from '@/components/ui/DateTimeWheelPicker';
@@ -1164,13 +1164,7 @@ export default function CreatePostPage() {
   };
 
   if (loading) {
-    return (
-      <Container>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px' }}>
-          <Loader size={32} className="animate-spin" />
-        </div>
-      </Container>
-    );
+    return <PageSpinner label="Loading..." />;
   }
 
   const connectedAccounts = accounts.filter(acc => acc.is_active);

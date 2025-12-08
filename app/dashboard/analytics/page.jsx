@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { showToast } from '@/components/ui/Toast';
-import { Button } from '@/components/ui';
+import { Button, PageSpinner } from '@/components/ui';
 import MetricsCard from '@/components/analytics/MetricsCard';
 import FollowersChart from '@/components/analytics/FollowersChart';
 import { createClient } from '@/lib/supabase/client';
@@ -69,12 +69,20 @@ const HeroTitle = styled.h1`
   font-weight: ${props => props.theme.typography.fontWeight.bold};
   margin: 0 0 ${props => props.theme.spacing.sm} 0;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 768px) {
+    font-size: ${props => props.theme.typography.fontSize['2xl']};
+  }
 `;
 
 const HeroSubtitle = styled.p`
   font-size: ${props => props.theme.typography.fontSize.lg};
   opacity: 0.95;
   margin: 0 0 ${props => props.theme.spacing.xl} 0;
+
+  @media (max-width: 768px) {
+    font-size: ${props => props.theme.typography.fontSize.sm};
+  }
 `;
 
 const HeroStats = styled.div`
@@ -82,6 +90,15 @@ const HeroStats = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: ${props => props.theme.spacing.lg};
   margin-top: ${props => props.theme.spacing.xl};
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: ${props => props.theme.spacing.md};
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const HeroStat = styled.div`
@@ -113,6 +130,11 @@ const HeroStatValue = styled.div`
   display: flex;
   align-items: baseline;
   gap: ${props => props.theme.spacing.sm};
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    font-size: ${props => props.theme.typography.fontSize['2xl']};
+  }
 `;
 
 const TrendIndicator = styled.div`
@@ -152,6 +174,12 @@ const Controls = styled.div`
   border-radius: ${props => props.theme.borderRadius.xl};
   box-shadow: ${props => props.theme.shadows.md};
   border: 1px solid ${props => props.theme.colors.neutral[200]};
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    padding: ${props => props.theme.spacing.md};
+  }
 `;
 
 const FilterGroup = styled.div`
@@ -212,6 +240,15 @@ const MetricsGrid = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: ${props => props.theme.spacing.lg};
   margin-bottom: ${props => props.theme.spacing.xl};
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: ${props => props.theme.spacing.md};
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const AdvancedMetricCard = styled.div`
@@ -480,6 +517,15 @@ const EngagementGrid = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: ${props => props.theme.spacing.lg};
   margin-bottom: ${props => props.theme.spacing.xl};
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: ${props => props.theme.spacing.md};
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const EngagementCard = styled.div`
@@ -1058,15 +1104,7 @@ export default function AnalyticsPage() {
   };
 
   if (loading) {
-    return (
-      <Container>
-        <LoadingState>
-          <LoadingSpinner />
-          <LoadingText>Loading Analytics</LoadingText>
-          <LoadingSubtext>Fetching your performance data...</LoadingSubtext>
-        </LoadingState>
-      </Container>
-    );
+    return <PageSpinner label="Loading Analytics" subLabel="Fetching your performance data..." />;
   }
 
   if (!analytics || analytics.period.days === 0) {

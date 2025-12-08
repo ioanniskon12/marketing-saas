@@ -57,11 +57,27 @@ const Title = styled.h1`
   font-weight: ${props => props.theme.typography.fontWeight.bold};
   color: ${props => props.theme.colors.text.primary};
   margin-bottom: ${props => props.theme.spacing.xs};
+
+  @media (max-width: 768px) {
+    font-size: ${props => props.theme.typography.fontSize['2xl']};
+  }
+
+  @media (max-width: 480px) {
+    font-size: ${props => props.theme.typography.fontSize.xl};
+  }
 `;
 
 const Subtitle = styled.p`
   color: ${props => props.theme.colors.text.secondary};
   font-size: ${props => props.theme.typography.fontSize.md};
+
+  @media (max-width: 768px) {
+    font-size: ${props => props.theme.typography.fontSize.sm};
+  }
+
+  @media (max-width: 480px) {
+    display: none;
+  }
 `;
 
 const TitleIcon = styled.div`
@@ -74,6 +90,26 @@ const TitleIcon = styled.div`
   align-items: center;
   justify-content: center;
   box-shadow: 0 8px 24px ${props => `${props.theme.colors.primary.main}40`};
+
+  @media (max-width: 768px) {
+    width: 44px;
+    height: 44px;
+
+    svg {
+      width: 22px;
+      height: 22px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    width: 36px;
+    height: 36px;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
 `;
 
 const FilterSection = styled.div`
@@ -109,6 +145,13 @@ const StatusFilterButton = styled.button`
     border-color: ${props => props.$color};
     background: ${props => props.$active ? props.$color : `${props.$color}20`};
     color: ${props => props.$active ? 'white' : props.theme.colors.text.primary};
+  }
+
+  @media (max-width: 480px) {
+    padding: ${props => props.theme.spacing.xs} ${props => props.theme.spacing.sm};
+    font-size: ${props => props.theme.typography.fontSize.xs};
+    flex: 1;
+    justify-content: center;
   }
 `;
 
@@ -172,6 +215,11 @@ const ModalContent = styled.div`
   max-width: 480px;
   width: 90%;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+
+  @media (max-width: 480px) {
+    padding: ${props => props.theme.spacing.lg};
+    width: 95%;
+  }
 `;
 
 const ModalHeader = styled.div`
@@ -206,6 +254,11 @@ const ModalActions = styled.div`
   display: flex;
   gap: ${props => props.theme.spacing.md};
   justify-content: flex-end;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: ${props => props.theme.spacing.sm};
+  }
 `;
 
 const CancelButton = styled.button`

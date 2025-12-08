@@ -2,14 +2,18 @@
  * Dashboard Layout
  *
  * Main layout wrapper for all dashboard pages with sidebar.
+ * Sidebar can be collapsed (72px) or expanded (260px) with hover-to-expand.
  */
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Sidebar from '@/components/dashboard/Sidebar';
 import { Menu } from 'lucide-react';
+
+const SIDEBAR_WIDTH_EXPANDED = 260;
+const SIDEBAR_WIDTH_COLLAPSED = 72;
 
 const LayoutContainer = styled.div`
   display: flex;
@@ -21,9 +25,9 @@ const MainContent = styled.main`
   flex: 1;
   display: flex;
   flex-direction: column;
-  margin-left: 260px;
-  width: calc(100% - 260px);
-  transition: all 0.3s ease;
+  margin-left: ${props => props.$sidebarCollapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED}px;
+  width: calc(100% - ${props => props.$sidebarCollapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED}px);
+  transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   z-index: 1;
 
@@ -77,6 +81,23 @@ const MobileMenuButton = styled.button`
 
 export default function DashboardLayout({ children }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Load initial state from localStorage on mount
+  useEffect(() => {
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    if (savedState !== null) {
+      setSidebarCollapsed(savedState === 'true');
+    }
+    setIsInitialized(true);
+  }, []);
+
+  // Callback when sidebar collapse state changes
+  const handleCollapseChange = (collapsed) => {
+    setSidebarCollapsed(collapsed);
+    localStorage.setItem('sidebarCollapsed', String(collapsed));
+  };
 
   return (
     <LayoutContainer>
@@ -87,9 +108,10 @@ export default function DashboardLayout({ children }) {
       <Sidebar
         mobileOpen={mobileSidebarOpen}
         onMobileClose={() => setMobileSidebarOpen(false)}
+        onCollapseChange={handleCollapseChange}
       />
 
-      <MainContent>
+      <MainContent $sidebarCollapsed={sidebarCollapsed}>
         <ContentArea>
           {children}
         </ContentArea>

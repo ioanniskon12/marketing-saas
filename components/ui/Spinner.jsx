@@ -1,26 +1,17 @@
 /**
  * Spinner Component
  *
- * Modern loading spinner with gradient colors and animations.
+ * Minimal loading with workspace logo.
  */
 
 'use client';
 
 import styled, { keyframes } from 'styled-components';
-
-const spin = keyframes`
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-`;
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 
 const pulse = keyframes`
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-`;
-
-const float = keyframes`
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.95); }
 `;
 
 const SpinnerContainer = styled.div`
@@ -28,7 +19,7 @@ const SpinnerContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: ${props => props.theme.spacing.lg};
+  gap: ${props => props.theme.spacing.md};
 
   ${props => props.$fullScreen && `
     position: fixed;
@@ -39,123 +30,42 @@ const SpinnerContainer = styled.div`
     width: 100vw;
     height: 100vh;
     background: ${props.theme.colors.background.default};
-    background-image: linear-gradient(135deg,
-      ${props.theme.colors.background.default} 0%,
-      ${props.theme.colors.primary.main}08 50%,
-      ${props.theme.colors.background.default} 100%
-    );
-    backdrop-filter: blur(10px);
     z-index: 9999;
   `}
 `;
 
-const SpinnerWrapper = styled.div`
-  position: relative;
-  display: inline-flex;
+const LogoWrapper = styled.div`
+  display: flex;
   align-items: center;
   justify-content: center;
-`;
-
-const StyledSpinner = styled.div`
-  position: relative;
-  display: inline-block;
-  border-radius: 50%;
-  animation: ${spin} 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
-
-  /* Size variants */
-  ${props => props.$size === 'xs' && `
-    width: 16px;
-    height: 16px;
-    border: 2px solid transparent;
-  `}
-
-  ${props => props.$size === 'sm' && `
-    width: 24px;
-    height: 24px;
-    border: 2px solid transparent;
-  `}
-
-  ${props => props.$size === 'md' && `
-    width: 32px;
-    height: 32px;
-    border: 3px solid transparent;
-  `}
-
-  ${props => props.$size === 'lg' && `
-    width: 64px;
-    height: 64px;
-    border: 4px solid transparent;
-  `}
-
-  ${props => props.$size === 'xl' && `
-    width: 80px;
-    height: 80px;
-    border: 5px solid transparent;
-  `}
-
-  /* Gradient border */
-  background: linear-gradient(${props => props.theme.colors.background.paper}, ${props => props.theme.colors.background.paper}) padding-box,
-              linear-gradient(135deg,
-                ${props => props.theme.colors.primary.main},
-                ${props => props.theme.colors.primary.light},
-                #9333EA,
-                #F59E0B
-              ) border-box;
-  box-shadow: 0 0 20px ${props => props.theme.colors.primary.main}40;
-`;
-
-const InnerCircle = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60%;
-  height: 60%;
-  border-radius: 50%;
-  background: linear-gradient(135deg,
-    ${props => props.theme.colors.primary.main}40,
-    ${props => props.theme.colors.primary.light}40
-  );
   animation: ${pulse} 1.5s ease-in-out infinite;
 `;
 
-const Dots = styled.div`
+const LogoImage = styled.img`
+  width: ${props => props.$size === 'sm' ? '32px' : props.$size === 'lg' ? '48px' : '40px'};
+  height: ${props => props.$size === 'sm' ? '32px' : props.$size === 'lg' ? '48px' : '40px'};
+  border-radius: 10px;
+  object-fit: contain;
+`;
+
+const FallbackLogo = styled.div`
+  width: ${props => props.$size === 'sm' ? '32px' : props.$size === 'lg' ? '48px' : '40px'};
+  height: ${props => props.$size === 'sm' ? '32px' : props.$size === 'lg' ? '48px' : '40px'};
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  font-size: ${props => props.$size === 'sm' ? '12px' : props.$size === 'lg' ? '18px' : '14px'};
+  font-weight: 700;
   display: flex;
-  gap: ${props => props.theme.spacing.sm};
-  animation: ${float} 2s ease-in-out infinite;
-`;
-
-const Dot = styled.div`
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: linear-gradient(135deg,
-    ${props => props.theme.colors.primary.main},
-    ${props => props.theme.colors.primary.light}
-  );
-  animation: ${pulse} 1.5s ease-in-out infinite;
-  animation-delay: ${props => props.$delay}s;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: -0.5px;
 `;
 
 const Label = styled.div`
-  color: ${props => props.theme.colors.text.primary};
-  font-size: ${props => props.theme.typography.fontSize.lg};
-  font-weight: ${props => props.theme.typography.fontWeight.semibold};
-  background: linear-gradient(135deg,
-    ${props => props.theme.colors.primary.main},
-    ${props => props.theme.colors.primary.light},
-    #9333EA
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: ${pulse} 2s ease-in-out infinite;
-`;
-
-const SubLabel = styled.div`
   color: ${props => props.theme.colors.text.secondary};
   font-size: ${props => props.theme.typography.fontSize.sm};
-  margin-top: ${props => props.theme.spacing.xs};
+  font-weight: ${props => props.theme.typography.fontWeight.medium};
 `;
 
 /**
@@ -163,54 +73,53 @@ const SubLabel = styled.div`
  */
 export default function Spinner({
   size = 'md',
-  variant = 'primary',
   label,
   fullScreen = false,
 }) {
+  const { currentWorkspace } = useWorkspace();
+  const logoUrl = currentWorkspace?.logo_url;
+
   return (
     <SpinnerContainer $fullScreen={fullScreen}>
-      <SpinnerWrapper>
-        <StyledSpinner
-          $size={size}
-          $variant={variant}
-          role="status"
-          aria-label={label || 'Loading'}
-        >
-          <InnerCircle />
-        </StyledSpinner>
-      </SpinnerWrapper>
-      {label && (
-        <div style={{ textAlign: 'center' }}>
-          <Label>{label}</Label>
-          <Dots>
-            <Dot $delay={0} />
-            <Dot $delay={0.2} />
-            <Dot $delay={0.4} />
-          </Dots>
-        </div>
-      )}
+      <LogoWrapper>
+        {logoUrl ? (
+          <LogoImage
+            src={logoUrl}
+            alt="Loading"
+            $size={size}
+          />
+        ) : (
+          <FallbackLogo $size={size} role="status" aria-label={label || 'Loading'}>
+            SH
+          </FallbackLogo>
+        )}
+      </LogoWrapper>
+      {label && <Label>{label}</Label>}
     </SpinnerContainer>
   );
 }
 
 // Convenience component for full-page loading
-export function PageSpinner({ label = 'Loading', subLabel }) {
+export function PageSpinner({ label = 'Loading...' }) {
+  const { currentWorkspace } = useWorkspace();
+  const logoUrl = currentWorkspace?.logo_url;
+
   return (
     <SpinnerContainer $fullScreen={true}>
-      <SpinnerWrapper>
-        <StyledSpinner $size="xl" role="status" aria-label={label}>
-          <InnerCircle />
-        </StyledSpinner>
-      </SpinnerWrapper>
-      <div style={{ textAlign: 'center' }}>
-        <Label>{label}</Label>
-        {subLabel && <SubLabel>{subLabel}</SubLabel>}
-        <Dots>
-          <Dot $delay={0} />
-          <Dot $delay={0.2} />
-          <Dot $delay={0.4} />
-        </Dots>
-      </div>
+      <LogoWrapper>
+        {logoUrl ? (
+          <LogoImage
+            src={logoUrl}
+            alt="Loading"
+            $size="lg"
+          />
+        ) : (
+          <FallbackLogo $size="lg" role="status" aria-label={label}>
+            SH
+          </FallbackLogo>
+        )}
+      </LogoWrapper>
+      <Label>{label}</Label>
     </SpinnerContainer>
   );
 }

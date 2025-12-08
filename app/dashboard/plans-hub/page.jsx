@@ -67,6 +67,14 @@ const Header = styled.div`
   background: ${props => props.theme.colors.background.paper};
   border-bottom: 1px solid ${props => props.theme.colors.border.default};
   padding: 32px 40px 24px;
+
+  @media (max-width: 768px) {
+    padding: 24px 20px 20px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 20px 16px 16px;
+  }
 `;
 
 const HeaderContent = styled.div`
@@ -79,18 +87,44 @@ const Title = styled.h1`
   font-weight: 700;
   color: ${props => props.theme.colors.text.primary};
   margin: 0 0 8px 0;
+
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.25rem;
+  }
 `;
 
 const Description = styled.p`
   font-size: 1rem;
   color: ${props => props.theme.colors.text.secondary};
   margin: 0;
+
+  @media (max-width: 768px) {
+    font-size: 0.875rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.8125rem;
+  }
 `;
 
 const TabsContainer = styled.div`
   background: ${props => props.theme.colors.background.paper};
   border-bottom: 1px solid ${props => props.theme.colors.border.default};
   padding: 0 40px;
+
+  @media (max-width: 768px) {
+    padding: 0 20px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 `;
 
 const TabsList = styled.div`
@@ -98,6 +132,11 @@ const TabsList = styled.div`
   margin: 0 auto;
   display: flex;
   gap: 8px;
+
+  @media (max-width: 480px) {
+    gap: 4px;
+    min-width: max-content;
+  }
 `;
 
 const Tab = styled.button`
@@ -118,6 +157,7 @@ const Tab = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
+  white-space: nowrap;
 
   &:hover {
     color: ${props => props.theme.colors.primary.main};
@@ -126,6 +166,22 @@ const Tab = styled.button`
 
   svg {
     opacity: ${props => props.$active ? 1 : 0.7};
+  }
+
+  @media (max-width: 768px) {
+    padding: 12px 16px;
+    gap: 6px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 10px 12px;
+    font-size: 0.8125rem;
+    gap: 4px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
   }
 `;
 
@@ -136,5 +192,9 @@ const TabContent = styled.div`
 
   @media (max-width: 768px) {
     padding: 20px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 16px;
   }
 `;

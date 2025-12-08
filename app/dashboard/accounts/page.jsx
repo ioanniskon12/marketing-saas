@@ -28,17 +28,43 @@ const Title = styled.h1`
   font-weight: 700;
   color: ${props => props.theme.colors.text.primary};
   margin-bottom: 8px;
+
+  @media (max-width: 768px) {
+    font-size: 24px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 20px;
+  }
 `;
 
 const Subtitle = styled.p`
   color: ${props => props.theme.colors.text.secondary};
   font-size: 15px;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 13px;
+  }
 `;
 
 const AccountsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 20px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 `;
 
 const AccountCard = styled.div`
@@ -60,12 +86,24 @@ const AccountCard = styled.div`
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
   }
+
+  @media (max-width: 480px) {
+    padding: 16px;
+    height: auto;
+    min-height: 120px;
+    border-radius: 10px;
+  }
 `;
 
 const CardTop = styled.div`
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  gap: 12px;
+
+  @media (max-width: 480px) {
+    flex-wrap: wrap;
+  }
 `;
 
 const PlatformInfo = styled.div`
@@ -97,6 +135,16 @@ const PlatformIcon = styled.div`
     height: 100%;
     object-fit: cover;
   }
+
+  @media (max-width: 480px) {
+    width: 40px;
+    height: 40px;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
 `;
 
 const PlatformDetails = styled.div``;
@@ -106,6 +154,10 @@ const PlatformName = styled.h3`
   font-weight: 600;
   color: ${props => props.theme.colors.text.primary};
   margin-bottom: 4px;
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+  }
 `;
 
 const Username = styled.p`
@@ -115,6 +167,11 @@ const Username = styled.p`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+    max-width: 120px;
+  }
 `;
 
 const StatusChip = styled.div`
@@ -125,6 +182,7 @@ const StatusChip = styled.div`
   border-radius: 16px;
   font-size: 12px;
   font-weight: 500;
+  flex-shrink: 0;
   background: ${props => {
     if (props.$status === 'connected') return 'rgba(16, 185, 129, 0.15)';
     if (props.$status === 'error') return 'rgba(239, 68, 68, 0.15)';
@@ -141,6 +199,16 @@ const StatusChip = styled.div`
   svg {
     width: 12px;
     height: 12px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 4px 8px;
+    font-size: 11px;
+
+    svg {
+      width: 10px;
+      height: 10px;
+    }
   }
 `;
 
@@ -172,6 +240,16 @@ const ConnectButton = styled.button`
     width: 14px;
     height: 14px;
   }
+
+  @media (max-width: 480px) {
+    padding: 6px 12px;
+    font-size: 12px;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
 `;
 
 const DisconnectButton = styled.button`
@@ -197,6 +275,16 @@ const DisconnectButton = styled.button`
   svg {
     width: 14px;
     height: 14px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 6px 12px;
+    font-size: 12px;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
   }
 `;
 
@@ -228,6 +316,11 @@ const ModalContent = styled.div`
   max-width: 380px;
   width: 90%;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+
+  @media (max-width: 480px) {
+    padding: 20px;
+    border-radius: 12px;
+  }
 `;
 
 const ModalHeader = styled.div`
@@ -265,6 +358,11 @@ const ModalActions = styled.div`
   display: flex;
   gap: 12px;
   justify-content: flex-end;
+
+  @media (max-width: 480px) {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
 `;
 
 const ModalButton = styled.button`
@@ -298,6 +396,12 @@ const ModalButton = styled.button`
       cursor: not-allowed;
     }
   `}
+
+  @media (max-width: 480px) {
+    padding: 12px 16px;
+    width: 100%;
+    justify-content: center;
+  }
 `;
 
 const PLATFORM_CONFIG = {

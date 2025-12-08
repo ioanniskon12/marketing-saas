@@ -677,12 +677,24 @@ const Title = styled.h2`
   font-weight: 700;
   color: ${props => props.theme.colors.text.primary};
   margin: 0 0 4px 0;
+
+  @media (max-width: 768px) {
+    font-size: 1.25rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.125rem;
+  }
 `;
 
 const Subtitle = styled.p`
   font-size: 0.875rem;
   color: ${props => props.theme.colors.text.secondary};
   margin: 0;
+
+  @media (max-width: 480px) {
+    font-size: 0.8125rem;
+  }
 `;
 
 const SharesGrid = styled.div`
@@ -707,6 +719,11 @@ const ShareCard = styled.div`
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transform: translateY(-2px);
   }
+
+  @media (max-width: 480px) {
+    padding: 16px;
+    border-radius: 10px;
+  }
 `;
 
 const CardHeader = styled.div`
@@ -725,6 +742,10 @@ const ShareTitle = styled.h3`
   font-weight: 600;
   color: ${props => props.theme.colors.text.primary};
   margin: 0 0 4px 0;
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }
 `;
 
 const ClientName = styled.div`
@@ -922,6 +943,11 @@ const StatsGrid = styled.div`
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   margin-bottom: 16px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
 `;
 
 const StatItem = styled.div`
@@ -931,6 +957,10 @@ const StatItem = styled.div`
   padding: 12px 8px;
   background: ${props => props.theme.colors.background.elevated};
   border-radius: 8px;
+
+  @media (max-width: 480px) {
+    padding: 10px 6px;
+  }
 `;
 
 const StatIcon = styled.div`
@@ -943,6 +973,16 @@ const StatIcon = styled.div`
   align-items: center;
   justify-content: center;
   margin-bottom: 6px;
+
+  @media (max-width: 480px) {
+    width: 28px;
+    height: 28px;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
 `;
 
 const StatValue = styled.div`
@@ -950,6 +990,10 @@ const StatValue = styled.div`
   font-weight: 700;
   color: ${props => props.theme.colors.text.primary};
   margin-bottom: 2px;
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }
 `;
 
 const StatLabel = styled.div`
@@ -1025,6 +1069,11 @@ const ModalActions = styled.div`
   display: flex;
   gap: 12px;
   justify-content: flex-end;
+
+  @media (max-width: 480px) {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
 `;
 
 const ModalButton = styled.button`
@@ -1045,6 +1094,11 @@ const ModalButton = styled.button`
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    justify-content: center;
   }
 `;
 
@@ -1219,4 +1273,10 @@ const EditModalActions = styled.div`
   padding: 20px 24px;
   border-top: 1px solid ${props => props.theme.colors.border.default};
   margin-top: 4px;
+
+  @media (max-width: 480px) {
+    flex-direction: column-reverse;
+    gap: 8px;
+    padding: 16px;
+  }
 `;

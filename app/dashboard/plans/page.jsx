@@ -66,22 +66,44 @@ const Title = styled.h1`
   font-weight: 700;
   color: ${props => props.theme.colors.text.primary};
   margin: 0 0 4px 0;
+
+  @media (max-width: 768px) {
+    font-size: 24px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 20px;
+  }
 `;
 
 const Subtitle = styled.p`
   font-size: 14px;
   color: ${props => props.theme.colors.text.secondary};
   margin: 0;
+
+  @media (max-width: 480px) {
+    font-size: 13px;
+  }
 `;
 
 const HeaderActions = styled.div`
   display: flex;
   gap: 12px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 8px;
+  }
 `;
 
 const ShareButton = styled.button`
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 10px 20px;
   background: ${props => props.theme.colors.primary.main};
@@ -107,11 +129,18 @@ const ShareButton = styled.button`
     width: 16px;
     height: 16px;
   }
+
+  @media (max-width: 480px) {
+    padding: 10px 16px;
+    font-size: 13px;
+    flex: 1;
+  }
 `;
 
 const CreateButton = styled.button`
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 10px 20px;
   background: ${props => props.theme.colors.background.paper};
@@ -132,6 +161,12 @@ const CreateButton = styled.button`
     width: 16px;
     height: 16px;
   }
+
+  @media (max-width: 480px) {
+    padding: 10px 16px;
+    font-size: 13px;
+    flex: 1;
+  }
 `;
 
 // Account Selector Section
@@ -144,6 +179,11 @@ const AccountSection = styled.div`
   animation: ${fadeIn} 0.3s ease-out;
   animation-delay: 0.1s;
   animation-fill-mode: both;
+
+  @media (max-width: 480px) {
+    padding: 12px 16px;
+    border-radius: 10px;
+  }
 `;
 
 const SectionLabel = styled.div`
@@ -167,6 +207,10 @@ const MonthTabsWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+
+  @media (max-width: 480px) {
+    gap: 4px;
+  }
 `;
 
 const MonthNavButton = styled.button`
@@ -191,6 +235,16 @@ const MonthNavButton = styled.button`
   svg {
     width: 18px;
     height: 18px;
+  }
+
+  @media (max-width: 480px) {
+    width: 32px;
+    height: 32px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
   }
 `;
 
@@ -234,6 +288,11 @@ const MonthTab = styled.button`
       color: ${props.theme.colors.text.primary};
     `}
   }
+
+  @media (max-width: 480px) {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
 `;
 
 const YearLabel = styled.div`
@@ -242,6 +301,11 @@ const YearLabel = styled.div`
   color: ${props => props.theme.colors.text.primary};
   padding: 0 12px;
   flex-shrink: 0;
+
+  @media (max-width: 480px) {
+    font-size: 13px;
+    padding: 0 8px;
+  }
 `;
 
 // Posts Section
@@ -261,6 +325,16 @@ const PostsHeader = styled.div`
   align-items: center;
   padding: 16px 20px;
   border-bottom: 1px solid ${props => props.theme.colors.border.default};
+  gap: 12px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px 16px;
+  }
 `;
 
 const FilterControls = styled.div`
@@ -268,6 +342,15 @@ const FilterControls = styled.div`
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  @media (max-width: 480px) {
+    gap: 8px;
+  }
 `;
 
 const FilterGroup = styled.div`
@@ -584,6 +667,11 @@ const ModalContent = styled.div`
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
+
+  @media (max-width: 480px) {
+    border-radius: 12px;
+    max-height: 95vh;
+  }
 `;
 
 const ModalHeader = styled.div`
@@ -596,6 +684,10 @@ const ModalHeader = styled.div`
   top: 0;
   background: ${props => props.theme.colors.background.paper};
   z-index: 1;
+
+  @media (max-width: 480px) {
+    padding: 16px;
+  }
 `;
 
 const ModalTitle = styled.h2`
@@ -630,6 +722,10 @@ const CloseButton = styled.button`
 
 const ModalBody = styled.div`
   padding: 24px;
+
+  @media (max-width: 480px) {
+    padding: 16px;
+  }
 `;
 
 const MediaGallery = styled.div`
@@ -702,12 +798,28 @@ const PaginationWrapper = styled.div`
   gap: 8px;
   padding: 24px 20px;
   border-top: 1px solid ${props => props.theme.colors.border.default};
+  flex-wrap: wrap;
+
+  @media (max-width: 480px) {
+    padding: 16px 12px;
+    gap: 4px;
+  }
 `;
 
 const PaginationInfo = styled.span`
   font-size: 13px;
   color: ${props => props.theme.colors.text.secondary};
   margin: 0 16px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    text-align: center;
+    margin: 8px 0 0 0;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+  }
 `;
 
 const PaginationButton = styled.button`
