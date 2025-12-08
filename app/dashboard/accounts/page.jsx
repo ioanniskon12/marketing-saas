@@ -483,7 +483,7 @@ export default function AccountsPage() {
   const connectedCount = accounts.filter(a => a.is_active).length;
 
   if (loading) {
-    return <PageSpinner />;
+    return <PageSpinner label="Loading your accounts" />;
   }
 
   if (!currentWorkspace) {

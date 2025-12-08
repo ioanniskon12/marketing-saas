@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { MessageSquare, CheckCircle, XCircle, Eye, Calendar, ExternalLink, Mail, User, Clock } from 'lucide-react';
+import { MessageSquare, CheckCircle, XCircle, Eye, Calendar, ExternalLink, Mail, User, Clock, Play, Image } from 'lucide-react';
+import { PLATFORM_CONFIG } from '@/lib/config/platforms';
 import NotificationSettings from '@/components/notifications/NotificationSettings';
 
 export default function PlanFeedbackPage() {
@@ -48,6 +49,7 @@ export default function PlanFeedbackPage() {
         email: comment.author_email,
         content: comment.comment,
         postId: comment.post_id,
+        post: comment.post,
         createdAt: comment.created_at,
       });
     });
@@ -61,6 +63,7 @@ export default function PlanFeedbackPage() {
         email: approval.approver_email,
         content: approval.feedback,
         postId: approval.post_id,
+        post: approval.post,
         createdAt: approval.created_at,
       });
     });
@@ -301,45 +304,99 @@ export default function PlanFeedbackPage() {
                     </EmptyDescription>
                   </EmptyActivities>
                 ) : (
-                  activities.map((activity) => (
-                    <ActivityCard key={`${activity.type}-${activity.id}`}>
-                      <ActivityHeader>
-                        <UserAvatar
-                          $color={getActivityColor(activity.type)}
-                          title={`${activity.author} (${activity.email})`}
-                        >
-                          {getInitials(activity.author)}
-                        </UserAvatar>
-                        <ActivityIcon $color={getActivityColor(activity.type)}>
-                          {getActivityIcon(activity.type)}
-                        </ActivityIcon>
-                        <ActivityMeta>
-                          <ActivityAuthor>
-                            {activity.author}
-                          </ActivityAuthor>
-                          <ActivityEmail>
-                            {activity.email}
-                          </ActivityEmail>
-                        </ActivityMeta>
-                        <ActivityType $color={getActivityColor(activity.type)}>
-                          {activity.type === 'comment' && '💬 Comment'}
-                          {activity.type === 'approval' && '✅ Approved'}
-                          {activity.type === 'rejection' && '❌ Rejected'}
-                        </ActivityType>
-                      </ActivityHeader>
+                  activities.map((activity) => {
+                    const post = activity.post;
+                    const hasMedia = post?.post_media && post.post_media.length > 0;
+                    const firstMedia = hasMedia ? post.post_media[0] : null;
+                    const isVideo = firstMedia && (firstMedia.mime_type?.startsWith('video/') || firstMedia.media_type === 'video');
+                    const platform = post?.platforms?.[0] ? PLATFORM_CONFIG[post.platforms[0]] : null;
 
-                      {activity.content && (
-                        <ActivityContent>{activity.content}</ActivityContent>
-                      )}
+                    return (
+                      <ActivityCard key={`${activity.type}-${activity.id}`} $color={getActivityColor(activity.type)}>
+                        <ActivityLayout>
+                          {/* Post Preview */}
+                          {post && (
+                            <PostPreview>
+                              <PostMediaWrapper>
+                                {hasMedia ? (
+                                  isVideo ? (
+                                    <>
+                                      <PostMedia
+                                        src={firstMedia.thumbnail_url || firstMedia.file_url}
+                                        alt="Post media"
+                                      />
+                                      <VideoIndicator>
+                                        <Play size={16} />
+                                      </VideoIndicator>
+                                    </>
+                                  ) : (
+                                    <PostMedia src={firstMedia.file_url} alt="Post media" />
+                                  )
+                                ) : (
+                                  <NoMediaPreview>
+                                    <Image size={24} />
+                                  </NoMediaPreview>
+                                )}
+                                {platform && (
+                                  <PlatformBadge $color={platform.color}>
+                                    <platform.icon size={12} />
+                                  </PlatformBadge>
+                                )}
+                              </PostMediaWrapper>
+                              <PostCaption>
+                                {post.content?.substring(0, 100)}{post.content?.length > 100 ? '...' : ''}
+                              </PostCaption>
+                              {post.scheduled_for && (
+                                <PostSchedule>
+                                  <Calendar size={12} />
+                                  {new Date(post.scheduled_for).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                </PostSchedule>
+                              )}
+                            </PostPreview>
+                          )}
 
-                      <ActivityFooter>
-                        <ActivityDate>
-                          <Clock size={12} />
-                          {formatDate(activity.createdAt)}
-                        </ActivityDate>
-                      </ActivityFooter>
-                    </ActivityCard>
-                  ))
+                          {/* Feedback Content */}
+                          <FeedbackSection>
+                            <ActivityHeader>
+                              <UserAvatar
+                                $color={getActivityColor(activity.type)}
+                                title={`${activity.author} (${activity.email})`}
+                              >
+                                {getInitials(activity.author)}
+                              </UserAvatar>
+                              <ActivityIcon $color={getActivityColor(activity.type)}>
+                                {getActivityIcon(activity.type)}
+                              </ActivityIcon>
+                              <ActivityMeta>
+                                <ActivityAuthor>
+                                  {activity.author}
+                                </ActivityAuthor>
+                                <ActivityEmail>
+                                  {activity.email}
+                                </ActivityEmail>
+                              </ActivityMeta>
+                              <ActivityType $color={getActivityColor(activity.type)}>
+                                {activity.type === 'comment' && '💬 Comment'}
+                                {activity.type === 'approval' && '✅ Approved'}
+                                {activity.type === 'rejection' && '❌ Rejected'}
+                              </ActivityType>
+                            </ActivityHeader>
+
+                            {activity.content && (
+                              <ActivityContent>{activity.content}</ActivityContent>
+                            )}
+
+                            <ActivityFooter>
+                              <ActivityDate>
+                                <Clock size={12} />
+                                {formatDate(activity.createdAt)}
+                              </ActivityDate>
+                            </ActivityFooter>
+                          </FeedbackSection>
+                        </ActivityLayout>
+                      </ActivityCard>
+                    );
+                  })
                 )}
               </ActivitiesList>
             </>
@@ -789,4 +846,120 @@ const EmptyDescription = styled.p`
   color: ${props => props.theme.colors.text.secondary};
   margin: 0;
   line-height: 1.5;
+`;
+
+// Post Preview styled components
+const ActivityLayout = styled.div`
+  display: flex;
+  gap: 20px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+`;
+
+const PostPreview = styled.div`
+  flex-shrink: 0;
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    flex-direction: row;
+    align-items: flex-start;
+  }
+`;
+
+const PostMediaWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: ${props => props.theme.colors.background.elevated};
+
+  @media (max-width: 768px) {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+  }
+`;
+
+const PostMedia = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const VideoIndicator = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+`;
+
+const NoMediaPreview = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${props => props.theme.colors.text.tertiary};
+`;
+
+const PlatformBadge = styled.div`
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: ${props => props.$color};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+`;
+
+const PostCaption = styled.div`
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: ${props => props.theme.colors.text.secondary};
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    flex: 1;
+    -webkit-line-clamp: 3;
+  }
+`;
+
+const PostSchedule = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.625rem;
+  color: ${props => props.theme.colors.text.tertiary};
+
+  svg {
+    opacity: 0.6;
+  }
+`;
+
+const FeedbackSection = styled.div`
+  flex: 1;
+  min-width: 0;
 `;

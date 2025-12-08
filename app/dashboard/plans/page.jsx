@@ -356,15 +356,9 @@ const SelectAllButton = styled.button`
 
 const PostsList = styled.div`
   display: grid;
-  grid-template-columns: repeat(${props => props.$columns || 4}, 1fr);
-  gap: 20px;
-  max-height: 600px;
-  overflow-y: auto;
-  padding: 4px;
-
-  @media (max-width: 1400px) {
-    grid-template-columns: repeat(${props => Math.min(props.$columns || 4, 3)}, 1fr);
-  }
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  padding: 20px;
 
   @media (max-width: 1024px) {
     grid-template-columns: repeat(2, 1fr);
@@ -700,6 +694,68 @@ const Hashtag = styled.span`
   border-radius: 12px;
 `;
 
+// Pagination Styled Components
+const PaginationWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 20px;
+  border-top: 1px solid ${props => props.theme.colors.border.default};
+`;
+
+const PaginationInfo = styled.span`
+  font-size: 13px;
+  color: ${props => props.theme.colors.text.secondary};
+  margin: 0 16px;
+`;
+
+const PaginationButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: ${props => props.$isArrow ? '36px' : '36px'};
+  height: 36px;
+  padding: ${props => props.$isArrow ? '0' : '0 12px'};
+  min-width: 36px;
+  border-radius: 8px;
+  border: 1px solid ${props => props.$active
+    ? props.theme.colors.primary.main
+    : props.theme.colors.border.default};
+  background: ${props => props.$active
+    ? props.theme.colors.primary.main
+    : props.theme.colors.background.paper};
+  color: ${props => props.$active
+    ? 'white'
+    : props.theme.colors.text.primary};
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    border-color: ${props => props.theme.colors.primary.main};
+    ${props => !props.$active && `
+      background: ${props.theme.colors.background.hover};
+    `}
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+`;
+
+const PaginationDots = styled.span`
+  color: ${props => props.theme.colors.text.tertiary};
+  padding: 0 4px;
+`;
+
 const PLATFORM_CONFIG = {
   facebook: { icon: Facebook, color: '#1877F2', label: 'Facebook' },
   instagram: { icon: Instagram, color: '#E4405F', label: 'Instagram' },
@@ -738,8 +794,10 @@ export default function PlansPage() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [showShareModal, setShowShareModal] = useState(false);
   const [viewingPost, setViewingPost] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const columnsPerRow = 4; // Fixed at 4 columns
+  const columnsPerRow = 3; // Fixed at 3 columns
+  const postsPerPage = 18; // 18 posts per page (6 rows of 3)
 
   useEffect(() => {
     if (currentWorkspace) {
@@ -846,6 +904,18 @@ export default function PlansPage() {
     return filtered;
   }, [posts, platformFilter, contentTypeFilter, selectedYear, selectedMonth]);
 
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+  const paginatedPosts = useMemo(() => {
+    const startIndex = (currentPage - 1) * postsPerPage;
+    return filteredPosts.slice(startIndex, startIndex + postsPerPage);
+  }, [filteredPosts, currentPage, postsPerPage]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [platformFilter, contentTypeFilter, selectedYear, selectedMonth]);
+
   // Get selected post objects
   const selectedPostObjects = useMemo(() => {
     return posts.filter(post => selectedPosts.includes(post.id));
@@ -906,7 +976,7 @@ export default function PlansPage() {
   };
 
   if (loading) {
-    return <PageSpinner />;
+    return <PageSpinner label="Loading your plans" />;
   }
 
   if (!currentWorkspace) {
@@ -1027,64 +1097,131 @@ export default function PlansPage() {
           </FilterControls>
         </PostsHeader>
 
-        <PostsList $columns={columnsPerRow}>
-          {filteredPosts.length === 0 ? (
-            <EmptyState>
-              <Calendar />
-              <h3>No posts for {MONTHS[selectedMonth]} {selectedYear}</h3>
-              <p>Create content or select a different month</p>
-            </EmptyState>
-          ) : (
-            filteredPosts.map((post) => {
-              const isSelected = selectedPosts.includes(post.id);
-              const platforms = post.platforms || [post.platform];
+        {filteredPosts.length === 0 ? (
+          <EmptyState>
+            <Calendar />
+            <h3>No posts for {MONTHS[selectedMonth]} {selectedYear}</h3>
+            <p>Create content or select a different month</p>
+          </EmptyState>
+        ) : (
+          <>
+            <PostsList>
+              {paginatedPosts.map((post) => {
+                const isSelected = selectedPosts.includes(post.id);
+                const platforms = post.platforms || [post.platform];
 
-              return (
-                <PostItem key={post.id}>
-                  <PostHeader>
-                    <PostHeaderLeft>
-                      <CheckboxButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleTogglePost(post.id);
-                        }}
-                        $checked={isSelected}
-                      >
-                        {isSelected ? <CheckSquare /> : <Square />}
-                      </CheckboxButton>
-                      <PlatformBadges>
-                        {platforms.map((platform) => {
-                          const config = PLATFORM_CONFIG[platform];
-                          if (!config) return null;
-                          const Icon = config.icon;
-                          return (
-                            <PlatformBadge key={platform} $color={config.color}>
-                              <Icon />
-                            </PlatformBadge>
-                          );
-                        })}
-                      </PlatformBadges>
-                    </PostHeaderLeft>
-                    <PostDate>
-                      <Clock />
-                      {formatDate(post.scheduled_for || post.created_at)}
-                    </PostDate>
-                  </PostHeader>
+                return (
+                  <PostItem key={post.id}>
+                    <PostHeader>
+                      <PostHeaderLeft>
+                        <CheckboxButton
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTogglePost(post.id);
+                          }}
+                          $checked={isSelected}
+                        >
+                          {isSelected ? <CheckSquare /> : <Square />}
+                        </CheckboxButton>
+                        <PlatformBadges>
+                          {platforms.map((platform) => {
+                            const config = PLATFORM_CONFIG[platform];
+                            if (!config) return null;
+                            const Icon = config.icon;
+                            return (
+                              <PlatformBadge key={platform} $color={config.color}>
+                                <Icon />
+                              </PlatformBadge>
+                            );
+                          })}
+                        </PlatformBadges>
+                      </PostHeaderLeft>
+                      <PostDate>
+                        <Clock />
+                        {formatDate(post.scheduled_for || post.created_at)}
+                      </PostDate>
+                    </PostHeader>
 
-                  <PostThumbnail onClick={() => setViewingPost(post)}>
-                    {getPostThumbnail(post)}
-                  </PostThumbnail>
+                    <PostThumbnail onClick={() => setViewingPost(post)}>
+                      {getPostThumbnail(post)}
+                    </PostThumbnail>
 
-                  <PostContent onClick={() => setViewingPost(post)}>
-                    <PostText>
-                      {post.content || 'No content'}
-                    </PostText>
-                  </PostContent>
-                </PostItem>
-              );
-            })
-          )}
-        </PostsList>
+                    <PostContent onClick={() => setViewingPost(post)}>
+                      <PostText>
+                        {post.content || 'No content'}
+                      </PostText>
+                    </PostContent>
+                  </PostItem>
+                );
+              })}
+            </PostsList>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <PaginationWrapper>
+                <PaginationButton
+                  $isArrow
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft />
+                </PaginationButton>
+
+                {/* First page */}
+                <PaginationButton
+                  $active={currentPage === 1}
+                  onClick={() => setCurrentPage(1)}
+                >
+                  1
+                </PaginationButton>
+
+                {/* Show dots if needed */}
+                {currentPage > 3 && <PaginationDots>...</PaginationDots>}
+
+                {/* Pages around current */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(page => {
+                    if (page === 1 || page === totalPages) return false;
+                    return Math.abs(page - currentPage) <= 1;
+                  })
+                  .map(page => (
+                    <PaginationButton
+                      key={page}
+                      $active={currentPage === page}
+                      onClick={() => setCurrentPage(page)}
+                    >
+                      {page}
+                    </PaginationButton>
+                  ))}
+
+                {/* Show dots if needed */}
+                {currentPage < totalPages - 2 && <PaginationDots>...</PaginationDots>}
+
+                {/* Last page (if more than 1 page) */}
+                {totalPages > 1 && (
+                  <PaginationButton
+                    $active={currentPage === totalPages}
+                    onClick={() => setCurrentPage(totalPages)}
+                  >
+                    {totalPages}
+                  </PaginationButton>
+                )}
+
+                <PaginationButton
+                  $isArrow
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  <ChevronRight />
+                </PaginationButton>
+
+                <PaginationInfo>
+                  Showing {((currentPage - 1) * postsPerPage) + 1}-{Math.min(currentPage * postsPerPage, filteredPosts.length)} of {filteredPosts.length} posts
+                </PaginationInfo>
+              </PaginationWrapper>
+            )}
+          </>
+        )}
       </PostsSection>
 
       {/* Share Plan Modal */}

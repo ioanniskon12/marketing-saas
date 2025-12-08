@@ -539,7 +539,7 @@ export default function InstagramPreview() {
   };
 
   if (loading) {
-    return <PageSpinner />;
+    return <PageSpinner label="Loading Instagram preview" />;
   }
 
   return (

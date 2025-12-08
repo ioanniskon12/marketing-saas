@@ -2671,7 +2671,7 @@ export default function PostsPage() {
   };
 
   if (loading) {
-    return <PageSpinner />;
+    return <PageSpinner label="Loading your content" />;
   }
 
   return (

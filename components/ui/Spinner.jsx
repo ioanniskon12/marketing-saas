@@ -194,7 +194,7 @@ export default function Spinner({
 }
 
 // Convenience component for full-page loading
-export function PageSpinner({ label = 'Loading your workspace', subLabel }) {
+export function PageSpinner({ label = 'Loading', subLabel }) {
   return (
     <SpinnerContainer $fullScreen={true}>
       <SpinnerWrapper>

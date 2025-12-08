@@ -570,7 +570,7 @@ export default function CalendarPage() {
   }
 
   if (loading) {
-    return <PageSpinner />;
+    return <PageSpinner label="Loading your calendar" />;
   }
 
   // Calculate current month date range for sharing

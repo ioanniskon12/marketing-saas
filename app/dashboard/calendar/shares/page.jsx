@@ -8,11 +8,12 @@
 
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Plus, Copy, Eye, Trash2, MoreVertical, Share2, Calendar, Download, CheckCircle, XCircle, Search, Filter } from 'lucide-react';
+import { Plus, Copy, Eye, Trash2, MoreVertical, Share2, Calendar, Download, CheckCircle, XCircle, Search, Filter, FileText } from 'lucide-react';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { Button, PageSpinner } from '@/components/ui';
 import { showToast } from '@/components/ui/Toast';
 import ShareCalendarModal from '@/components/calendar/ShareCalendarModal';
+import { createClient } from '@/lib/supabase/client';
 
 // Styled Components
 const PageContainer = styled.div`
@@ -337,8 +338,10 @@ const ModalActions = styled.div`
 
 export default function CalendarSharesPage() {
   const { currentWorkspace } = useWorkspace();
+  const supabase = createClient();
 
   const [shares, setShares] = useState([]);
+  const [planShares, setPlanShares] = useState([]); // For post_plan_shares
   const [loading, setLoading] = useState(true);
   const [showShareModal, setShowShareModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -347,6 +350,7 @@ export default function CalendarSharesPage() {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [shareTypeFilter, setShareTypeFilter] = useState('all'); // 'all', 'calendar', 'plan'
 
   useEffect(() => {
     if (currentWorkspace) {
@@ -358,6 +362,7 @@ export default function CalendarSharesPage() {
     try {
       setLoading(true);
 
+      // Load calendar shares
       const params = new URLSearchParams({
         workspace_id: currentWorkspace.id,
       });
@@ -366,20 +371,46 @@ export default function CalendarSharesPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to load calendar shares');
+        console.error('Error loading calendar shares:', data.error);
       }
 
       setShares(data.shares || []);
+
+      // Load plan shares from post_plan_shares table
+      const { data: planSharesData, error: planSharesError } = await supabase
+        .from('post_plan_shares')
+        .select(`
+          *,
+          post_plan_share_items(count)
+        `)
+        .eq('workspace_id', currentWorkspace.id)
+        .order('created_at', { ascending: false });
+
+      if (planSharesError) {
+        console.error('Error loading plan shares:', planSharesError);
+      } else {
+        // Transform plan shares to match the same format as calendar shares
+        const transformedPlanShares = (planSharesData || []).map(share => ({
+          ...share,
+          type: 'plan', // Mark as plan share
+          permission_level: share.permission, // Map permission to permission_level for consistency
+          post_count: share.post_plan_share_items?.[0]?.count || 0,
+        }));
+        setPlanShares(transformedPlanShares);
+      }
     } catch (error) {
-      console.error('Error loading calendar shares:', error);
-      showToast.error('Failed to load calendar shares');
+      console.error('Error loading shares:', error);
+      showToast.error('Failed to load shares');
     } finally {
       setLoading(false);
     }
   };
 
   const handleCopyLink = async (share) => {
-    const shareUrl = `${window.location.origin}/share/${share.share_token}`;
+    // Use different URL paths for calendar shares vs plan shares
+    const shareUrl = share.type === 'plan'
+      ? `${window.location.origin}/share/plan/${share.share_token}`
+      : `${window.location.origin}/share/${share.share_token}`;
 
     try {
       await navigator.clipboard.writeText(shareUrl);
@@ -394,18 +425,29 @@ export default function CalendarSharesPage() {
     try {
       setActionLoading(true);
 
-      const response = await fetch(`/api/calendar/share/${share.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          is_active: !share.is_active,
-        }),
-      });
+      if (share.type === 'plan') {
+        // Handle plan share toggle
+        const { error } = await supabase
+          .from('post_plan_shares')
+          .update({ is_active: !share.is_active, updated_at: new Date().toISOString() })
+          .eq('id', share.id);
 
-      const data = await response.json();
+        if (error) throw error;
+      } else {
+        // Handle calendar share toggle
+        const response = await fetch(`/api/calendar/share/${share.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            is_active: !share.is_active,
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to update share');
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to update share');
+        }
       }
 
       showToast.success(`Share ${share.is_active ? 'deactivated' : 'activated'} successfully`);
@@ -419,18 +461,29 @@ export default function CalendarSharesPage() {
     }
   };
 
-  const handleDelete = async (shareId) => {
+  const handleDelete = async (share) => {
     try {
       setActionLoading(true);
 
-      const response = await fetch(`/api/calendar/share/${shareId}`, {
-        method: 'DELETE',
-      });
+      if (share.type === 'plan') {
+        // Handle plan share delete
+        const { error } = await supabase
+          .from('post_plan_shares')
+          .delete()
+          .eq('id', share.id);
 
-      const data = await response.json();
+        if (error) throw error;
+      } else {
+        // Handle calendar share delete
+        const response = await fetch(`/api/calendar/share/${share.id}`, {
+          method: 'DELETE',
+        });
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to delete share');
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to delete share');
+        }
       }
 
       showToast.success('Share deleted successfully');
@@ -450,10 +503,21 @@ export default function CalendarSharesPage() {
     setShowShareModal(false);
   };
 
+  // Combine calendar shares and plan shares
+  const allShares = [
+    ...shares.map(s => ({ ...s, type: 'calendar' })),
+    ...planShares,
+  ];
+
   // Filter shares
-  const filteredShares = shares.filter(share => {
+  const filteredShares = allShares.filter(share => {
     // Search filter
     if (searchTerm && !share.title.toLowerCase().includes(searchTerm.toLowerCase())) {
+      return false;
+    }
+
+    // Share type filter
+    if (shareTypeFilter !== 'all' && share.type !== shareTypeFilter) {
       return false;
     }
 
@@ -472,12 +536,12 @@ export default function CalendarSharesPage() {
     return true;
   });
 
-  // Calculate stats
+  // Calculate stats including both calendar and plan shares
   const stats = {
-    total: shares.length,
-    active: shares.filter(s => s.is_active).length,
-    views: shares.reduce((sum, s) => sum + (s.view_count || 0), 0),
-    downloads: shares.reduce((sum, s) => sum + (s.download_count || 0), 0),
+    total: allShares.length,
+    active: allShares.filter(s => s.is_active).length,
+    views: allShares.reduce((sum, s) => sum + (s.view_count || 0), 0),
+    planShares: planShares.length,
   };
 
   const getPermissionColor = (level) => {
@@ -520,7 +584,7 @@ export default function CalendarSharesPage() {
   }
 
   if (loading) {
-    return <PageSpinner />;
+    return <PageSpinner label="Loading shared calendars" />;
   }
 
   return (
@@ -569,10 +633,10 @@ export default function CalendarSharesPage() {
           </StatLabel>
         </StatCard>
         <StatCard $color="#F59E0B">
-          <StatValue>{stats.downloads}</StatValue>
+          <StatValue>{stats.planShares}</StatValue>
           <StatLabel>
-            <Download size={16} />
-            Total Downloads
+            <FileText size={16} />
+            Plan Shares
           </StatLabel>
         </StatCard>
       </StatsGrid>
@@ -585,6 +649,14 @@ export default function CalendarSharesPage() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
+        <FilterSelect
+          value={shareTypeFilter}
+          onChange={(e) => setShareTypeFilter(e.target.value)}
+        >
+          <option value="all">All Types</option>
+          <option value="calendar">Calendar Shares</option>
+          <option value="plan">Plan Shares</option>
+        </FilterSelect>
         <FilterSelect
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
@@ -612,16 +684,16 @@ export default function CalendarSharesPage() {
               <Share2 size={40} />
             </EmptyStateIcon>
             <EmptyStateTitle>
-              {searchTerm || statusFilter !== 'all' || permissionFilter !== 'all'
+              {searchTerm || statusFilter !== 'all' || permissionFilter !== 'all' || shareTypeFilter !== 'all'
                 ? 'No shares found'
-                : 'No calendar shares yet'}
+                : 'No Shared Plans Yet'}
             </EmptyStateTitle>
             <EmptyStateText>
-              {searchTerm || statusFilter !== 'all' || permissionFilter !== 'all'
+              {searchTerm || statusFilter !== 'all' || permissionFilter !== 'all' || shareTypeFilter !== 'all'
                 ? 'Try adjusting your filters'
-                : 'Create your first calendar share to collaborate with your team'}
+                : 'Create and share your first content calendar with clients to start receiving feedback and approvals.'}
             </EmptyStateText>
-            {!searchTerm && statusFilter === 'all' && permissionFilter === 'all' && (
+            {!searchTerm && statusFilter === 'all' && permissionFilter === 'all' && shareTypeFilter === 'all' && (
               <Button
                 variant="primary"
                 onClick={() => setShowShareModal(true)}
@@ -636,11 +708,11 @@ export default function CalendarSharesPage() {
         <SharesTable>
           <TableHeader>
             <div>Title</div>
-            <div>Date Range</div>
+            <div>Type</div>
             <div>Permission</div>
             <div>Status</div>
             <div>Views</div>
-            <div>Downloads</div>
+            <div>Posts</div>
             <div>Created</div>
             <div></div>
           </TableHeader>
@@ -650,17 +722,30 @@ export default function CalendarSharesPage() {
             const expired = isExpired(share);
 
             return (
-              <TableRow key={share.id}>
+              <TableRow key={`${share.type}-${share.id}`}>
                 <div>
                   <ShareTitle>{share.title}</ShareTitle>
                   {share.description && (
                     <ShareDescription>{share.description}</ShareDescription>
                   )}
+                  {share.client_name && (
+                    <ShareDescription>Client: {share.client_name}</ShareDescription>
+                  )}
                 </div>
 
-                <DateRange>
-                  {formatDateRange(share.start_date, share.end_date)}
-                </DateRange>
+                <div>
+                  {share.type === 'plan' ? (
+                    <Badge $bg="#8B5CF610" $color="#8B5CF6">
+                      <FileText size={12} />
+                      Plan
+                    </Badge>
+                  ) : (
+                    <Badge $bg="#3B82F610" $color="#3B82F6">
+                      <Calendar size={12} />
+                      Calendar
+                    </Badge>
+                  )}
+                </div>
 
                 <div>
                   <Badge $bg={permColors.bg} $color={permColors.color}>
@@ -683,17 +768,17 @@ export default function CalendarSharesPage() {
                 </div>
 
                 <Count>{share.view_count || 0}</Count>
-                <Count>{share.download_count || 0}</Count>
+                <Count>{share.post_count || '-'}</Count>
                 <CreatedDate>{formatDate(share.created_at)}</CreatedDate>
 
                 <ActionsContainer>
                   <ActionsButton
-                    onClick={() => setActiveDropdown(activeDropdown === share.id ? null : share.id)}
+                    onClick={() => setActiveDropdown(activeDropdown === `${share.type}-${share.id}` ? null : `${share.type}-${share.id}`)}
                   >
                     <MoreVertical size={16} />
                   </ActionsButton>
 
-                  {activeDropdown === share.id && (
+                  {activeDropdown === `${share.type}-${share.id}` && (
                     <ActionsDropdown>
                       <ActionItem onClick={() => handleCopyLink(share)}>
                         <Copy size={16} />
@@ -734,7 +819,7 @@ export default function CalendarSharesPage() {
       {deleteConfirm && (
         <Modal onClick={() => !actionLoading && setDeleteConfirm(null)}>
           <ModalContent onClick={(e) => e.stopPropagation()}>
-            <ModalTitle>Delete Calendar Share?</ModalTitle>
+            <ModalTitle>Delete {deleteConfirm.type === 'plan' ? 'Plan' : 'Calendar'} Share?</ModalTitle>
             <ModalText>
               Are you sure you want to delete "{deleteConfirm.title}"? This action cannot be undone
               and the share link will no longer work.
@@ -749,7 +834,7 @@ export default function CalendarSharesPage() {
               </Button>
               <Button
                 variant="danger"
-                onClick={() => handleDelete(deleteConfirm.id)}
+                onClick={() => handleDelete(deleteConfirm)}
                 disabled={actionLoading}
               >
                 {actionLoading ? 'Deleting...' : 'Delete Share'}

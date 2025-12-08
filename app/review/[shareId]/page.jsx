@@ -176,6 +176,7 @@ const MediaItem = styled.div`
   background: ${props => props.theme.colors.neutral[100]};
   cursor: pointer;
   transition: transform ${props => props.theme.transitions.fast};
+  position: relative;
 
   &:hover {
     transform: scale(1.05);
@@ -185,6 +186,41 @@ const MediaItem = styled.div`
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  /* Watermark overlay */
+  &::after {
+    content: 'PREVIEW';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 24px;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.4);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: 4px;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 10;
+  }
+
+  /* Semi-transparent overlay for protection */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.05) 0%,
+      transparent 50%,
+      rgba(0, 0, 0, 0.05) 100%
+    );
+    pointer-events: none;
+    z-index: 5;
   }
 `;
 
@@ -680,11 +716,23 @@ export default function ClientReviewPage() {
               {post.media_urls && post.media_urls.length > 0 && (
                 <PostMedia>
                   {post.media_urls.map((url, mediaIndex) => (
-                    <MediaItem key={mediaIndex} onClick={() => window.open(url, '_blank')}>
+                    <MediaItem
+                      key={mediaIndex}
+                      onContextMenu={(e) => e.preventDefault()}
+                    >
                       {url.includes('.mp4') || url.includes('.mov') ? (
-                        <video src={url} />
+                        <video
+                          src={url}
+                          controlsList="nodownload"
+                          onContextMenu={(e) => e.preventDefault()}
+                        />
                       ) : (
-                        <img src={url} alt={`Media ${mediaIndex + 1}`} />
+                        <img
+                          src={url}
+                          alt={`Media ${mediaIndex + 1}`}
+                          draggable={false}
+                          onContextMenu={(e) => e.preventDefault()}
+                        />
                       )}
                     </MediaItem>
                   ))}

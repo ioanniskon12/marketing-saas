@@ -24,19 +24,43 @@ export async function GET(request) {
 
     const workspaceId = membership.workspace_id;
 
-    // Get all calendar shares for this workspace
+    // Get all post plan shares for this workspace with full post data
     const { data: shares, error: sharesError } = await supabase
-      .from('calendar_shares')
+      .from('post_plan_shares')
       .select(`
         id,
-        token,
+        share_token,
         title,
+        description,
+        client_name,
         expires_at,
-        can_comment,
-        can_approve,
+        permission,
         view_count,
         created_at,
-        posts:calendar_share_posts(post_id)
+        is_active,
+        post_plan_share_items(
+          id,
+          post_id,
+          post:posts(
+            id,
+            content,
+            platforms,
+            scheduled_for,
+            status,
+            post_media(id, file_url, thumbnail_url, mime_type, media_type)
+          )
+        ),
+        post_plan_share_feedback(
+          id,
+          post_id,
+          feedback_type,
+          reaction,
+          comment,
+          approved,
+          author_name,
+          author_email,
+          created_at
+        )
       `)
       .eq('workspace_id', workspaceId)
       .order('created_at', { ascending: false });
@@ -46,47 +70,71 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Failed to fetch shares' }, { status: 500 });
     }
 
-    // For each share, get comments, approvals, and activity
-    const sharesWithFeedback = await Promise.all(
-      shares.map(async (share) => {
-        // Get comments
-        const { data: comments } = await supabase
-          .from('calendar_share_comments')
-          .select('*')
-          .eq('share_id', share.id)
-          .order('created_at', { ascending: false });
+    // Transform data for the feedback page
+    const sharesWithFeedback = (shares || []).map((share) => {
+      const feedback = share.post_plan_share_feedback || [];
+      const items = share.post_plan_share_items || [];
 
-        // Get approvals
-        const { data: approvals } = await supabase
-          .from('calendar_share_approvals')
-          .select('*')
-          .eq('share_id', share.id)
-          .order('created_at', { ascending: false });
+      // Build posts map for quick lookup
+      const postsMap = {};
+      items.forEach(item => {
+        if (item.post) {
+          postsMap[item.post.id] = item.post;
+        }
+      });
 
-        // Get activity count
-        const { data: activities } = await supabase
-          .from('calendar_share_activity')
-          .select('id')
-          .eq('share_id', share.id);
+      // Separate feedback into comments and approvals with post data
+      const comments = feedback
+        .filter(f => f.feedback_type === 'comment')
+        .map(f => ({
+          id: f.id,
+          post_id: f.post_id,
+          post: postsMap[f.post_id] || null,
+          comment: f.comment,
+          author_name: f.author_name || 'Anonymous',
+          author_email: f.author_email,
+          created_at: f.created_at
+        }));
 
-        // Calculate stats
-        const stats = {
-          totalComments: comments?.length || 0,
-          totalApprovals: approvals?.filter(a => a.approved).length || 0,
-          totalRejections: approvals?.filter(a => !a.approved).length || 0,
-          totalActivities: activities?.length || 0,
-          viewCount: share.view_count || 0,
-        };
+      const approvals = feedback
+        .filter(f => f.feedback_type === 'approval')
+        .map(f => ({
+          id: f.id,
+          post_id: f.post_id,
+          post: postsMap[f.post_id] || null,
+          approved: f.approved,
+          feedback: f.comment,
+          approver_name: f.author_name || 'Anonymous',
+          approver_email: f.author_email,
+          created_at: f.created_at
+        }));
 
-        return {
-          ...share,
-          comments: comments || [],
-          approvals: approvals || [],
-          stats,
-          isExpired: share.expires_at ? new Date(share.expires_at) < new Date() : false,
-        };
-      })
-    );
+      // Calculate stats
+      const stats = {
+        totalComments: comments.length,
+        totalApprovals: approvals.filter(a => a.approved).length,
+        totalRejections: approvals.filter(a => !a.approved).length,
+        viewCount: share.view_count || 0,
+        totalPosts: items.length,
+      };
+
+      return {
+        id: share.id,
+        token: share.share_token,
+        title: share.title,
+        description: share.description,
+        client_name: share.client_name,
+        expires_at: share.expires_at,
+        permission: share.permission,
+        is_active: share.is_active,
+        created_at: share.created_at,
+        comments,
+        approvals,
+        posts: Object.values(postsMap),
+        stats,
+        isExpired: share.expires_at ? new Date(share.expires_at) < new Date() : false,
+      };
+    });
 
     return NextResponse.json({
       success: true,

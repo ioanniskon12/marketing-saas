@@ -151,11 +151,9 @@ async function createTestPosts() {
         workspace_id: workspaceId,
         created_by: userId,
         content: post.content,
-        platform: post.platform,
         platforms: [post.platform],
-        scheduled_time: post.scheduled_time.toISOString(),
+        scheduled_for: post.scheduled_time.toISOString(),
         status: post.status,
-        post_type: 'post',
       };
 
       const { data, error } = await supabase

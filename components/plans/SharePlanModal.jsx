@@ -10,7 +10,6 @@ import {
   Calendar,
   Lock,
   Eye,
-  Download,
   BarChart3,
   Clock,
   Image as ImageIcon,
@@ -23,8 +22,12 @@ import {
   Music,
   Youtube,
   CheckCircle,
-  Share2
+  Share2,
+  Shield
 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { showToast } from '@/components/ui/Toast';
 
 const fadeIn = keyframes`
   from { opacity: 0; }
@@ -371,16 +374,26 @@ const TextArea = styled.textarea`
   }
 `;
 
-const DateRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-`;
-
 const CheckboxGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
+`;
+
+const WatermarkNotice = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: ${props => props.theme.colors.primary.main}10;
+  border: 1px solid ${props => props.theme.colors.primary.main}30;
+  border-radius: 8px;
+  font-size: 13px;
+  color: ${props => props.theme.colors.primary.main};
+
+  svg {
+    flex-shrink: 0;
+  }
 `;
 
 const CheckboxLabel = styled.label`
@@ -563,6 +576,9 @@ const formatTime = (date) => {
 const DRAFT_KEY = 'sharePlanDraft';
 
 export default function SharePlanModal({ isOpen, onClose, selectedPosts = [], onRemovePost }) {
+  const supabase = createClient();
+  const { currentWorkspace } = useWorkspace();
+
   const [step, setStep] = useState('form'); // 'form' or 'success'
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -575,10 +591,7 @@ export default function SharePlanModal({ isOpen, onClose, selectedPosts = [], on
     title: '',
     description: '',
     clientName: '',
-    startDate: '',
-    endDate: '',
-    permission: 'view',
-    allowDownload: false,
+    permission: 'approve',
     showAnalytics: false,
     password: '',
     expiresIn: '7',
@@ -648,13 +661,75 @@ export default function SharePlanModal({ isOpen, onClose, selectedPosts = [], on
   const handleSubmit = async () => {
     if (selectedPosts.length === 0 || !formData.title.trim()) return;
 
+    if (!formData.password.trim()) {
+      showToast.error('Password is required to protect your shared plan');
+      return;
+    }
+
+    if (!currentWorkspace) {
+      showToast.error('No workspace selected');
+      return;
+    }
+
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        throw new Error('Not authenticated');
+      }
 
-      // Generate share link with mock token format
+      // Generate share token
       const shareToken = 'share-' + Math.random().toString(36).substring(2, 12);
+
+      // Calculate expiration date
+      const expiresAt = formData.expiresIn !== 'never'
+        ? new Date(Date.now() + parseInt(formData.expiresIn) * 24 * 60 * 60 * 1000).toISOString()
+        : null;
+
+      // Create the share record
+      const { data: shareData, error: shareError } = await supabase
+        .from('post_plan_shares')
+        .insert({
+          workspace_id: currentWorkspace.id,
+          created_by: user.id,
+          share_token: shareToken,
+          title: formData.title.trim(),
+          description: formData.description.trim() || null,
+          client_name: formData.clientName.trim() || null,
+          permission: formData.permission,
+          show_analytics: formData.showAnalytics,
+          password_hash: formData.password || null,
+          expires_at: expiresAt,
+        })
+        .select()
+        .single();
+
+      if (shareError) {
+        console.error('Share error:', shareError);
+        throw shareError;
+      }
+
+      // Create share items for each post
+      const shareItems = selectedPosts.map((post, index) => ({
+        share_id: shareData.id,
+        post_id: post.id,
+        position: index,
+        content_snapshot: post.content,
+        media_snapshot: post.post_media || post.media_urls || null,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('post_plan_share_items')
+        .insert(shareItems);
+
+      if (itemsError) {
+        console.error('Items error:', itemsError);
+        // Clean up the share if items fail
+        await supabase.from('post_plan_shares').delete().eq('id', shareData.id);
+        throw itemsError;
+      }
+
       setShareLink(`${window.location.origin}/share/plan/${shareToken}`);
       setStep('success');
 
@@ -662,14 +737,17 @@ export default function SharePlanModal({ isOpen, onClose, selectedPosts = [], on
       localStorage.removeItem(DRAFT_KEY);
       setSaveStatus('');
 
-      // Log plan details for demo purposes
+      showToast.success('Share link created successfully!');
+
       console.log('Plan Created:', {
         ...formData,
         postCount: selectedPosts.length,
         shareToken,
+        shareId: shareData.id,
       });
     } catch (error) {
       console.error('Error creating share link:', error);
+      showToast.error(error.message || 'Failed to create share link');
     } finally {
       setLoading(false);
     }
@@ -691,10 +769,7 @@ export default function SharePlanModal({ isOpen, onClose, selectedPosts = [], on
       title: '',
       description: '',
       clientName: '',
-      startDate: '',
-      endDate: '',
-      permission: 'view',
-      allowDownload: false,
+      permission: 'approve',
       showAnalytics: false,
       password: '',
       expiresIn: '7',
@@ -863,49 +938,8 @@ export default function SharePlanModal({ isOpen, onClose, selectedPosts = [], on
                     />
                   </FormGroup>
 
-                  <DateRow>
-                    <FormGroup>
-                      <Label>Start Date</Label>
-                      <Input
-                        type="date"
-                        value={formData.startDate}
-                        onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                      />
-                    </FormGroup>
-                    <FormGroup>
-                      <Label>End Date</Label>
-                      <Input
-                        type="date"
-                        value={formData.endDate}
-                        onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                      />
-                    </FormGroup>
-                  </DateRow>
-
-                  <FormGroup>
-                    <Label>Permission Level</Label>
-                    <Select
-                      value={formData.permission}
-                      onChange={(e) => setFormData({ ...formData, permission: e.target.value })}
-                    >
-                      <option value="view">View Only</option>
-                      <option value="comment">Can Comment</option>
-                    </Select>
-                  </FormGroup>
 
                   <CheckboxGroup>
-                    <div>
-                      <CheckboxLabel>
-                        <input
-                          type="checkbox"
-                          checked={formData.allowDownload}
-                          onChange={(e) => setFormData({ ...formData, allowDownload: e.target.checked })}
-                        />
-                        <Download size={14} />
-                        Allow downloads
-                      </CheckboxLabel>
-                      <CheckboxDescription>Recipients can download media files</CheckboxDescription>
-                    </div>
                     <div>
                       <CheckboxLabel>
                         <input
@@ -920,17 +954,28 @@ export default function SharePlanModal({ isOpen, onClose, selectedPosts = [], on
                     </div>
                   </CheckboxGroup>
 
+                  <WatermarkNotice>
+                    <Shield size={14} />
+                    <span>All media will display a watermark to protect your content</span>
+                  </WatermarkNotice>
+
                   <FormGroup>
                     <Label>
                       <Lock size={14} style={{ display: 'inline', marginRight: 6, verticalAlign: -2 }} />
-                      Password (optional)
+                      Password <span style={{ color: '#EF4444' }}>*</span>
                     </Label>
                     <Input
                       type="password"
-                      placeholder="Set a password for extra security"
+                      placeholder="Set a password to protect the shared plan"
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      required
                     />
+                    {!formData.password && (
+                      <div style={{ fontSize: '12px', color: '#EF4444', marginTop: '4px' }}>
+                        Password is required to protect your shared content
+                      </div>
+                    )}
                   </FormGroup>
 
                   <FormGroup>
@@ -957,7 +1002,7 @@ export default function SharePlanModal({ isOpen, onClose, selectedPosts = [], on
               <Button
                 $variant="primary"
                 onClick={handleSubmit}
-                disabled={loading || selectedPosts.length === 0 || !formData.title.trim()}
+                disabled={loading || selectedPosts.length === 0 || !formData.title.trim() || !formData.password.trim()}
               >
                 {loading ? 'Creating...' : 'Create Share Link'}
               </Button>
