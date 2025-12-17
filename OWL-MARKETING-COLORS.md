@@ -210,5 +210,140 @@ In dark mode, primary orange becomes slightly lighter for better visibility:
 
 ---
 
+## Icons Reference (Lucide React)
+
+All icons are from `lucide-react` package.
+
+### Sidebar Navigation Icons
+| Menu Item | Icon | Import |
+|-----------|------|--------|
+| Dashboard | `LayoutDashboard` | `import { LayoutDashboard } from 'lucide-react'` |
+| Calendar | `Calendar` | `import { Calendar } from 'lucide-react'` |
+| Analytics | `BarChart3` | `import { BarChart3 } from 'lucide-react'` |
+| Plans | `FileText` | `import { FileText } from 'lucide-react'` |
+| Media | `Image` | `import { Image } from 'lucide-react'` |
+| Accounts | `Users` | `import { Users } from 'lucide-react'` |
+| Settings | `Settings` | `import { Settings } from 'lucide-react'` |
+| Admin | `Shield` | `import { Shield } from 'lucide-react'` |
+| Notifications | `Bell` | `import { Bell } from 'lucide-react'` |
+| Logout | `LogOut` | `import { LogOut } from 'lucide-react'` |
+
+### Analytics Dashboard Icons
+| Component | Icon | Color |
+|-----------|------|-------|
+| Audience Growth | `Users` | `#ff8c42` |
+| Total Interactions | `Heart` | `#ffa866` |
+| Total Reach | `Eye` | `#b35a20` |
+| Click-Through Rate | `MousePointer` | `#ff6b35` |
+| Engagement Rate | `Star` | `#e67a35` |
+| Post Frequency | `Activity` | `#cc6a2a` |
+| Performance Chart | `BarChart3` | theme primary |
+| Key Insights | `Zap` | theme primary |
+| Platform Performance | `PieChart` | theme primary |
+| Top Posts | `TrendingUp` | theme primary |
+
+### Engagement Breakdown Icons
+| Metric | Icon | Color |
+|--------|------|-------|
+| Total Likes | `Heart` | `#ff8c42` |
+| Total Comments | `MessageCircle` | `#ff8c42` |
+| Total Shares | `Repeat2` | `#ff6b35` |
+| Impressions | `Eye` | `#e67a35` |
+
+### Insight Card Icons
+| Insight | Icon | Color |
+|---------|------|-------|
+| Best Performing Day | `TrendingUp` | `#ffa866` |
+| Optimal Posting Time | `Clock` | `#ff8c42` |
+| Content Opportunity | `Target` | `#e67a35` |
+| Audience Growth | `Star` | `#ff6b35` |
+
+### Trend Indicators
+| Trend | Icon |
+|-------|------|
+| Up | `ArrowUp` or `TrendingUp` |
+| Down | `ArrowDown` or `TrendingDown` |
+| Neutral | `Minus` |
+
+### Action Icons
+| Action | Icon |
+|--------|------|
+| Download/Export | `Download` |
+| Share | `Share2` |
+| Refresh | `Calendar` |
+| Close | `X` |
+| Copy Link | `Link` |
+| Copy | `Clipboard` |
+| Check/Success | `Check` |
+| Play Video | `Play` |
+
+### Theme Toggle Icons
+| Mode | Icon |
+|------|------|
+| Light Mode | `Sun` |
+| Dark Mode | `Moon` |
+
+### Navigation Icons
+| Action | Icon |
+|--------|------|
+| Menu (mobile) | `Menu` |
+| Collapse Sidebar | `PanelLeftClose` |
+| Expand Sidebar | `PanelLeft` |
+| Chevron Down | `ChevronDown` |
+| Chevron Left | `ChevronLeft` |
+| Chevron Right | `ChevronRight` |
+
+### Platform Icons
+| Platform | Icon |
+|----------|------|
+| Instagram | `Instagram` |
+| Facebook | `Facebook` |
+| Twitter/X | `Twitter` |
+| LinkedIn | `Linkedin` |
+| YouTube | `Youtube` |
+| TikTok | `Music` |
+| All Platforms | `Grid3x3` |
+
+### Media Icons
+| Type | Icon |
+|------|------|
+| Image | `Image` |
+| Video | `Film` or `Video` |
+| Reel/Short | `Film` |
+
+### Common Import Statement
+
+```javascript
+import {
+  // Navigation
+  LayoutDashboard, Calendar, BarChart3, FileText, Image, Users, Settings,
+  Shield, Bell, LogOut, Menu, X,
+
+  // Analytics
+  Eye, Activity, Heart, MessageCircle, Repeat2, Target, Clock, PieChart,
+  Zap, Star, MousePointer,
+
+  // Trends
+  TrendingUp, TrendingDown, ArrowUp, ArrowDown, Minus,
+
+  // Actions
+  Download, Share2, Link, Clipboard, Check, Play,
+
+  // Theme
+  Sun, Moon,
+
+  // Chevrons
+  ChevronDown, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeft,
+
+  // Platforms
+  Instagram, Facebook, Twitter, Linkedin, Youtube, Music, Grid3x3,
+
+  // Media
+  Film, Video
+} from 'lucide-react';
+```
+
+---
+
 **Last Updated:** December 2024
 **Brand:** Owl Marketing Hub
