@@ -228,12 +228,13 @@ const ConnectButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;
-  background: #3B82F6;
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   color: white;
 
   &:hover {
-    background: #2563EB;
+    background: linear-gradient(135deg, #ff9f5a 0%, #ff8c42 100%);
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
   }
 
   svg {

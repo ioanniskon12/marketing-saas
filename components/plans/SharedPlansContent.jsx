@@ -218,7 +218,7 @@ export default function SharedPlansContent() {
 
     if (approvalRate === 100) return '#10b981'; // All approved
     if (share.stats.totalRejections > 0) return '#ef4444'; // Has rejections
-    if (share.stats.totalComments > 0) return '#8B5CF6'; // Has comments
+    if (share.stats.totalComments > 0) return '#ff8c42'; // Has comments
     return '#f59e0b'; // Pending
   };
 
@@ -393,7 +393,7 @@ export default function SharedPlansContent() {
 
               <StatsGrid>
                 <StatItem>
-                  <StatIcon $color="#8B5CF6">
+                  <StatIcon $color="#ff8c42">
                     <Eye size={16} />
                   </StatIcon>
                   <StatValue>{share.stats.viewCount}</StatValue>
@@ -401,7 +401,7 @@ export default function SharedPlansContent() {
                 </StatItem>
 
                 <StatItem>
-                  <StatIcon $color="#3B82F6">
+                  <StatIcon $color="#ff8c42">
                     <Calendar size={16} />
                   </StatIcon>
                   <StatValue>{share.postCount}</StatValue>

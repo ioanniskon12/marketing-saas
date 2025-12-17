@@ -17,7 +17,7 @@ const PageContainer = styled.div`
 
 const HeroSection = styled.section`
   padding: 120px 24px 80px;
-  background: linear-gradient(180deg, #eff6ff 0%, white 100%);
+  background: linear-gradient(180deg, #fff5ee 0%, white 100%);
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -34,13 +34,13 @@ const FloatingOrb = styled.div`
   &.left {
     top: -100px;
     left: -200px;
-    background: #6366f1;
+    background: #ff8c42;
   }
 
   &.right {
     bottom: -100px;
     right: -200px;
-    background: #8b5cf6;
+    background: #ff6b35;
   }
 `;
 
@@ -56,8 +56,8 @@ const Badge = styled.span`
   align-items: center;
   gap: 8px;
   padding: 8px 20px;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-  color: #6366f1;
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(255, 107, 53, 0.1) 100%);
+  color: #ff8c42;
   border-radius: 100px;
   font-size: 14px;
   font-weight: 600;
@@ -72,7 +72,7 @@ const Title = styled.h1`
   line-height: 1.1;
 
   span {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -113,13 +113,13 @@ const HeroButton = styled(Link)`
   transition: all 0.2s ease;
 
   &.primary {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
     color: white;
-    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 4px 14px rgba(255, 140, 66, 0.4);
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+      box-shadow: 0 6px 20px rgba(255, 140, 66, 0.5);
     }
   }
 
@@ -129,8 +129,8 @@ const HeroButton = styled(Link)`
     border: 1px solid #e2e8f0;
 
     &:hover {
-      border-color: #6366f1;
-      color: #6366f1;
+      border-color: #ff8c42;
+      color: #ff8c42;
     }
   }
 `;
@@ -158,8 +158,8 @@ const SectionBadge = styled.span`
   align-items: center;
   gap: 8px;
   padding: 6px 16px;
-  background: ${props => props.$bg || 'rgba(99, 102, 241, 0.1)'};
-  color: ${props => props.$color || '#6366f1'};
+  background: ${props => props.$bg || 'rgba(255, 140, 66, 0.1)'};
+  color: ${props => props.$color || '#ff8c42'};
   border-radius: 100px;
   font-size: 13px;
   font-weight: 600;
@@ -257,7 +257,7 @@ const ShowcaseContent = styled.div`
 `;
 
 const ShowcaseVisual = styled.div`
-  background: ${props => props.$bg || 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'};
+  background: ${props => props.$bg || 'linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%)'};
   border-radius: 24px;
   height: 400px;
   display: flex;
@@ -321,7 +321,7 @@ const LearnMoreLink = styled(Link)`
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #6366f1;
+  color: #ff8c42;
   font-weight: 600;
   text-decoration: none;
   transition: gap 0.2s ease;
@@ -356,8 +356,8 @@ const IntegrationCard = styled.div`
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: #6366f1;
-    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.1);
+    border-color: #ff8c42;
+    box-shadow: 0 8px 24px rgba(255, 140, 66, 0.1);
   }
 `;
 
@@ -373,7 +373,7 @@ const IntegrationIcon = styled.div`
 
 const CTASection = styled.section`
   padding: 100px 24px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 50%, #e67a35 100%);
   text-align: center;
 `;
 
@@ -419,7 +419,7 @@ const CTAButton = styled(Link)`
 
   &.primary {
     background: white;
-    color: #6366f1;
+    color: #ff8c42;
 
     &:hover {
       transform: translateY(-2px);
@@ -441,17 +441,17 @@ const CTAButton = styled(Link)`
 
 export default function Features() {
   const coreFeatures = [
-    { icon: <Calendar size={28} color="#6366f1" />, bg: '#e0e7ff', title: 'Smart Scheduling', text: 'Plan and schedule your content across all platforms. Our AI recommends the best times to post for maximum engagement.' },
+    { icon: <Calendar size={28} color="#ff8c42" />, bg: '#fff5ee', title: 'Smart Scheduling', text: 'Plan and schedule your content across all platforms. Our AI recommends the best times to post for maximum engagement.' },
     { icon: <BarChart3 size={28} color="#ec4899" />, bg: '#fce7f3', title: 'Advanced Analytics', text: 'Track performance, measure growth, and get actionable insights with comprehensive analytics dashboards.' },
     { icon: <Users size={28} color="#f59e0b" />, bg: '#fef3c7', title: 'Team Collaboration', text: 'Work together seamlessly with role-based permissions, approval workflows, and team activity tracking.' },
-    { icon: <Sparkles size={28} color="#8b5cf6" />, bg: '#ede9fe', title: 'AI Content Tools', text: 'Generate captions, hashtags, and content ideas with our powerful AI assistant.' },
+    { icon: <Sparkles size={28} color="#ff6b35" />, bg: '#fff9f5', title: 'AI Content Tools', text: 'Generate captions, hashtags, and content ideas with our powerful AI assistant.' },
     { icon: <Globe size={28} color="#06b6d4" />, bg: '#cffafe', title: 'Multi-Platform', text: 'Connect Instagram, Facebook, Twitter, LinkedIn, TikTok, and more from one dashboard.' },
     { icon: <Shield size={28} color="#10b981" />, bg: '#d1fae5', title: 'Enterprise Security', text: 'Bank-grade encryption, SSO support, and compliance with industry standards.' }
   ];
 
   const integrations = [
     { name: 'Instagram', bg: '#fce7f3', color: '#ec4899' },
-    { name: 'Facebook', bg: '#e0e7ff', color: '#6366f1' },
+    { name: 'Facebook', bg: '#dbeafe', color: '#2563eb' },
     { name: 'Twitter/X', bg: '#f1f5f9', color: '#0f172a' },
     { name: 'LinkedIn', bg: '#dbeafe', color: '#2563eb' },
     { name: 'TikTok', bg: '#f1f5f9', color: '#0f172a' },
@@ -604,7 +604,7 @@ export default function Features() {
         <Container>
           <FeatureShowcase>
             <ShowcaseContent>
-              <SectionBadge $bg="#ede9fe" $color="#8b5cf6">
+              <SectionBadge $bg="#fff5ee" $color="#ff8c42">
                 <Sparkles size={14} />
                 AI Assistant
               </SectionBadge>
@@ -635,7 +635,7 @@ export default function Features() {
                 See it in action <ArrowRight size={16} />
               </LearnMoreLink>
             </ShowcaseContent>
-            <ShowcaseVisual $bg="linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)">
+            <ShowcaseVisual $bg="linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%)">
               <ShowcaseIcon>
                 <Sparkles size={120} strokeWidth={1} />
               </ShowcaseIcon>

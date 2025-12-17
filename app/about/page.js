@@ -12,7 +12,7 @@ const PageContainer = styled.div`
 
 const HeroSection = styled.section`
   padding: 120px 24px 80px;
-  background: linear-gradient(180deg, #f0f9ff 0%, white 100%);
+  background: linear-gradient(180deg, #fff5ee 0%, white 100%);
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -29,13 +29,13 @@ const FloatingOrb = styled.div`
   &.left {
     top: -100px;
     left: -200px;
-    background: #93c5fd;
+    background: #ff8c42;
   }
 
   &.right {
     bottom: -100px;
     right: -200px;
-    background: #c4b5fd;
+    background: #ff6b35;
   }
 `;
 
@@ -49,8 +49,8 @@ const HeroContent = styled.div`
 const Badge = styled.span`
   display: inline-block;
   padding: 8px 20px;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-  color: #6366f1;
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(255, 107, 53, 0.1) 100%);
+  color: #ff8c42;
   border-radius: 100px;
   font-size: 14px;
   font-weight: 600;
@@ -65,7 +65,7 @@ const Title = styled.h1`
   line-height: 1.1;
 
   span {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -152,7 +152,7 @@ const StoryText = styled.p`
 `;
 
 const StoryImage = styled.div`
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   border-radius: 24px;
   height: 400px;
   display: flex;
@@ -224,7 +224,7 @@ const StatsSection = styled.div`
   grid-template-columns: repeat(4, 1fr);
   gap: 32px;
   padding: 60px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   border-radius: 24px;
 
   @media (max-width: 968px) {
@@ -278,7 +278,7 @@ const TeamCard = styled.div`
 const TeamAvatar = styled.div`
   width: 160px;
   height: 160px;
-  background: ${props => props.$bg || 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'};
+  background: ${props => props.$bg || 'linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%)'};
   border-radius: 50%;
   margin: 0 auto 20px;
   display: flex;
@@ -320,7 +320,7 @@ const SocialLink = styled.a`
   transition: all 0.2s ease;
 
   &:hover {
-    background: #6366f1;
+    background: #ff8c42;
     color: white;
   }
 `;
@@ -328,8 +328,8 @@ const SocialLink = styled.a`
 export default function About() {
   const values = [
     {
-      icon: <Users size={28} color="#6366f1" />,
-      bg: '#e0e7ff',
+      icon: <Users size={28} color="#ff8c42" />,
+      bg: '#fff5ee',
       title: 'Customer First',
       text: 'Every decision we make starts with our customers. Their success is our success.'
     },
@@ -366,11 +366,11 @@ export default function About() {
   ];
 
   const team = [
-    { name: 'Alex Chen', role: 'CEO & Co-Founder', initials: 'AC', bg: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' },
+    { name: 'Alex Chen', role: 'CEO & Co-Founder', initials: 'AC', bg: 'linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%)' },
     { name: 'Sarah Miller', role: 'CTO & Co-Founder', initials: 'SM', bg: 'linear-gradient(135deg, #ec4899 0%, #f472b6 100%)' },
     { name: 'David Kim', role: 'Head of Product', initials: 'DK', bg: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)' },
     { name: 'Emily Zhang', role: 'Head of Design', initials: 'EZ', bg: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)' },
-    { name: 'Michael Park', role: 'Head of Engineering', initials: 'MP', bg: 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)' },
+    { name: 'Michael Park', role: 'Head of Engineering', initials: 'MP', bg: 'linear-gradient(135deg, #ff6b35 0%, #ffb380 100%)' },
     { name: 'Jessica Lee', role: 'Head of Marketing', initials: 'JL', bg: 'linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%)' },
     { name: 'Ryan Thompson', role: 'Head of Sales', initials: 'RT', bg: 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)' },
     { name: 'Lisa Wang', role: 'Head of Success', initials: 'LW', bg: 'linear-gradient(135deg, #14b8a6 0%, #2dd4bf 100%)' }

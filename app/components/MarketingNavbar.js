@@ -50,7 +50,7 @@ const LogoLink = styled(Link)`
 const LogoIcon = styled.div`
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -63,7 +63,7 @@ const LogoIcon = styled.div`
 const Logo = styled.span`
   font-size: 24px;
   font-weight: 800;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+  background: linear-gradient(135deg, #ff8c42, #ff6b35, #e67a35);
   background-size: 200% 200%;
   animation: ${gradientMove} 3s ease infinite;
   -webkit-background-clip: text;
@@ -95,8 +95,8 @@ const NavLink = styled(Link)`
   text-decoration: none;
 
   &:hover {
-    color: #6366f1;
-    background: rgba(99, 102, 241, 0.08);
+    color: #ff8c42;
+    background: rgba(255, 140, 66, 0.08);
   }
 `;
 
@@ -120,13 +120,13 @@ const LoginButton = styled(Link)`
   text-decoration: none;
 
   &:hover {
-    color: #6366f1;
-    background: rgba(99, 102, 241, 0.08);
+    color: #ff8c42;
+    background: rgba(255, 140, 66, 0.08);
   }
 `;
 
 const CTAButton = styled(Link)`
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   color: white;
   font-weight: 600;
   font-size: 14px;
@@ -137,7 +137,7 @@ const CTAButton = styled(Link)`
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 4px 20px rgba(255, 140, 66, 0.4);
   }
 `;
 
@@ -155,7 +155,7 @@ const MobileMenuButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(99, 102, 241, 0.08);
+    background: rgba(255, 140, 66, 0.08);
   }
 
   @media (max-width: 1024px) {
@@ -205,8 +205,8 @@ const MobileNavLink = styled(Link)`
   text-decoration: none;
 
   &:hover {
-    background: rgba(99, 102, 241, 0.08);
-    color: #6366f1;
+    background: rgba(255, 140, 66, 0.08);
+    color: #ff8c42;
   }
 `;
 
@@ -229,13 +229,13 @@ const MobileLoginButton = styled(Link)`
   text-decoration: none;
 
   &:hover {
-    border-color: #6366f1;
-    color: #6366f1;
+    border-color: #ff8c42;
+    color: #ff8c42;
   }
 `;
 
 const MobileCTAButton = styled(Link)`
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   color: white;
   font-weight: 600;
   font-size: 16px;

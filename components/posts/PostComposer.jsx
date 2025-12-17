@@ -258,7 +258,7 @@ const BestTimeButton = styled.button`
   align-items: center;
   gap: ${props => props.theme.spacing.sm};
   padding: ${props => props.theme.spacing.sm} ${props => props.theme.spacing.md};
-  background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   color: white;
   border: none;
   border-radius: ${props => props.theme.borderRadius.md};
@@ -270,7 +270,7 @@ const BestTimeButton = styled.button`
 
   &:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
   }
 
   &:disabled {
@@ -295,8 +295,8 @@ const BestTimeButton = styled.button`
 const BestTimeResult = styled.div`
   margin-top: ${props => props.theme.spacing.sm};
   padding: ${props => props.theme.spacing.sm} ${props => props.theme.spacing.md};
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(255, 107, 53, 0.1) 100%);
+  border: 1px solid rgba(255, 140, 66, 0.3);
   border-radius: ${props => props.theme.borderRadius.md};
   font-size: ${props => props.theme.typography.fontSize.xs};
   color: ${props => props.theme.colors.text.primary};
@@ -305,12 +305,12 @@ const BestTimeResult = styled.div`
   gap: ${props => props.theme.spacing.sm};
 
   svg {
-    color: #8B5CF6;
+    color: #ff8c42;
     flex-shrink: 0;
   }
 
   strong {
-    color: #8B5CF6;
+    color: #ff8c42;
   }
 `;
 

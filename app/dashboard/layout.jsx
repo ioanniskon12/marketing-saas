@@ -58,10 +58,12 @@ const MobileMenuButton = styled.button`
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  color: #0f172a;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: ${props => props.theme.mode === 'dark' ? '#1e293b' : 'white'};
+  border: 1px solid ${props => props.theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : '#e2e8f0'};
+  color: ${props => props.theme.mode === 'dark' ? 'white' : '#0f172a'};
+  box-shadow: ${props => props.theme.mode === 'dark'
+    ? '0 4px 12px rgba(0, 0, 0, 0.3)'
+    : '0 4px 12px rgba(0, 0, 0, 0.1)'};
   z-index: 98;
   align-items: center;
   justify-content: center;
@@ -69,9 +71,9 @@ const MobileMenuButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    background: #6366f1;
+    background: #ff8c42;
     color: white;
-    border-color: #6366f1;
+    border-color: #ff8c42;
   }
 
   @media (max-width: 1024px) {

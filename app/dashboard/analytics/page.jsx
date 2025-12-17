@@ -975,7 +975,7 @@ export default function AnalyticsPage() {
     success: theme.colors.success.main,
     warning: theme.colors.warning.main,
     error: theme.colors.error.main,
-    info: theme.colors.info.main,
+    info: '#ff8c42',
     secondary: theme.colors.secondary.main,
     primaryLight: theme.colors.primary.light,
   };
@@ -1139,7 +1139,7 @@ export default function AnalyticsPage() {
   const platformScores = accounts.map(account => ({
     platform: account.platform,
     name: getPlatformConfig(account.platform)?.name || account.platform,
-    color: getPlatformConfig(account.platform)?.color || '#8B5CF6',
+    color: getPlatformConfig(account.platform)?.color || '#ff8c42',
     icon: getPlatformConfig(account.platform)?.icon,
     score: Math.floor(Math.random() * 40) + 60, // 60-100
     posts: Math.floor(Math.random() * 20) + 5,
@@ -1259,9 +1259,9 @@ export default function AnalyticsPage() {
 
       {/* Advanced Metrics Grid */}
       <MetricsGrid>
-        <AdvancedMetricCard $color="#6366f1">
+        <AdvancedMetricCard $color="#ff8c42">
           <MetricHeader>
-            <MetricIcon $color="#6366f1">
+            <MetricIcon $color="#ff8c42">
               <Users />
             </MetricIcon>
             <MetricTitle>Audience Growth</MetricTitle>
@@ -1276,9 +1276,9 @@ export default function AnalyticsPage() {
           </MetricContent>
         </AdvancedMetricCard>
 
-        <AdvancedMetricCard $color="#10b981">
+        <AdvancedMetricCard $color="#ffa866">
           <MetricHeader>
-            <MetricIcon $color="#10b981">
+            <MetricIcon $color="#ffa866">
               <Heart />
             </MetricIcon>
             <MetricTitle>Total Interactions</MetricTitle>
@@ -1292,9 +1292,9 @@ export default function AnalyticsPage() {
           </MetricContent>
         </AdvancedMetricCard>
 
-        <AdvancedMetricCard $color="#f59e0b">
+        <AdvancedMetricCard $color="#b35a20">
           <MetricHeader>
-            <MetricIcon $color="#f59e0b">
+            <MetricIcon $color="#b35a20">
               <Eye />
             </MetricIcon>
             <MetricTitle>Total Reach</MetricTitle>
@@ -1308,9 +1308,9 @@ export default function AnalyticsPage() {
           </MetricContent>
         </AdvancedMetricCard>
 
-        <AdvancedMetricCard $color="#8b5cf6">
+        <AdvancedMetricCard $color="#ff6b35">
           <MetricHeader>
-            <MetricIcon $color="#8b5cf6">
+            <MetricIcon $color="#ff6b35">
               <MousePointer />
             </MetricIcon>
             <MetricTitle>Click-Through Rate</MetricTitle>
@@ -1324,9 +1324,9 @@ export default function AnalyticsPage() {
           </MetricContent>
         </AdvancedMetricCard>
 
-        <AdvancedMetricCard $color="#ec4899">
+        <AdvancedMetricCard $color="#e67a35">
           <MetricHeader>
-            <MetricIcon $color="#ec4899">
+            <MetricIcon $color="#e67a35">
               <Star />
             </MetricIcon>
             <MetricTitle>Engagement Rate</MetricTitle>
@@ -1340,9 +1340,9 @@ export default function AnalyticsPage() {
           </MetricContent>
         </AdvancedMetricCard>
 
-        <AdvancedMetricCard $color="#06b6d4">
+        <AdvancedMetricCard $color="#cc6a2a">
           <MetricHeader>
-            <MetricIcon $color="#06b6d4">
+            <MetricIcon $color="#cc6a2a">
               <Activity />
             </MetricIcon>
             <MetricTitle>Post Frequency</MetricTitle>
@@ -1381,7 +1381,7 @@ export default function AnalyticsPage() {
             Key Insights
           </SectionTitle>
 
-          <InsightCard $color="#10b981">
+          <InsightCard $color="#ffa866">
             <InsightTitle>
               <TrendingUp />
               Best Performing Day
@@ -1391,7 +1391,7 @@ export default function AnalyticsPage() {
             </InsightText>
           </InsightCard>
 
-          <InsightCard $color="#3b82f6">
+          <InsightCard $color="#ff8c42">
             <InsightTitle>
               <Clock />
               Optimal Posting Time
@@ -1401,7 +1401,7 @@ export default function AnalyticsPage() {
             </InsightText>
           </InsightCard>
 
-          <InsightCard $color="#f59e0b">
+          <InsightCard $color="#e67a35">
             <InsightTitle>
               <Target />
               Content Opportunity
@@ -1411,7 +1411,7 @@ export default function AnalyticsPage() {
             </InsightText>
           </InsightCard>
 
-          <InsightCard $color="#8b5cf6">
+          <InsightCard $color="#ff6b35">
             <InsightTitle>
               <Star />
               Audience Growth
@@ -1455,12 +1455,12 @@ export default function AnalyticsPage() {
 
       {/* Engagement Breakdown */}
       <EngagementGrid>
-        <EngagementCard $color="#ef4444">
-          <EngagementIcon $color="#ef4444">
+        <EngagementCard $color="#ff8c42">
+          <EngagementIcon $color="#ff8c42">
             <Heart />
           </EngagementIcon>
           <EngagementLabel>Total Likes</EngagementLabel>
-          <EngagementValue $color="#ef4444">
+          <EngagementValue $color="#ff8c42">
             {summary.totalLikes?.toLocaleString() || 0}
           </EngagementValue>
           <EngagementPercentage>
@@ -1470,12 +1470,12 @@ export default function AnalyticsPage() {
           </EngagementPercentage>
         </EngagementCard>
 
-        <EngagementCard $color="#3b82f6">
-          <EngagementIcon $color="#3b82f6">
+        <EngagementCard $color="#ff8c42">
+          <EngagementIcon $color="#ff8c42">
             <MessageCircle />
           </EngagementIcon>
           <EngagementLabel>Total Comments</EngagementLabel>
-          <EngagementValue $color="#3b82f6">
+          <EngagementValue $color="#ff8c42">
             {summary.totalComments?.toLocaleString() || 0}
           </EngagementValue>
           <EngagementPercentage>
@@ -1485,12 +1485,12 @@ export default function AnalyticsPage() {
           </EngagementPercentage>
         </EngagementCard>
 
-        <EngagementCard $color="#8b5cf6">
-          <EngagementIcon $color="#8b5cf6">
+        <EngagementCard $color="#ff6b35">
+          <EngagementIcon $color="#ff6b35">
             <Repeat2 />
           </EngagementIcon>
           <EngagementLabel>Total Shares</EngagementLabel>
-          <EngagementValue $color="#8b5cf6">
+          <EngagementValue $color="#ff6b35">
             {summary.totalShares?.toLocaleString() || 0}
           </EngagementValue>
           <EngagementPercentage>
@@ -1500,12 +1500,12 @@ export default function AnalyticsPage() {
           </EngagementPercentage>
         </EngagementCard>
 
-        <EngagementCard $color="#f59e0b">
-          <EngagementIcon $color="#f59e0b">
+        <EngagementCard $color="#e67a35">
+          <EngagementIcon $color="#e67a35">
             <Eye />
           </EngagementIcon>
           <EngagementLabel>Impressions</EngagementLabel>
-          <EngagementValue $color="#f59e0b">
+          <EngagementValue $color="#e67a35">
             {(summary.totalReach * 1.5).toFixed(0).toLocaleString() || 0}
           </EngagementValue>
           <EngagementPercentage>
@@ -1530,7 +1530,7 @@ export default function AnalyticsPage() {
                   case 'twitter': return { icon: Twitter, color: '#1DA1F2' };
                   case 'linkedin': return { icon: Linkedin, color: '#0A66C2' };
                   case 'youtube': return { icon: Youtube, color: '#FF0000' };
-                  default: return { icon: Share2, color: '#6366f1' };
+                  default: return { icon: Share2, color: '#ff8c42' };
                 }
               };
 

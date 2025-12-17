@@ -60,37 +60,37 @@ const StyledButton = styled.button`
 
   /* Primary variant */
   ${props => props.$variant === 'primary' && `
-    background: linear-gradient(135deg, ${props.theme.colors.primary.main}, ${props.theme.colors.primary.dark});
+    background: ${props.theme.gradients?.primary || `linear-gradient(135deg, ${props.theme.colors.primary.main}, ${props.theme.colors.accent?.main || props.theme.colors.primary.dark})`};
     color: white;
-    box-shadow: ${props.theme.shadows.md};
+    box-shadow: ${props.theme.shadows.md}, 0 0 0 0 rgba(255, 140, 66, 0);
 
     &:hover:not(:disabled) {
-      background: linear-gradient(135deg, ${props.theme.colors.primary.dark}, ${props.theme.colors.primary.main});
-      transform: translateY(-3px);
-      box-shadow: ${props.theme.shadows.xl};
+      background: ${props.theme.gradients?.primaryHover || `linear-gradient(135deg, ${props.theme.colors.primary.light}, ${props.theme.colors.primary.main})`};
+      transform: translateY(-2px);
+      box-shadow: ${props.theme.shadows.lg}, 0 4px 20px rgba(255, 140, 66, 0.3);
     }
 
     &:active:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: ${props.theme.shadows.lg};
+      transform: translateY(0);
+      box-shadow: ${props.theme.shadows.base};
     }
   `}
 
   /* Secondary variant */
   ${props => props.$variant === 'secondary' && `
-    background: linear-gradient(135deg, ${props.theme.colors.secondary.main}, ${props.theme.colors.secondary.dark});
-    color: white;
+    background: ${props.theme.colors.secondary.main};
+    color: ${props.theme.colors.secondary.contrast};
     box-shadow: ${props.theme.shadows.md};
 
     &:hover:not(:disabled) {
-      background: linear-gradient(135deg, ${props.theme.colors.secondary.dark}, ${props.theme.colors.secondary.main});
-      transform: translateY(-3px);
-      box-shadow: ${props.theme.shadows.xl};
+      background: ${props.theme.colors.secondary.light};
+      transform: translateY(-2px);
+      box-shadow: ${props.theme.shadows.lg};
     }
 
     &:active:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: ${props.theme.shadows.lg};
+      transform: translateY(0);
+      box-shadow: ${props.theme.shadows.base};
     }
   `}
 

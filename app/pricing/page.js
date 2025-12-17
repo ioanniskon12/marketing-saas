@@ -37,8 +37,8 @@ const FloatingOrb = styled.div`
 const Badge = styled.span`
   display: inline-block;
   padding: 6px 16px;
-  background: rgba(99, 102, 241, 0.1);
-  color: #6366f1;
+  background: rgba(255, 140, 66, 0.1);
+  color: #ff8c42;
   border-radius: 100px;
   font-size: 14px;
   font-weight: 600;
@@ -55,7 +55,7 @@ const Title = styled.h1`
   line-height: 1.1;
 
   span {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 50%, #e67a35 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -142,10 +142,10 @@ const PricingCard = styled.div`
   transition: all 0.3s;
 
   ${props => props.$popular ? `
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #6366f1 100%);
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 50%, #ff8c42 100%);
     background-size: 200% 200%;
     animation: gradientShift 5s ease infinite;
-    box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 25px 50px -12px rgba(255, 140, 66, 0.4);
     transform: scale(1.05);
     z-index: 10;
 
@@ -228,7 +228,7 @@ const CTAButton = styled(Link)`
 
   ${props => props.$popular ? `
     background: white;
-    color: #6366f1;
+    color: #ff8c42;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
     &:hover {
@@ -334,7 +334,7 @@ const TableHeaderCell = styled.div`
   `}
 
   ${props => props.$popular && `
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
     color: white;
   `}
 
@@ -371,7 +371,7 @@ const TableCell = styled.div`
   color: ${props => props.$first ? '#475569' : '#0f172a'};
 
   ${props => props.$popular && `
-    background: rgba(99, 102, 241, 0.03);
+    background: rgba(255, 140, 66, 0.03);
   `}
 `;
 
@@ -382,15 +382,15 @@ const FAQSection = styled.section`
 `;
 
 const FAQItem = styled.div`
-  border: 1px solid ${props => props.$open ? 'rgba(99, 102, 241, 0.3)' : '#e2e8f0'};
+  border: 1px solid ${props => props.$open ? 'rgba(255, 140, 66, 0.3)' : '#e2e8f0'};
   border-radius: 16px;
   margin-bottom: 16px;
   overflow: hidden;
   transition: all 0.3s;
-  background: ${props => props.$open ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, rgba(139, 92, 246, 0.03) 100%)' : 'white'};
+  background: ${props => props.$open ? 'linear-gradient(135deg, rgba(255, 140, 66, 0.03) 0%, rgba(255, 107, 53, 0.03) 100%)' : 'white'};
 
   ${props => props.$open && `
-    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 8px 24px rgba(255, 140, 66, 0.1);
   `}
 `;
 
@@ -417,7 +417,7 @@ const FAQIconWrapper = styled.div`
   align-items: center;
   justify-content: center;
   transition: all 0.3s;
-  background: ${props => props.$open ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' : '#f1f5f9'};
+  background: ${props => props.$open ? 'linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%)' : '#f1f5f9'};
   transform: ${props => props.$open ? 'rotate(180deg)' : 'rotate(0deg)'};
 
   svg {
@@ -436,7 +436,7 @@ const FAQAnswer = styled.div`
 
 const CTASection = styled.section`
   padding: 100px 24px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 50%, #e67a35 100%);
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -469,7 +469,7 @@ const CTAButtons = styled.div`
 const CTAPrimary = styled(Link)`
   padding: 16px 32px;
   background: white;
-  color: #6366f1;
+  color: #ff8c42;
   border-radius: 12px;
   font-weight: 600;
   text-decoration: none;
@@ -696,7 +696,7 @@ export default function PricingPage() {
               </TableCell>
               <TableCell $popular>
                 {typeof feature.pro === 'boolean' ? (
-                  feature.pro ? <Check size={18} color="#6366f1" /> : <X size={18} color="#cbd5e1" />
+                  feature.pro ? <Check size={18} color="#ff8c42" /> : <X size={18} color="#cbd5e1" />
                 ) : feature.pro}
               </TableCell>
               <TableCell>

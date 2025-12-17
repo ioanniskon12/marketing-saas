@@ -32,7 +32,7 @@ const PLATFORM_CONFIG = {
 };
 
 const STATUS_CONFIG = {
-  scheduled: { color: '#3B82F6', label: 'Scheduled', bg: 'rgba(59, 130, 246, 0.15)' },
+  scheduled: { color: '#ff8c42', label: 'Scheduled', bg: 'rgba(255, 140, 66, 0.15)' },
   published: { color: '#10B981', label: 'Published', bg: 'rgba(16, 185, 129, 0.15)' },
   failed: { color: '#EF4444', label: 'Failed', bg: 'rgba(239, 68, 68, 0.15)' },
   draft: { color: '#6B7280', label: 'Draft', bg: 'rgba(107, 114, 128, 0.15)' },

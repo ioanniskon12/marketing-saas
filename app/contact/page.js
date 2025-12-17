@@ -12,7 +12,7 @@ const PageContainer = styled.div`
 
 const HeroSection = styled.section`
   padding: 120px 24px 80px;
-  background: linear-gradient(180deg, #fef3c7 0%, white 100%);
+  background: linear-gradient(180deg, #fff5ee 0%, white 100%);
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -29,13 +29,13 @@ const FloatingOrb = styled.div`
   &.left {
     top: -100px;
     left: -200px;
-    background: #fbbf24;
+    background: #ff8c42;
   }
 
   &.right {
     bottom: -100px;
     right: -200px;
-    background: #6ee7b7;
+    background: #ff6b35;
   }
 `;
 
@@ -49,8 +49,8 @@ const HeroContent = styled.div`
 const Badge = styled.span`
   display: inline-block;
   padding: 8px 20px;
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
-  color: #f59e0b;
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(255, 107, 53, 0.1) 100%);
+  color: #ff8c42;
   border-radius: 100px;
   font-size: 14px;
   font-weight: 600;
@@ -65,7 +65,7 @@ const Title = styled.h1`
   line-height: 1.1;
 
   span {
-    background: linear-gradient(135deg, #f59e0b 0%, #10b981 100%);
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -173,7 +173,7 @@ const CardText = styled.p`
 
 const CardLink = styled.a`
   font-size: 15px;
-  color: #6366f1;
+  color: #ff8c42;
   text-decoration: none;
   font-weight: 500;
 
@@ -235,8 +235,8 @@ const FormInput = styled.input`
 
   &:focus {
     outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    border-color: #ff8c42;
+    box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.1);
   }
 
   &::placeholder {
@@ -256,8 +256,8 @@ const FormSelect = styled.select`
 
   &:focus {
     outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    border-color: #ff8c42;
+    box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.1);
   }
 `;
 
@@ -274,8 +274,8 @@ const FormTextarea = styled.textarea`
 
   &:focus {
     outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    border-color: #ff8c42;
+    box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.1);
   }
 
   &::placeholder {
@@ -290,7 +290,7 @@ const SubmitButton = styled.button`
   gap: 10px;
   width: 100%;
   padding: 16px 32px;
-  background: linear-gradient(135deg, #f59e0b 0%, #10b981 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   color: white;
   border: none;
   border-radius: 12px;
@@ -301,7 +301,7 @@ const SubmitButton = styled.button`
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);
+    box-shadow: 0 8px 24px rgba(255, 140, 66, 0.4);
   }
 `;
 
@@ -429,8 +429,8 @@ export default function Contact() {
                 </ContactCard>
 
                 <ContactCard>
-                  <CardIcon $bg="#e0e7ff">
-                    <Phone size={24} color="#6366f1" />
+                  <CardIcon $bg="#fff5ee">
+                    <Phone size={24} color="#ff8c42" />
                   </CardIcon>
                   <CardContent>
                     <CardTitle>Call Us</CardTitle>
@@ -521,8 +521,8 @@ export default function Contact() {
 
           <SupportGrid>
             <SupportCard>
-              <SupportIcon $bg="#e0e7ff">
-                <MessageCircle size={32} color="#6366f1" />
+              <SupportIcon $bg="#fff5ee">
+                <MessageCircle size={32} color="#ff8c42" />
               </SupportIcon>
               <SupportTitle>Live Chat</SupportTitle>
               <SupportText>

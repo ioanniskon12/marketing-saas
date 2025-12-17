@@ -13,7 +13,7 @@ const PageContainer = styled.div`
 
 const HeroSection = styled.section`
   padding: 120px 24px 60px;
-  background: linear-gradient(180deg, #ecfdf5 0%, white 100%);
+  background: linear-gradient(180deg, #fff5ee 0%, white 100%);
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -30,13 +30,13 @@ const FloatingOrb = styled.div`
   &.left {
     top: -100px;
     left: -200px;
-    background: #6ee7b7;
+    background: #ff8c42;
   }
 
   &.right {
     bottom: -100px;
     right: -200px;
-    background: #a5b4fc;
+    background: #ff6b35;
   }
 `;
 
@@ -50,8 +50,8 @@ const HeroContent = styled.div`
 const Badge = styled.span`
   display: inline-block;
   padding: 8px 20px;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
-  color: #10b981;
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(255, 107, 53, 0.1) 100%);
+  color: #ff8c42;
   border-radius: 100px;
   font-size: 14px;
   font-weight: 600;
@@ -66,7 +66,7 @@ const Title = styled.h1`
   line-height: 1.1;
 
   span {
-    background: linear-gradient(135deg, #10b981 0%, #6366f1 100%);
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -121,7 +121,7 @@ const FeaturedPost = styled(Link)`
 `;
 
 const FeaturedImage = styled.div`
-  background: ${props => props.$bg || 'linear-gradient(135deg, #10b981 0%, #6366f1 100%)'};
+  background: ${props => props.$bg || 'linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%)'};
   min-height: 400px;
   display: flex;
   align-items: center;
@@ -217,7 +217,7 @@ const PostCard = styled(Link)`
 
 const PostImage = styled.div`
   height: 200px;
-  background: ${props => props.$bg || 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'};
+  background: ${props => props.$bg || 'linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%)'};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -232,8 +232,8 @@ const PostContent = styled.div`
 const PostCategory = styled.span`
   display: inline-block;
   padding: 4px 12px;
-  background: ${props => props.$bg || '#e0e7ff'};
-  color: ${props => props.$color || '#6366f1'};
+  background: ${props => props.$bg || '#fff5ee'};
+  color: ${props => props.$color || '#ff8c42'};
   border-radius: 100px;
   font-size: 12px;
   font-weight: 600;
@@ -275,7 +275,7 @@ const CategoryButton = styled.button`
   padding: 10px 20px;
   border-radius: 100px;
   border: 1px solid #e2e8f0;
-  background: ${props => props.$active ? 'linear-gradient(135deg, #10b981 0%, #6366f1 100%)' : 'white'};
+  background: ${props => props.$active ? 'linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%)' : 'white'};
   color: ${props => props.$active ? 'white' : '#64748b'};
   font-size: 14px;
   font-weight: 500;
@@ -283,13 +283,13 @@ const CategoryButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: #10b981;
-    color: ${props => props.$active ? 'white' : '#10b981'};
+    border-color: #ff8c42;
+    color: ${props => props.$active ? 'white' : '#ff8c42'};
   }
 `;
 
 const NewsletterSection = styled.div`
-  background: linear-gradient(135deg, #10b981 0%, #6366f1 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   border-radius: 24px;
   padding: 60px;
   text-align: center;
@@ -390,11 +390,11 @@ export default function Blog() {
       title: 'The Complete Guide to Social Media Analytics',
       excerpt: 'Understanding your metrics is key to growth. Learn how to interpret and act on your data.',
       category: 'Marketing',
-      categoryBg: '#e0e7ff',
-      categoryColor: '#6366f1',
+      categoryBg: '#fff5ee',
+      categoryColor: '#ff8c42',
       date: 'Dec 1, 2025',
       readTime: '10 min read',
-      bg: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+      bg: 'linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%)',
       emoji: '📊'
     },
     {
@@ -412,11 +412,11 @@ export default function Blog() {
       title: 'How GrowthCo Increased Engagement by 300%',
       excerpt: 'A deep dive into how one of our customers transformed their social media presence.',
       category: 'Case Studies',
-      categoryBg: '#ede9fe',
-      categoryColor: '#8b5cf6',
+      categoryBg: '#fff5ee',
+      categoryColor: '#ff6b35',
       date: 'Nov 25, 2025',
       readTime: '12 min read',
-      bg: 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)',
+      bg: 'linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)',
       emoji: '🚀'
     },
     {
@@ -454,7 +454,7 @@ export default function Blog() {
       <Section>
         <Container>
           <FeaturedPost href="/blog/ultimate-guide-social-media-2025">
-            <FeaturedImage $bg="linear-gradient(135deg, #10b981 0%, #6366f1 100%)">
+            <FeaturedImage $bg="linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%)">
               📱
             </FeaturedImage>
             <FeaturedContent>

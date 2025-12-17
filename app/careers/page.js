@@ -50,8 +50,8 @@ const HeroContent = styled.div`
 const Badge = styled.span`
   display: inline-block;
   padding: 8px 20px;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
-  color: #8b5cf6;
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
+  color: #ff8c42;
   border-radius: 100px;
   font-size: 14px;
   font-weight: 600;
@@ -66,7 +66,7 @@ const Title = styled.h1`
   line-height: 1.1;
 
   span {
-    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    background: linear-gradient(135deg, #ff8c42 0%, #ec4899 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -199,8 +199,8 @@ const JobCard = styled.div`
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: #8b5cf6;
-    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.1);
+    border-color: #ff8c42;
+    box-shadow: 0 8px 24px rgba(255, 140, 66, 0.1);
   }
 
   @media (max-width: 768px) {
@@ -217,7 +217,7 @@ const JobDepartment = styled.span`
   display: inline-block;
   padding: 4px 12px;
   background: ${props => props.$bg || '#e0e7ff'};
-  color: ${props => props.$color || '#6366f1'};
+  color: ${props => props.$color || '#ff8c42'};
   border-radius: 100px;
   font-size: 12px;
   font-weight: 600;
@@ -250,7 +250,7 @@ const ApplyButton = styled(Link)`
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ec4899 100%);
   color: white;
   border-radius: 10px;
   font-weight: 600;
@@ -260,7 +260,7 @@ const ApplyButton = styled(Link)`
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4);
+    box-shadow: 0 4px 16px rgba(255, 140, 66, 0.4);
   }
 
   @media (max-width: 768px) {
@@ -304,7 +304,7 @@ const CultureImages = styled.div`
 `;
 
 const CultureImage = styled.div`
-  background: ${props => props.$bg || 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)'};
+  background: ${props => props.$bg || 'linear-gradient(135deg, #ff8c42 0%, #ec4899 100%)'};
   border-radius: 16px;
   height: 180px;
   display: flex;
@@ -343,7 +343,7 @@ const ContactLink = styled(Link)`
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #8b5cf6;
+  color: #ff8c42;
   font-weight: 600;
   text-decoration: none;
 
@@ -356,17 +356,17 @@ export default function Careers() {
   const perks = [
     { icon: <Heart size={24} color="#ef4444" />, bg: '#fee2e2', title: 'Health & Wellness', text: 'Comprehensive medical, dental, and vision coverage for you and your family.' },
     { icon: <DollarSign size={24} color="#10b981" />, bg: '#d1fae5', title: 'Competitive Salary', text: 'Top-of-market compensation with equity options for all team members.' },
-    { icon: <Plane size={24} color="#6366f1" />, bg: '#e0e7ff', title: 'Unlimited PTO', text: 'Take the time you need. We trust you to manage your own schedule.' },
+    { icon: <Plane size={24} color="#ff8c42" />, bg: '#e0e7ff', title: 'Unlimited PTO', text: 'Take the time you need. We trust you to manage your own schedule.' },
     { icon: <Coffee size={24} color="#f59e0b" />, bg: '#fef3c7', title: 'Remote First', text: 'Work from anywhere. We have team members across 15+ countries.' },
-    { icon: <GraduationCap size={24} color="#8b5cf6" />, bg: '#ede9fe', title: 'Learning Budget', text: '$2,000 annual budget for courses, conferences, and books.' },
+    { icon: <GraduationCap size={24} color="#ff8c42" />, bg: '#ede9fe', title: 'Learning Budget', text: '$2,000 annual budget for courses, conferences, and books.' },
     { icon: <Users size={24} color="#ec4899" />, bg: '#fce7f3', title: 'Team Retreats', text: 'Annual company retreats to connect and celebrate together.' }
   ];
 
   const jobs = [
-    { department: 'Engineering', deptBg: '#e0e7ff', deptColor: '#6366f1', title: 'Senior Frontend Engineer', location: 'Remote', type: 'Full-time', salary: '$150K - $200K' },
-    { department: 'Engineering', deptBg: '#e0e7ff', deptColor: '#6366f1', title: 'Backend Engineer', location: 'Remote', type: 'Full-time', salary: '$130K - $180K' },
+    { department: 'Engineering', deptBg: '#e0e7ff', deptColor: '#ff8c42', title: 'Senior Frontend Engineer', location: 'Remote', type: 'Full-time', salary: '$150K - $200K' },
+    { department: 'Engineering', deptBg: '#e0e7ff', deptColor: '#ff8c42', title: 'Backend Engineer', location: 'Remote', type: 'Full-time', salary: '$130K - $180K' },
     { department: 'Product', deptBg: '#fce7f3', deptColor: '#ec4899', title: 'Product Manager', location: 'Remote', type: 'Full-time', salary: '$140K - $180K' },
-    { department: 'Design', deptBg: '#ede9fe', deptColor: '#8b5cf6', title: 'Senior Product Designer', location: 'Remote', type: 'Full-time', salary: '$130K - $170K' },
+    { department: 'Design', deptBg: '#ede9fe', deptColor: '#ff8c42', title: 'Senior Product Designer', location: 'Remote', type: 'Full-time', salary: '$130K - $170K' },
     { department: 'Marketing', deptBg: '#d1fae5', deptColor: '#10b981', title: 'Content Marketing Manager', location: 'Remote', type: 'Full-time', salary: '$100K - $140K' },
     { department: 'Sales', deptBg: '#fef3c7', deptColor: '#f59e0b', title: 'Account Executive', location: 'Remote', type: 'Full-time', salary: '$80K - $120K + Commission' }
   ];
@@ -434,7 +434,7 @@ export default function Careers() {
               </CultureText>
             </CultureContent>
             <CultureImages>
-              <CultureImage $bg="linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)">
+              <CultureImage $bg="linear-gradient(135deg, #ff8c42 0%, #ff8c42 100%)">
                 <Users size={60} color="white" />
               </CultureImage>
               <CultureImage $bg="linear-gradient(135deg, #ec4899 0%, #f472b6 100%)">

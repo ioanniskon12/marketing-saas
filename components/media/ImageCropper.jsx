@@ -349,23 +349,23 @@ const PresetButton = styled.button`
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
-  border: 1px solid ${props => props.$selected ? 'rgba(139, 92, 246, 0.6)' : 'rgba(255, 255, 255, 0.1)'};
+  border: 1px solid ${props => props.$selected ? 'rgba(255, 140, 66, 0.6)' : 'rgba(255, 255, 255, 0.1)'};
   border-radius: 8px;
-  background: ${props => props.$selected ? 'rgba(139, 92, 246, 0.2)' : 'rgba(255, 255, 255, 0.03)'};
+  background: ${props => props.$selected ? 'rgba(255, 140, 66, 0.2)' : 'rgba(255, 255, 255, 0.03)'};
   color: white;
   cursor: pointer;
   text-align: left;
   transition: all 0.2s;
 
   &:hover {
-    background: ${props => props.$selected ? 'rgba(139, 92, 246, 0.25)' : 'rgba(255, 255, 255, 0.08)'};
-    border-color: ${props => props.$selected ? 'rgba(139, 92, 246, 0.8)' : 'rgba(255, 255, 255, 0.2)'};
+    background: ${props => props.$selected ? 'rgba(255, 140, 66, 0.25)' : 'rgba(255, 255, 255, 0.08)'};
+    border-color: ${props => props.$selected ? 'rgba(255, 140, 66, 0.8)' : 'rgba(255, 255, 255, 0.2)'};
   }
 
   svg {
     width: 18px;
     height: 18px;
-    color: ${props => props.$selected ? 'rgba(139, 92, 246, 1)' : 'rgba(255, 255, 255, 0.6)'};
+    color: ${props => props.$selected ? 'rgba(255, 140, 66, 1)' : 'rgba(255, 255, 255, 0.6)'};
   }
 `;
 
@@ -406,12 +406,12 @@ const CropContainer = styled.div`
   }
 
   .ReactCrop__crop-selection {
-    border: 2px solid rgba(139, 92, 246, 0.8);
+    border: 2px solid rgba(255, 140, 66, 0.8);
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
   }
 
   .ReactCrop__drag-handle {
-    background-color: rgba(139, 92, 246, 1);
+    background-color: rgba(255, 140, 66, 1);
     width: 12px;
     height: 12px;
   }
@@ -478,7 +478,7 @@ const ApplyButton = styled.button`
   padding: 10px 24px;
   border-radius: 8px;
   border: none;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 1), rgba(109, 62, 216, 1));
+  background: linear-gradient(135deg, rgba(255, 140, 66, 1), rgba(109, 62, 216, 1));
   color: white;
   font-size: 14px;
   font-weight: 600;
@@ -491,7 +491,7 @@ const ApplyButton = styled.button`
   &:hover {
     background: linear-gradient(135deg, rgba(149, 102, 256, 1), rgba(119, 72, 226, 1));
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.4);
   }
 
   &:disabled {

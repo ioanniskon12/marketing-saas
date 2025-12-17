@@ -200,8 +200,8 @@ const WarningText = styled.p`
 `;
 
 const InfoBox = styled.div`
-  background: rgba(139, 92, 246, 0.05);
-  border: 1px solid rgba(139, 92, 246, 0.2);
+  background: rgba(255, 140, 66, 0.05);
+  border: 1px solid rgba(255, 140, 66, 0.2);
   border-radius: 12px;
   padding: 16px;
 `;
@@ -209,7 +209,7 @@ const InfoBox = styled.div`
 const InfoTitle = styled.h4`
   font-size: 0.875rem;
   font-weight: 600;
-  color: rgba(139, 92, 246, 1);
+  color: rgba(255, 140, 66, 1);
   margin: 0 0 12px 0;
 `;
 
@@ -233,7 +233,7 @@ const InfoList = styled.ul`
 
     &:before {
       content: '•';
-      color: rgba(139, 92, 246, 1);
+      color: rgba(255, 140, 66, 1);
       font-weight: bold;
       flex-shrink: 0;
     }

@@ -44,7 +44,7 @@ const FloatingOrb = styled.div`
 const IconBox = styled.div`
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -56,8 +56,8 @@ const IconBox = styled.div`
 const Badge = styled.span`
   display: inline-block;
   padding: 6px 16px;
-  background: rgba(99, 102, 241, 0.1);
-  color: #4f46e5;
+  background: rgba(255, 140, 66, 0.1);
+  color: #ff6b35;
   border-radius: 100px;
   font-size: 14px;
   font-weight: 600;
@@ -156,9 +156,9 @@ const SidebarButton = styled.button`
   font-weight: 500;
 
   ${props => props.$active ? `
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
     color: white;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
   ` : `
     background: transparent;
     color: #475569;
@@ -199,7 +199,7 @@ const ContentHeader = styled.div`
 const ContentIconBox = styled.div`
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -231,7 +231,7 @@ const TableHeader = styled.div`
   display: grid;
   grid-template-columns: 1fr 2fr;
   padding: 16px;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(79, 70, 229, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(79, 70, 229, 0.1) 100%);
   font-weight: 600;
   font-size: 14px;
   color: #0f172a;
@@ -279,7 +279,7 @@ const RightCard = styled.div`
   transition: all 0.2s;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.1);
     border-color: #a5b4fc;
   }
 `;
@@ -287,13 +287,13 @@ const RightCard = styled.div`
 const RightCardIcon = styled.div`
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(79, 70, 229, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(79, 70, 229, 0.1) 100%);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 12px;
-  color: #6366f1;
+  color: #ff8c42;
 `;
 
 const RightCardTitle = styled.h4`
@@ -326,7 +326,7 @@ const ListItem = styled.li`
 const ListIcon = styled.div`
   width: 24px;
   height: 24px;
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -347,7 +347,7 @@ const ListText = styled.span`
 `;
 
 const InfoBox = styled.div`
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(79, 70, 229, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(79, 70, 229, 0.1) 100%);
   border: 1px solid #c7d2fe;
   border-radius: 12px;
   padding: 20px;
@@ -368,7 +368,7 @@ const InfoText = styled.p`
 `;
 
 const InfoLink = styled.a`
-  color: #6366f1;
+  color: #ff8c42;
   text-decoration: none;
   font-weight: 500;
 
@@ -443,7 +443,7 @@ const RelatedCard = styled(Link)`
 
   &:hover {
     border-color: #a5b4fc;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.1);
   }
 `;
 
@@ -758,7 +758,7 @@ export default function GDPR() {
           <RelatedTitle>Related Legal Documents</RelatedTitle>
           <RelatedGrid>
             <RelatedCard href="/privacy">
-              <RelatedIcon $gradient="linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)">
+              <RelatedIcon $gradient="linear-gradient(135deg, #ff8c42 0%, #ff8c42 100%)">
                 <Shield size={24} />
               </RelatedIcon>
               <RelatedInfo>

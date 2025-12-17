@@ -82,7 +82,7 @@ const StatusBadge = styled.span`
       case 'approved': return props.theme.colors.success.main + '20';
       case 'pending_review': return props.theme.colors.warning.main + '20';
       case 'rejected': return props.theme.colors.error.main + '20';
-      case 'partially_approved': return props.theme.colors.info.main + '20';
+      case 'partially_approved': return '#ff8c4220';
       default: return props.theme.colors.neutral[200];
     }
   }};
@@ -91,7 +91,7 @@ const StatusBadge = styled.span`
       case 'approved': return props.theme.colors.success.dark;
       case 'pending_review': return props.theme.colors.warning.dark;
       case 'rejected': return props.theme.colors.error.dark;
-      case 'partially_approved': return props.theme.colors.info.dark;
+      case 'partially_approved': return '#e67a35';
       default: return props.theme.colors.text.secondary;
     }
   }};

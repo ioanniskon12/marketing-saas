@@ -50,7 +50,12 @@ const SIDEBAR_WIDTH_COLLAPSED = 72;
 
 const SidebarWrapper = styled.aside`
   width: ${props => props.$expanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED}px;
-  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+  background: ${props => props.theme?.mode === 'light'
+    ? 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)'
+    : 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)'};
+  border-right: 1px solid ${props => props.theme?.mode === 'light'
+    ? 'rgba(0, 0, 0, 0.08)'
+    : 'rgba(255, 255, 255, 0.1)'};
   min-height: 100vh;
   padding: ${props => props.$expanded ? '24px 16px' : '24px 12px'};
   display: flex;
@@ -60,7 +65,7 @@ const SidebarWrapper = styled.aside`
   top: 0;
   bottom: 0;
   z-index: 100;
-  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
   overflow: visible;
 
   @media (max-width: 1024px) {
@@ -90,7 +95,9 @@ const LogoSection = styled.div`
   align-items: center;
   gap: 12px;
   padding: ${props => props.$expanded ? '0 12px 24px' : '0 4px 24px'};
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid ${props => props.theme?.mode === 'light'
+    ? 'rgba(0, 0, 0, 0.08)'
+    : 'rgba(255, 255, 255, 0.1)'};
   margin-bottom: 16px;
   justify-content: ${props => props.$expanded ? 'flex-start' : 'center'};
   transition: padding 0.25s cubic-bezier(0.4, 0, 0.2, 1), justify-content 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -100,7 +107,7 @@ const LogoIcon = styled.div`
   width: 40px;
   height: 40px;
   min-width: 40px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -129,12 +136,12 @@ const LogoText = styled.div`
 const LogoTitle = styled.span`
   font-size: 18px;
   font-weight: 700;
-  color: white;
+  color: ${props => props.theme?.mode === 'light' ? '#0f172a' : 'white'};
 `;
 
 const LogoSubtitle = styled.span`
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.5);
+  color: ${props => props.theme?.mode === 'light' ? '#64748b' : 'rgba(255, 255, 255, 0.5)'};
 `;
 
 const WorkspaceLogo = styled.img`
@@ -148,11 +155,11 @@ const CloseButton = styled.button`
   position: absolute;
   top: 16px;
   right: 16px;
-  background: rgba(255, 255, 255, 0.1);
+  background: ${props => props.theme?.mode === 'light' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.1)'};
   border: none;
   border-radius: 8px;
   padding: 8px;
-  color: white;
+  color: ${props => props.theme?.mode === 'light' ? '#0f172a' : 'white'};
   cursor: pointer;
 
   @media (max-width: 1024px) {
@@ -162,7 +169,7 @@ const CloseButton = styled.button`
   }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: ${props => props.theme?.mode === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.15)'};
   }
 `;
 
@@ -173,8 +180,8 @@ const CollapseButton = styled.button`
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  border: 2px solid #1e293b;
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
+  border: 2px solid ${props => props.theme?.mode === 'light' ? '#ffffff' : '#1e293b'};
   color: white;
   display: flex;
   align-items: center;
@@ -182,11 +189,11 @@ const CollapseButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
   z-index: 110;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 2px 8px rgba(255, 140, 66, 0.4);
 
   &:hover {
     transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.6);
+    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.6);
   }
 
   svg {
@@ -204,16 +211,18 @@ const CollapseDropdown = styled.div`
   bottom: 70px;
   right: -160px;
   width: 150px;
-  background: #1e293b;
+  background: ${props => props.theme?.mode === 'light' ? '#ffffff' : '#1e293b'};
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid ${props => props.theme?.mode === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)'};
   padding: 8px;
   opacity: ${props => props.$show ? 1 : 0};
   visibility: ${props => props.$show ? 'visible' : 'hidden'};
   transform: ${props => props.$show ? 'translateX(0)' : 'translateX(-10px)'};
   transition: all 0.2s ease;
   z-index: 200;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: ${props => props.theme?.mode === 'light'
+    ? '0 4px 20px rgba(0, 0, 0, 0.15)'
+    : '0 4px 20px rgba(0, 0, 0, 0.3)'};
 
   @media (max-width: 1024px) {
     display: none;
@@ -227,9 +236,11 @@ const CollapseOption = styled.button`
   gap: 10px;
   padding: 10px 12px;
   border-radius: 8px;
-  background: ${props => props.$active ? 'rgba(99, 102, 241, 0.2)' : 'transparent'};
+  background: ${props => props.$active ? 'rgba(255, 140, 66, 0.2)' : 'transparent'};
   border: none;
-  color: ${props => props.$active ? 'white' : 'rgba(255, 255, 255, 0.7)'};
+  color: ${props => props.$active
+    ? (props.theme?.mode === 'light' ? '#0f172a' : 'white')
+    : (props.theme?.mode === 'light' ? '#64748b' : 'rgba(255, 255, 255, 0.7)')};
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -237,26 +248,32 @@ const CollapseOption = styled.button`
   text-align: left;
 
   &:hover {
-    background: ${props => props.$active ? 'rgba(99, 102, 241, 0.3)' : 'rgba(255, 255, 255, 0.1)'};
-    color: white;
+    background: ${props => props.$active
+      ? 'rgba(255, 140, 66, 0.3)'
+      : (props.theme?.mode === 'light' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.1)')};
+    color: ${props => props.theme?.mode === 'light' ? '#0f172a' : 'white'};
   }
 
   svg {
     width: 18px;
     height: 18px;
-    color: ${props => props.$active ? '#a5b4fc' : 'rgba(255, 255, 255, 0.5)'};
+    color: ${props => props.$active
+      ? '#ff8c42'
+      : (props.theme?.mode === 'light' ? '#94a3b8' : 'rgba(255, 255, 255, 0.5)')};
   }
 `;
 
 const CheckMark = styled.div`
   margin-left: auto;
-  color: #6366f1;
+  color: #ff8c42;
   display: ${props => props.$show ? 'block' : 'none'};
 `;
 
 const BrandSwitcherWrapper = styled.div`
   padding: 0 4px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid ${props => props.theme?.mode === 'light'
+    ? 'rgba(0, 0, 0, 0.08)'
+    : 'rgba(255, 255, 255, 0.1)'};
   margin-bottom: 16px;
   display: ${props => props.$expanded ? 'block' : 'none'};
 `;
@@ -278,7 +295,7 @@ const NavSection = styled.nav`
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: ${props => props.theme?.mode === 'light' ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.2)'};
     border-radius: 2px;
   }
 `;
@@ -286,7 +303,7 @@ const NavSection = styled.nav`
 const NavSectionTitle = styled.div`
   font-size: 11px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.4);
+  color: ${props => props.theme?.mode === 'light' ? '#94a3b8' : 'rgba(255, 255, 255, 0.4)'};
   text-transform: uppercase;
   letter-spacing: 0.1em;
   padding: ${props => props.$expanded ? '16px 16px 8px' : '16px 8px 8px'};
@@ -302,8 +319,12 @@ const NavItem = styled(Link)`
   gap: 12px;
   padding: ${props => props.$expanded ? '12px 16px' : '12px'};
   border-radius: 10px;
-  color: ${props => props.$active ? 'white' : 'rgba(255, 255, 255, 0.6)'};
-  background: ${props => props.$active ? 'rgba(99, 102, 241, 0.2)' : 'transparent'};
+  color: ${props => props.$active
+    ? (props.theme?.mode === 'light' ? '#0f172a' : 'white')
+    : (props.theme?.mode === 'light' ? '#64748b' : 'rgba(255, 255, 255, 0.6)')};
+  background: ${props => props.$active
+    ? 'rgba(255, 140, 66, 0.2)'
+    : 'transparent'};
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
@@ -312,12 +333,16 @@ const NavItem = styled(Link)`
   position: relative;
 
   &:hover {
-    background: ${props => props.$active ? 'rgba(99, 102, 241, 0.25)' : 'rgba(255, 255, 255, 0.08)'};
-    color: white;
+    background: ${props => props.$active
+      ? 'rgba(255, 140, 66, 0.25)'
+      : (props.theme?.mode === 'light' ? 'rgba(0, 0, 0, 0.04)' : 'rgba(255, 255, 255, 0.08)')};
+    color: ${props => props.theme?.mode === 'light' ? '#0f172a' : 'white'};
   }
 
   svg {
-    color: ${props => props.$active ? '#a5b4fc' : 'rgba(255, 255, 255, 0.5)'};
+    color: ${props => props.$active
+      ? '#ff8c42'
+      : (props.theme?.mode === 'light' ? '#94a3b8' : 'rgba(255, 255, 255, 0.5)')};
     flex-shrink: 0;
     min-width: 20px;
   }
@@ -337,10 +362,10 @@ const NavTooltip = styled.div`
   transform: translateY(-50%);
   margin-left: 8px;
   padding: 6px 12px;
-  background: #1e293b;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: ${props => props.theme?.mode === 'light' ? '#ffffff' : '#1e293b'};
+  border: 1px solid ${props => props.theme?.mode === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)'};
   border-radius: 6px;
-  color: white;
+  color: ${props => props.theme?.mode === 'light' ? '#0f172a' : 'white'};
   font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
@@ -349,6 +374,9 @@ const NavTooltip = styled.div`
   transition: all 0.2s ease;
   pointer-events: none;
   z-index: 200;
+  box-shadow: ${props => props.theme?.mode === 'light'
+    ? '0 4px 12px rgba(0, 0, 0, 0.1)'
+    : '0 4px 12px rgba(0, 0, 0, 0.3)'};
 
   ${NavItem}:hover & {
     opacity: ${props => props.$show ? 1 : 0};
@@ -357,7 +385,9 @@ const NavTooltip = styled.div`
 `;
 
 const SidebarFooter = styled.div`
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid ${props => props.theme?.mode === 'light'
+    ? 'rgba(0, 0, 0, 0.08)'
+    : 'rgba(255, 255, 255, 0.1)'};
   padding-top: 16px;
   margin-top: 16px;
 `;
@@ -368,7 +398,7 @@ const UserSection = styled.div`
   gap: 12px;
   padding: ${props => props.$expanded ? '12px' : '8px'};
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
+  background: ${props => props.theme?.mode === 'light' ? 'rgba(0, 0, 0, 0.03)' : 'rgba(255, 255, 255, 0.05)'};
   margin-bottom: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -376,7 +406,7 @@ const UserSection = styled.div`
   justify-content: ${props => props.$expanded ? 'flex-start' : 'center'};
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: ${props => props.theme?.mode === 'light' ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.08)'};
   }
 `;
 
@@ -385,7 +415,7 @@ const UserAvatar = styled.div`
   height: 36px;
   min-width: 36px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -404,7 +434,7 @@ const UserInfo = styled.div`
 const UserName = styled.div`
   font-size: 14px;
   font-weight: 500;
-  color: white;
+  color: ${props => props.theme?.mode === 'light' ? '#0f172a' : 'white'};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -412,14 +442,14 @@ const UserName = styled.div`
 
 const UserEmail = styled.div`
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
+  color: ${props => props.theme?.mode === 'light' ? '#64748b' : 'rgba(255, 255, 255, 0.5)'};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 `;
 
 const UserDropdownIcon = styled.div`
-  color: rgba(255, 255, 255, 0.5);
+  color: ${props => props.theme?.mode === 'light' ? '#94a3b8' : 'rgba(255, 255, 255, 0.5)'};
   transition: transform 0.2s ease;
   transform: ${props => props.$open ? 'rotate(180deg)' : 'rotate(0)'};
   display: ${props => props.$expanded ? 'block' : 'none'};
@@ -431,9 +461,9 @@ const UserDropdown = styled.div`
   left: 0;
   right: 0;
   margin-bottom: 8px;
-  background: #1e293b;
+  background: ${props => props.theme?.mode === 'light' ? '#ffffff' : '#1e293b'};
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid ${props => props.theme?.mode === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)'};
   padding: 8px;
   opacity: ${props => props.$show ? 1 : 0};
   visibility: ${props => props.$show ? 'visible' : 'hidden'};
@@ -441,6 +471,9 @@ const UserDropdown = styled.div`
   transition: all 0.2s ease;
   z-index: 10;
   min-width: 180px;
+  box-shadow: ${props => props.theme?.mode === 'light'
+    ? '0 4px 20px rgba(0, 0, 0, 0.15)'
+    : '0 4px 20px rgba(0, 0, 0, 0.3)'};
 `;
 
 const DropdownItem = styled.button`
@@ -450,7 +483,7 @@ const DropdownItem = styled.button`
   gap: 12px;
   padding: 10px 12px;
   border-radius: 8px;
-  color: rgba(255, 255, 255, 0.7);
+  color: ${props => props.theme?.mode === 'light' ? '#64748b' : 'rgba(255, 255, 255, 0.7)'};
   background: transparent;
   font-size: 14px;
   font-weight: 500;
@@ -458,14 +491,15 @@ const DropdownItem = styled.button`
   border: none;
   cursor: pointer;
   text-align: left;
+  text-decoration: none;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
+    background: ${props => props.theme?.mode === 'light' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.1)'};
+    color: ${props => props.theme?.mode === 'light' ? '#0f172a' : 'white'};
   }
 
   svg {
-    color: rgba(255, 255, 255, 0.5);
+    color: ${props => props.theme?.mode === 'light' ? '#94a3b8' : 'rgba(255, 255, 255, 0.5)'};
     flex-shrink: 0;
   }
 `;
@@ -486,9 +520,9 @@ const FooterButton = styled.button`
   padding: ${props => props.$expanded ? '10px' : '10px'};
   width: ${props => props.$expanded ? 'auto' : '100%'};
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
+  background: ${props => props.theme?.mode === 'light' ? 'rgba(0, 0, 0, 0.03)' : 'rgba(255, 255, 255, 0.05)'};
   border: none;
-  color: rgba(255, 255, 255, 0.6);
+  color: ${props => props.theme?.mode === 'light' ? '#64748b' : 'rgba(255, 255, 255, 0.6)'};
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -496,8 +530,8 @@ const FooterButton = styled.button`
   position: relative;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
+    background: ${props => props.theme?.mode === 'light' ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.1)'};
+    color: ${props => props.theme?.mode === 'light' ? '#0f172a' : 'white'};
   }
 
   svg {
@@ -527,10 +561,12 @@ const MobileMenuButton = styled.button`
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  color: #0f172a;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: ${props => props.theme?.mode === 'light' ? 'white' : '#1e293b'};
+  border: 1px solid ${props => props.theme?.mode === 'light' ? '#e2e8f0' : 'rgba(255, 255, 255, 0.1)'};
+  color: ${props => props.theme?.mode === 'light' ? '#0f172a' : 'white'};
+  box-shadow: ${props => props.theme?.mode === 'light'
+    ? '0 4px 12px rgba(0, 0, 0, 0.1)'
+    : '0 4px 12px rgba(0, 0, 0, 0.3)'};
   z-index: 98;
   align-items: center;
   justify-content: center;
@@ -538,9 +574,9 @@ const MobileMenuButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    background: #6366f1;
+    background: #ff8c42;
     color: white;
-    border-color: #6366f1;
+    border-color: #ff8c42;
   }
 
   @media (max-width: 1024px) {

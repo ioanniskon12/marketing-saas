@@ -137,7 +137,7 @@ const PageContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   padding: 20px;
 `;
 
@@ -153,7 +153,7 @@ const AuthCard = styled.div`
 const LogoSection = styled.div`
   padding: 40px 40px 32px;
   text-align: center;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(124, 58, 237, 0.1));
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1), rgba(255, 107, 53, 0.1));
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 `;
 
@@ -220,8 +220,8 @@ const Input = styled.input`
 
   &:focus {
     outline: none;
-    border-color: #8B5CF6;
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    border-color: #ff8c42;
+    box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.1);
   }
 
   &::placeholder {
@@ -242,7 +242,7 @@ const SubmitButton = styled.button`
   gap: 8px;
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+  background: linear-gradient(135deg, #ff8c42, #ff6b35);
   color: white;
   border: none;
   border-radius: 10px;
@@ -253,7 +253,7 @@ const SubmitButton = styled.button`
 
   &:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+    box-shadow: 0 8px 20px rgba(255, 140, 66, 0.4);
   }
 
   &:disabled {
@@ -287,7 +287,7 @@ const BackLink = styled(Link)`
   transition: color 0.2s ease;
 
   &:hover {
-    color: #8B5CF6;
+    color: #ff8c42;
   }
 `;
 
@@ -332,7 +332,7 @@ const BackButton = styled(Link)`
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+  background: linear-gradient(135deg, #ff8c42, #ff6b35);
   color: white;
   border: none;
   border-radius: 10px;
@@ -344,7 +344,7 @@ const BackButton = styled(Link)`
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+    box-shadow: 0 8px 20px rgba(255, 140, 66, 0.4);
   }
 `;
 
@@ -357,7 +357,7 @@ const ResendText = styled.p`
 const ResendLink = styled.button`
   background: none;
   border: none;
-  color: #8B5CF6;
+  color: #ff8c42;
   font-weight: 600;
   cursor: pointer;
   padding: 0;

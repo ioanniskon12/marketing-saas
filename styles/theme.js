@@ -1,91 +1,96 @@
-// Light theme - Clean, modern design
+// Light theme - Owl Marketing Style
 export const lightTheme = {
+  mode: 'light',
   colors: {
     primary: {
-      main: '#6366f1',      // Indigo
-      light: '#818cf8',
-      dark: '#4f46e5',
-      50: '#eef2ff',
-      100: '#e0e7ff',
-      200: '#c7d2fe',
-      300: '#a5b4fc',
-      400: '#818cf8',
-      500: '#6366f1',
-      600: '#4f46e5',
-      700: '#4338ca',
-      800: '#3730a3',
-      900: '#312e81',
+      main: '#ff8c42',      // Orange
+      light: '#ffa866',
+      dark: '#e67a35',
+      50: '#fff5ee',
+      100: '#ffebdb',
+      200: '#ffd4b8',
+      300: '#ffbd94',
+      400: '#ffa866',
+      500: '#ff8c42',
+      600: '#e67a35',
+      700: '#cc6a2a',
+      800: '#b35a20',
+      900: '#994a15',
       contrast: '#ffffff',
     },
     secondary: {
-      main: '#8b5cf6',      // Violet
-      light: '#a78bfa',
-      dark: '#7c3aed',
-      50: '#f5f3ff',
-      100: '#ede9fe',
-      200: '#ddd6fe',
-      300: '#c4b5fd',
-      400: '#a78bfa',
-      500: '#8b5cf6',
-      600: '#7c3aed',
-      700: '#6d28d9',
-      800: '#5b21b6',
-      900: '#4c1d95',
+      main: '#1a1a1a',      // Dark
+      light: '#333333',
+      dark: '#000000',
+      50: '#f5f5f5',
+      100: '#e5e5e5',
+      200: '#cccccc',
+      300: '#b3b3b3',
+      400: '#808080',
+      500: '#666666',
+      600: '#4d4d4d',
+      700: '#333333',
+      800: '#1a1a1a',
+      900: '#000000',
       contrast: '#ffffff',
     },
     accent: {
-      main: '#ec4899',      // Pink
-      light: '#f472b6',
-      dark: '#db2777',
+      main: '#ff6b35',      // Deep Orange
+      light: '#ff8c5a',
+      dark: '#e55a25',
       contrast: '#ffffff',
     },
     success: {
-      main: '#10b981',      // Emerald
-      light: '#34d399',
-      dark: '#059669',
+      main: '#22c55e',      // Green
+      light: '#4ade80',
+      dark: '#16a34a',
+      bg: '#dcfce7',
       contrast: '#ffffff',
     },
     warning: {
-      main: '#f59e0b',      // Amber
-      light: '#fbbf24',
-      dark: '#d97706',
+      main: '#eab308',      // Yellow
+      light: '#facc15',
+      dark: '#ca8a04',
+      bg: '#fef9c3',
       contrast: '#000000',
     },
     error: {
-      main: '#ef4444',      // Red
+      main: '#dc2626',      // Red
       light: '#f87171',
-      dark: '#dc2626',
+      dark: '#b91c1c',
+      bg: '#fee2e2',
       contrast: '#ffffff',
     },
     info: {
-      main: '#0ea5e9',      // Sky
-      light: '#38bdf8',
-      dark: '#0284c7',
+      main: '#3b82f6',      // Blue
+      light: '#60a5fa',
+      dark: '#2563eb',
+      bg: '#dbeafe',
       contrast: '#ffffff',
     },
     neutral: {
-      50: '#fafafa',
-      100: '#f4f4f5',
-      200: '#e4e4e7',
-      300: '#d4d4d8',
-      400: '#a1a1aa',
-      500: '#71717a',
-      600: '#52525b',
-      700: '#3f3f46',
-      800: '#27272a',
-      900: '#18181b',
+      50: '#faf8f5',
+      100: '#f5f1eb',
+      200: '#e8e4de',
+      300: '#d4d0ca',
+      400: '#a8a49e',
+      500: '#7c7872',
+      600: '#5c5854',
+      700: '#3d3935',
+      800: '#1f1b17',
+      900: '#0a0a0f',
     },
     background: {
-      default: '#f8fafc',   // Slate 50
+      default: '#faf8f5',   // Warm white
       paper: '#ffffff',
-      elevated: '#ffffff',
-      dark: '#0f172a',
+      elevated: '#f5f1eb',
+      dark: '#0a0a0f',
     },
     text: {
-      primary: '#0f172a',   // Slate 900
-      secondary: '#64748b', // Slate 500
-      tertiary: '#94a3b8',  // Slate 400
-      disabled: '#cbd5e1',  // Slate 300
+      primary: '#1a1a1a',
+      secondary: '#666666',
+      tertiary: '#999999',
+      disabled: '#cccccc',
       contrast: '#ffffff',
     },
     platforms: {
@@ -97,15 +102,19 @@ export const lightTheme = {
       tiktok: '#000000',
     },
     border: {
-      default: '#e2e8f0',   // Slate 200
-      light: '#f1f5f9',     // Slate 100
-      focus: '#6366f1',
+      default: '#e8e4de',
+      light: '#f5f1eb',
+      focus: '#ff8c42',
     },
     glow: {
-      cyan: '0 0 20px rgba(6, 182, 212, 0.15)',
-      magenta: '0 0 20px rgba(236, 72, 153, 0.15)',
-      green: '0 0 20px rgba(16, 185, 129, 0.15)',
+      orange: '0 0 20px rgba(255, 140, 66, 0.15)',
+      orangeStrong: '0 0 30px rgba(255, 140, 66, 0.25)',
     },
+  },
+  gradients: {
+    primary: 'linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%)',
+    primaryHover: 'linear-gradient(135deg, #ffa866 0%, #ff8c42 100%)',
+    dark: 'linear-gradient(135deg, #1a1a1a 0%, #333333 100%)',
   },
   typography: {
     fontFamily: {
@@ -157,14 +166,13 @@ export const lightTheme = {
   },
   shadows: {
     sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-    base: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
-    md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
-    lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
-    xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-    '2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    neon: '0 0 20px rgba(99, 102, 241, 0.15)',
-    neonStrong: '0 0 30px rgba(99, 102, 241, 0.25)',
-    neonPink: '0 0 20px rgba(236, 72, 153, 0.15)',
+    base: '0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08)',
+    md: '0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.08)',
+    lg: '0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08)',
+    xl: '0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08)',
+    '2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.15)',
+    neon: '0 0 20px rgba(255, 140, 66, 0.15)',
+    neonStrong: '0 0 30px rgba(255, 140, 66, 0.25)',
   },
   transitions: {
     fast: '150ms ease',
@@ -191,95 +199,100 @@ export const lightTheme = {
   },
 };
 
-// Dark theme - Modern dark design matching admin panel
+// Dark theme - Owl Marketing Dark Style
 export const darkTheme = {
+  mode: 'dark',
   colors: {
     primary: {
-      main: '#818cf8',      // Indigo 400
-      light: '#a5b4fc',
-      dark: '#6366f1',
-      50: '#1e1b4b',
-      100: '#312e81',
-      200: '#3730a3',
-      300: '#4338ca',
-      400: '#4f46e5',
-      500: '#6366f1',
-      600: '#818cf8',
-      700: '#a5b4fc',
-      800: '#c7d2fe',
-      900: '#e0e7ff',
-      contrast: '#0f172a',
+      main: '#ff9f5a',      // Lighter Orange for dark mode
+      light: '#ffb380',
+      dark: '#ff8c42',
+      50: '#2a1f17',
+      100: '#3d2a1a',
+      200: '#4f351d',
+      300: '#624020',
+      400: '#8c5a2d',
+      500: '#b3733a',
+      600: '#d98d47',
+      700: '#ff9f5a',
+      800: '#ffb380',
+      900: '#ffc7a6',
+      contrast: '#1a1a1a',
     },
     secondary: {
-      main: '#a78bfa',      // Violet 400
-      light: '#c4b5fd',
-      dark: '#8b5cf6',
-      50: '#2e1065',
-      100: '#4c1d95',
-      200: '#5b21b6',
-      300: '#6d28d9',
-      400: '#7c3aed',
-      500: '#8b5cf6',
-      600: '#a78bfa',
-      700: '#c4b5fd',
-      800: '#ddd6fe',
-      900: '#ede9fe',
-      contrast: '#0f172a',
+      main: '#ffffff',      // White for dark mode
+      light: '#ffffff',
+      dark: '#e5e5e5',
+      50: '#1a1a1a',
+      100: '#333333',
+      200: '#4d4d4d',
+      300: '#666666',
+      400: '#808080',
+      500: '#999999',
+      600: '#b3b3b3',
+      700: '#cccccc',
+      800: '#e5e5e5',
+      900: '#ffffff',
+      contrast: '#1a1a1a',
     },
     accent: {
-      main: '#f472b6',      // Pink 400
-      light: '#f9a8d4',
-      dark: '#ec4899',
-      contrast: '#0f172a',
+      main: '#ff7a45',      // Deep Orange for dark mode
+      light: '#ff9966',
+      dark: '#ff6b35',
+      contrast: '#1a1a1a',
     },
     success: {
-      main: '#34d399',      // Emerald 400
-      light: '#6ee7b7',
-      dark: '#10b981',
-      contrast: '#0f172a',
+      main: '#4ade80',      // Green
+      light: '#86efac',
+      dark: '#22c55e',
+      bg: '#14532d',
+      contrast: '#1a1a1a',
     },
     warning: {
-      main: '#fbbf24',      // Amber 400
-      light: '#fcd34d',
-      dark: '#f59e0b',
-      contrast: '#0f172a',
+      main: '#facc15',      // Yellow
+      light: '#fde047',
+      dark: '#eab308',
+      bg: '#713f12',
+      contrast: '#1a1a1a',
     },
     error: {
-      main: '#f87171',      // Red 400
+      main: '#f87171',      // Red
       light: '#fca5a5',
       dark: '#ef4444',
-      contrast: '#0f172a',
+      bg: '#7f1d1d',
+      contrast: '#1a1a1a',
     },
     info: {
-      main: '#38bdf8',      // Sky 400
-      light: '#7dd3fc',
-      dark: '#0ea5e9',
-      contrast: '#0f172a',
+      main: '#60a5fa',      // Blue
+      light: '#93c5fd',
+      dark: '#3b82f6',
+      bg: '#1e3a5f',
+      contrast: '#1a1a1a',
     },
     neutral: {
-      50: '#0f172a',        // Slate 900
-      100: '#1e293b',       // Slate 800
-      200: '#334155',       // Slate 700
-      300: '#475569',       // Slate 600
-      400: '#64748b',       // Slate 500
-      500: '#94a3b8',       // Slate 400
-      600: '#cbd5e1',       // Slate 300
-      700: '#e2e8f0',       // Slate 200
-      800: '#f1f5f9',       // Slate 100
-      900: '#f8fafc',       // Slate 50
+      50: '#0a0a0f',
+      100: '#141419',
+      200: '#1e1e26',
+      300: '#28282f',
+      400: '#3a3a44',
+      500: '#6b7280',
+      600: '#9ca3af',
+      700: '#d1d5db',
+      800: '#e5e7eb',
+      900: '#f3f4f6',
     },
     background: {
-      default: '#0f172a',   // Slate 900
-      paper: '#1e293b',     // Slate 800
-      elevated: '#334155',  // Slate 700
-      dark: '#020617',      // Slate 950
+      default: '#0a0a0f',   // Deep dark
+      paper: '#141419',     // Card background
+      elevated: '#1e1e26',  // Elevated surfaces
+      dark: '#050507',      // Darkest
     },
     text: {
-      primary: '#f8fafc',   // Slate 50
-      secondary: '#94a3b8', // Slate 400
-      tertiary: '#64748b',  // Slate 500
-      disabled: '#475569',  // Slate 600
-      contrast: '#0f172a',
+      primary: '#ffffff',
+      secondary: '#9ca3af',
+      tertiary: '#6b7280',
+      disabled: '#4b5563',
+      contrast: '#1a1a1a',
     },
     platforms: {
       facebook: '#1877f2',
@@ -290,16 +303,19 @@ export const darkTheme = {
       tiktok: '#ffffff',
     },
     border: {
-      default: '#334155',   // Slate 700
-      light: '#1e293b',     // Slate 800
-      focus: '#818cf8',
+      default: '#2e2e38',
+      light: '#1e1e26',
+      focus: '#ff9f5a',
     },
     glow: {
-      cyan: '0 0 30px rgba(56, 189, 248, 0.25)',
-      magenta: '0 0 30px rgba(244, 114, 182, 0.25)',
-      green: '0 0 30px rgba(52, 211, 153, 0.25)',
-      indigo: '0 0 30px rgba(129, 140, 248, 0.25)',
+      orange: '0 0 30px rgba(255, 159, 90, 0.25)',
+      orangeStrong: '0 0 40px rgba(255, 159, 90, 0.35)',
     },
+  },
+  gradients: {
+    primary: 'linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%)',
+    primaryHover: 'linear-gradient(135deg, #ffa866 0%, #ff8c42 100%)',
+    dark: 'linear-gradient(135deg, #1e1e26 0%, #141419 100%)',
   },
   typography: lightTheme.typography,
   spacing: lightTheme.spacing,
@@ -311,9 +327,8 @@ export const darkTheme = {
     lg: '0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4)',
     xl: '0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4)',
     '2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-    neon: '0 0 20px rgba(129, 140, 248, 0.3)',
-    neonStrong: '0 0 30px rgba(129, 140, 248, 0.4)',
-    neonPink: '0 0 20px rgba(244, 114, 182, 0.3)',
+    neon: '0 0 20px rgba(255, 159, 90, 0.3)',
+    neonStrong: '0 0 30px rgba(255, 159, 90, 0.4)',
   },
   transitions: lightTheme.transitions,
   breakpoints: lightTheme.breakpoints,

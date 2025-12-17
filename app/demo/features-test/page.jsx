@@ -51,7 +51,7 @@ export default function FeaturesTestPage() {
       icon: Save,
       title: 'Auto-Save Drafts',
       description: 'Never lose work while creating plans',
-      color: '#3b82f6',
+      color: '#ff8c42',
       testUrl: '/dashboard/plans-hub',
       howToTest: [
         'Go to Plans tab',

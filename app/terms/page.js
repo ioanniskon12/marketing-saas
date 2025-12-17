@@ -44,7 +44,7 @@ const FloatingOrb = styled.div`
 const IconBox = styled.div`
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ec4899 100%);
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -56,8 +56,8 @@ const IconBox = styled.div`
 const Badge = styled.span`
   display: inline-block;
   padding: 6px 16px;
-  background: rgba(139, 92, 246, 0.1);
-  color: #8b5cf6;
+  background: rgba(255, 140, 66, 0.1);
+  color: #ff8c42;
   border-radius: 100px;
   font-size: 14px;
   font-weight: 600;
@@ -156,9 +156,9 @@ const SidebarButton = styled.button`
   font-weight: 500;
 
   ${props => props.$active ? `
-    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    background: linear-gradient(135deg, #ff8c42 0%, #ec4899 100%);
     color: white;
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
   ` : `
     background: transparent;
     color: #475569;
@@ -199,7 +199,7 @@ const ContentHeader = styled.div`
 const ContentIconBox = styled.div`
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ec4899 100%);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -238,7 +238,7 @@ const ListItem = styled.li`
 const ListIcon = styled.div`
   width: 24px;
   height: 24px;
-  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ec4899 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -332,7 +332,7 @@ const GridCardText = styled.p`
 `;
 
 const ContactBox = styled.div`
-  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ec4899 100%);
   border-radius: 16px;
   padding: 32px;
   color: white;
@@ -429,7 +429,7 @@ const RelatedCard = styled(Link)`
 
   &:hover {
     border-color: #c4b5fd;
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.1);
   }
 `;
 
@@ -732,7 +732,7 @@ export default function Terms() {
           <RelatedTitle>Related Legal Documents</RelatedTitle>
           <RelatedGrid>
             <RelatedCard href="/privacy">
-              <RelatedIcon $gradient="linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)">
+              <RelatedIcon $gradient="linear-gradient(135deg, #ff8c42 0%, #ff8c42 100%)">
                 <Shield size={24} />
               </RelatedIcon>
               <RelatedInfo>

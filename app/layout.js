@@ -47,7 +47,7 @@ function ThemeWrapper({ children }) {
           },
           success: {
             iconTheme: {
-              primary: isDarkMode ? '#10b981' : '#8B5CF6',
+              primary: '#10b981',
               secondary: '#fff',
             },
           },

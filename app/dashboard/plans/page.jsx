@@ -607,13 +607,13 @@ const StatusBadge = styled.span`
   border-radius: 12px;
   background: ${props => {
     if (props.$status === 'published') return 'rgba(16, 185, 129, 0.15)';
-    if (props.$status === 'scheduled') return 'rgba(59, 130, 246, 0.15)';
+    if (props.$status === 'scheduled') return 'rgba(255, 140, 66, 0.15)';
     if (props.$status === 'draft') return 'rgba(107, 114, 128, 0.15)';
     return 'rgba(107, 114, 128, 0.15)';
   }};
   color: ${props => {
     if (props.$status === 'published') return '#10B981';
-    if (props.$status === 'scheduled') return '#3B82F6';
+    if (props.$status === 'scheduled') return '#ff8c42';
     if (props.$status === 'draft') return '#6B7280';
     return '#6B7280';
   }};

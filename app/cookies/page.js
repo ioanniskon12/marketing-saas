@@ -798,7 +798,7 @@ export default function Cookies() {
           <RelatedTitle>Related Legal Documents</RelatedTitle>
           <RelatedGrid>
             <RelatedCard href="/privacy">
-              <RelatedIcon $gradient="linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)">
+              <RelatedIcon $gradient="linear-gradient(135deg, #ff8c42 0%, #ff8c42 100%)">
                 <Shield size={24} />
               </RelatedIcon>
               <RelatedInfo>
@@ -807,7 +807,7 @@ export default function Cookies() {
               </RelatedInfo>
             </RelatedCard>
             <RelatedCard href="/gdpr">
-              <RelatedIcon $gradient="linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)">
+              <RelatedIcon $gradient="linear-gradient(135deg, #ff8c42 0%, #ff8c42 100%)">
                 <Shield size={24} />
               </RelatedIcon>
               <RelatedInfo>

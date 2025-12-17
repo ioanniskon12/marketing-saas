@@ -80,10 +80,10 @@ const AudiencePill = styled.button`
   gap: ${props => props.theme.spacing.xs};
   padding: ${props => props.theme.spacing.xs} ${props => props.theme.spacing.md};
   background: ${props => props.$designTheme === 'modern'
-    ? 'rgba(139, 92, 246, 0.15)'
+    ? 'rgba(255, 140, 66, 0.15)'
     : props.theme.colors.neutral[100]};
   border: ${props => props.$designTheme === 'modern'
-    ? '1px solid rgba(139, 92, 246, 0.3)'
+    ? '1px solid rgba(255, 140, 66, 0.3)'
     : `1px solid ${props.theme.colors.neutral[300]}`};
   border-radius: ${props => props.theme.borderRadius.full};
   color: ${props => props.theme.colors.text.primary};
@@ -94,10 +94,10 @@ const AudiencePill = styled.button`
 
   &:hover {
     background: ${props => props.$designTheme === 'modern'
-      ? 'rgba(139, 92, 246, 0.25)'
+      ? 'rgba(255, 140, 66, 0.25)'
       : props.theme.colors.neutral[200]};
     border-color: ${props => props.$designTheme === 'modern'
-      ? 'rgba(139, 92, 246, 0.5)'
+      ? 'rgba(255, 140, 66, 0.5)'
       : props.theme.colors.neutral[400]};
   }
 
@@ -164,10 +164,10 @@ const MetaButton = styled.button`
 
   &:hover {
     background: ${props => props.$designTheme === 'modern'
-      ? 'rgba(139, 92, 246, 0.15)'
+      ? 'rgba(255, 140, 66, 0.15)'
       : props.theme.colors.neutral[50]};
     border-color: ${props => props.$designTheme === 'modern'
-      ? 'rgba(139, 92, 246, 0.4)'
+      ? 'rgba(255, 140, 66, 0.4)'
       : props.theme.colors.primary.main};
   }
 
@@ -262,7 +262,7 @@ const CaptionTextarea = styled.textarea`
       return props.theme.colors.background.default;
     }};
     box-shadow: ${props => {
-      if (props.$designTheme === 'modern') return '0 0 0 3px rgba(139, 92, 246, 0.2)';
+      if (props.$designTheme === 'modern') return '0 0 0 3px rgba(255, 140, 66, 0.2)';
       return 'none';
     }};
   }
@@ -507,7 +507,7 @@ const HashtagInput = styled.input`
       return props.theme.colors.background.default;
     }};
     box-shadow: ${props => {
-      if (props.$designTheme === 'modern') return '0 0 0 3px rgba(139, 92, 246, 0.2)';
+      if (props.$designTheme === 'modern') return '0 0 0 3px rgba(255, 140, 66, 0.2)';
       return 'none';
     }};
   }
@@ -539,14 +539,14 @@ const HashtagChip = styled.div`
   gap: ${props => props.theme.spacing.xs};
   padding: ${props => props.theme.spacing.xs} ${props => props.theme.spacing.sm};
   background: ${props => props.$designTheme === 'modern'
-    ? 'rgba(139, 92, 246, 0.15)'
+    ? 'rgba(255, 140, 66, 0.15)'
     : props.theme.colors.primary.light};
   border: ${props => props.$designTheme === 'modern'
-    ? '1px solid rgba(139, 92, 246, 0.3)'
+    ? '1px solid rgba(255, 140, 66, 0.3)'
     : `1px solid ${props.theme.colors.primary.main}`};
   border-radius: ${props => props.theme.borderRadius.full};
   color: ${props => props.$designTheme === 'modern'
-    ? 'rgba(139, 92, 246, 1)'
+    ? 'rgba(255, 140, 66, 1)'
     : props.theme.colors.primary.main};
   font-size: ${props => props.theme.typography.fontSize.sm};
   font-weight: ${props => props.theme.typography.fontWeight.medium};

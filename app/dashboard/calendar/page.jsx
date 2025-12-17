@@ -607,7 +607,7 @@ export default function CalendarPage() {
 
   // Status filter options with colors
   const statusOptions = [
-    { value: 'scheduled', label: 'Scheduled', color: theme.colors.info.main },
+    { value: 'scheduled', label: 'Scheduled', color: '#ff8c42' },
     { value: 'published', label: 'Published', color: theme.colors.success.main },
     { value: 'failed', label: 'Failed', color: theme.colors.error.main },
     { value: 'draft', label: 'Draft', color: theme.colors.neutral[600] },

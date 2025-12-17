@@ -52,7 +52,7 @@ const FallbackLogo = styled.div`
   width: ${props => props.$size === 'sm' ? '32px' : props.$size === 'lg' ? '48px' : '40px'};
   height: ${props => props.$size === 'sm' ? '32px' : props.$size === 'lg' ? '48px' : '40px'};
   border-radius: 10px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   color: white;
   font-size: ${props => props.$size === 'sm' ? '12px' : props.$size === 'lg' ? '18px' : '14px'};
   font-weight: 700;

@@ -25,7 +25,7 @@ const ShareCalendarModal = ({ isOpen, onClose, startDate, endDate }) => {
     showAnalytics: false,
     password: '',
     expiresInDays: '',
-    brandColor: '#8B5CF6',
+    brandColor: '#ff8c42',
     logoUrl: currentWorkspace?.logo_url || '',
     companyName: currentWorkspace?.name || '',
   });
@@ -81,7 +81,7 @@ const ShareCalendarModal = ({ isOpen, onClose, startDate, endDate }) => {
         showAnalytics: formData.showAnalytics,
         password: formData.password || null,
         expiresInDays: formData.expiresInDays ? parseInt(formData.expiresInDays) : null,
-        brandColor: formData.brandColor || '#8B5CF6',
+        brandColor: formData.brandColor || '#ff8c42',
         logoUrl: formData.logoUrl || null,
         companyName: formData.companyName || null,
       };
@@ -146,7 +146,7 @@ const ShareCalendarModal = ({ isOpen, onClose, startDate, endDate }) => {
       showAnalytics: false,
       password: '',
       expiresInDays: '',
-      brandColor: '#8B5CF6',
+      brandColor: '#ff8c42',
       companyName: '',
     });
   };
@@ -316,7 +316,7 @@ const ShareCalendarModal = ({ isOpen, onClose, startDate, endDate }) => {
                     type="text"
                     value={formData.brandColor}
                     onChange={(e) => setFormData(prev => ({ ...prev, brandColor: e.target.value }))}
-                    placeholder="#8B5CF6"
+                    placeholder="#ff8c42"
                     style={{ flex: 1 }}
                   />
                 </ColorPickerWrapper>

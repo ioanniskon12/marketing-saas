@@ -30,13 +30,13 @@ const FloatingOrb = styled.div`
   &.left {
     top: -150px;
     left: -200px;
-    background: #6366f1;
+    background: #ff8c42;
   }
 
   &.right {
     bottom: -150px;
     right: -200px;
-    background: #ec4899;
+    background: #ff6b35;
   }
 `;
 
@@ -52,9 +52,9 @@ const Badge = styled.span`
   align-items: center;
   gap: 8px;
   padding: 8px 20px;
-  background: rgba(99, 102, 241, 0.2);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  color: #a5b4fc;
+  background: rgba(255, 140, 66, 0.2);
+  border: 1px solid rgba(255, 140, 66, 0.3);
+  color: #ffb380;
   border-radius: 100px;
   font-size: 14px;
   font-weight: 600;
@@ -69,7 +69,7 @@ const Title = styled.h1`
   line-height: 1.1;
 
   span {
-    background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -145,18 +145,18 @@ const PlayButton = styled.button`
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 20px 40px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 20px 40px rgba(255, 140, 66, 0.4);
 
   &:hover {
     transform: scale(1.1);
-    box-shadow: 0 25px 50px rgba(99, 102, 241, 0.5);
+    box-shadow: 0 25px 50px rgba(255, 140, 66, 0.5);
   }
 
   svg {
@@ -253,7 +253,7 @@ const FeatureText = styled.p`
 
 const CTASection = styled.section`
   padding: 100px 24px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 50%, #e67a35 100%);
   text-align: center;
 `;
 
@@ -299,7 +299,7 @@ const CTAButton = styled(Link)`
 
   &.primary {
     background: white;
-    color: #6366f1;
+    color: #ff8c42;
 
     &:hover {
       transform: translateY(-2px);
@@ -421,8 +421,8 @@ const FormInput = styled.input`
 
   &:focus {
     outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    border-color: #ff8c42;
+    box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.1);
   }
 
   &::placeholder {
@@ -442,15 +442,15 @@ const FormSelect = styled.select`
 
   &:focus {
     outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    border-color: #ff8c42;
+    box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.1);
   }
 `;
 
 const SubmitButton = styled.button`
   width: 100%;
   padding: 16px 32px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   color: white;
   border: none;
   border-radius: 12px;
@@ -465,17 +465,17 @@ const SubmitButton = styled.button`
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 8px 24px rgba(255, 140, 66, 0.4);
   }
 `;
 
 export default function Demo() {
   const features = [
-    { icon: <Calendar size={28} color="#6366f1" />, bg: '#e0e7ff', title: 'Smart Scheduling', text: 'See how our AI finds the perfect time to post for maximum engagement.' },
+    { icon: <Calendar size={28} color="#ff8c42" />, bg: '#fff5ee', title: 'Smart Scheduling', text: 'See how our AI finds the perfect time to post for maximum engagement.' },
     { icon: <BarChart3 size={28} color="#ec4899" />, bg: '#fce7f3', title: 'Advanced Analytics', text: 'Explore our comprehensive dashboards with actionable insights.' },
     { icon: <MessageCircle size={28} color="#10b981" />, bg: '#d1fae5', title: 'Content Calendar', text: 'Plan and visualize your entire content strategy in one beautiful calendar.' },
     { icon: <Users size={28} color="#f59e0b" />, bg: '#fef3c7', title: 'Team Collaboration', text: 'Discover approval workflows and team management features.' },
-    { icon: <Zap size={28} color="#8b5cf6" />, bg: '#ede9fe', title: 'AI Content Tools', text: 'Watch our AI generate captions, hashtags, and content ideas.' },
+    { icon: <Zap size={28} color="#ff6b35" />, bg: '#fff9f5', title: 'AI Content Tools', text: 'Watch our AI generate captions, hashtags, and content ideas.' },
     { icon: <Clock size={28} color="#06b6d4" />, bg: '#cffafe', title: 'Time Savings', text: 'See how users save 10+ hours per week with SocialHub.' }
   ];
 

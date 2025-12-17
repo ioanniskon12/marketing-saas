@@ -42,7 +42,7 @@ export async function POST(request) {
       permissionLevel = 'view',
       allowDownload = true,
       showAnalytics = false,
-      brandColor = '#8B5CF6',
+      brandColor = '#ff8c42',
       logoUrl,
       companyName,
       password,

@@ -546,8 +546,8 @@ export default function CalendarSharesPage() {
 
   const getPermissionColor = (level) => {
     const colors = {
-      view: { bg: '#3B82F610', color: '#3B82F6' },
-      comment: { bg: '#8B5CF610', color: '#8B5CF6' },
+      view: { bg: '#ff8c4210', color: '#ff8c42' },
+      comment: { bg: '#ff6b3510', color: '#ff6b35' },
       approve: { bg: '#10B98110', color: '#10B981' },
     };
     return colors[level] || colors.view;
@@ -611,7 +611,7 @@ export default function CalendarSharesPage() {
 
       {/* Stats */}
       <StatsGrid>
-        <StatCard $color="#8B5CF6">
+        <StatCard $color="#ff8c42">
           <StatValue>{stats.total}</StatValue>
           <StatLabel>
             <Share2 size={16} />
@@ -625,7 +625,7 @@ export default function CalendarSharesPage() {
             Active Shares
           </StatLabel>
         </StatCard>
-        <StatCard $color="#3B82F6">
+        <StatCard $color="#ff6b35">
           <StatValue>{stats.views}</StatValue>
           <StatLabel>
             <Eye size={16} />
@@ -735,12 +735,12 @@ export default function CalendarSharesPage() {
 
                 <div>
                   {share.type === 'plan' ? (
-                    <Badge $bg="#8B5CF610" $color="#8B5CF6">
+                    <Badge $bg="#ff8c4210" $color="#ff8c42">
                       <FileText size={12} />
                       Plan
                     </Badge>
                   ) : (
-                    <Badge $bg="#3B82F610" $color="#3B82F6">
+                    <Badge $bg="#ff6b3510" $color="#ff6b35">
                       <Calendar size={12} />
                       Calendar
                     </Badge>

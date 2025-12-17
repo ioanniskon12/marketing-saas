@@ -11,7 +11,7 @@ const FooterWrapper = styled.footer`
 
 const FooterCTA = styled.div`
   padding: 60px 24px;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(255, 107, 53, 0.1) 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 `;
 
@@ -70,7 +70,7 @@ const NewsletterInput = styled.input`
 
   &:focus {
     outline: none;
-    border-color: #6366f1;
+    border-color: #ff8c42;
     background: rgba(255, 255, 255, 0.15);
   }
 
@@ -81,7 +81,7 @@ const NewsletterInput = styled.input`
 
 const NewsletterButton = styled.button`
   padding: 14px 28px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   border: none;
   border-radius: 12px;
   color: white;
@@ -93,7 +93,7 @@ const NewsletterButton = styled.button`
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 4px 20px rgba(255, 140, 66, 0.4);
   }
 `;
 
@@ -142,7 +142,7 @@ const FooterLogoContainer = styled.div`
 const FooterLogoIcon = styled.div`
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -155,7 +155,7 @@ const FooterLogoIcon = styled.div`
 const FooterLogo = styled.div`
   font-size: 24px;
   font-weight: 700;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+  background: linear-gradient(135deg, #ff8c42, #ff6b35, #e67a35);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -186,7 +186,7 @@ const SocialLink = styled.a`
   transition: all 0.2s ease;
 
   &:hover {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
     color: white;
     transform: translateY(-3px);
   }
@@ -215,7 +215,7 @@ const FooterLink = styled(Link)`
   text-decoration: none;
 
   &:hover {
-    color: #a5b4fc;
+    color: #ffb380;
     transform: translateX(4px);
   }
 `;

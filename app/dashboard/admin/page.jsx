@@ -196,11 +196,11 @@ const StatIcon = styled.div`
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: ${props => props.$bg || '#e0e7ff'};
+  background: ${props => props.$bg || '#fff5ee'};
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${props => props.$color || '#6366f1'};
+  color: ${props => props.$color || '#ff8c42'};
 `;
 
 const StatTrend = styled.div`
@@ -337,7 +337,7 @@ const UserAvatar = styled.div`
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -366,7 +366,7 @@ const Badge = styled.span`
   background: ${props => {
     switch (props.$variant) {
       case 'pro': return '#fef3c7';
-      case 'starter': return '#e0e7ff';
+      case 'starter': return '#fff5ee';
       case 'free': return '#f1f5f9';
       case 'active': return '#ecfdf5';
       case 'inactive': return '#fef2f2';
@@ -376,7 +376,7 @@ const Badge = styled.span`
   color: ${props => {
     switch (props.$variant) {
       case 'pro': return '#d97706';
-      case 'starter': return '#4338ca';
+      case 'starter': return '#ff8c42';
       case 'free': return '#64748b';
       case 'active': return '#059669';
       case 'inactive': return '#dc2626';
@@ -831,7 +831,7 @@ export default function AdminPage() {
       <StatsGrid>
         <StatCard>
           <StatHeader>
-            <StatIcon $bg="#e0e7ff" $color="#6366f1">
+            <StatIcon $bg="#fff5ee" $color="#ff8c42">
               <Users size={24} />
             </StatIcon>
             <StatTrend $positive>
@@ -1016,7 +1016,7 @@ export default function AdminPage() {
 
         <StatCard>
           <StatHeader>
-            <StatIcon $bg="#e0e7ff" $color="#6366f1">
+            <StatIcon $bg="#fff5ee" $color="#ff8c42">
               <CreditCard size={24} />
             </StatIcon>
           </StatHeader>
@@ -1062,7 +1062,7 @@ export default function AdminPage() {
               <PlanItem>
                 <PlanLabel>Starter</PlanLabel>
                 <PlanBar>
-                  <PlanProgress $width={30} $color="#6366f1" />
+                  <PlanProgress $width={30} $color="#ff8c42" />
                 </PlanBar>
                 <PlanValue>$7,350</PlanValue>
               </PlanItem>

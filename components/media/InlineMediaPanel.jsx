@@ -69,15 +69,15 @@ const SelectionCount = styled.div`
   font-size: ${props => props.theme.typography.fontSize.xs};
   font-weight: ${props => props.theme.typography.fontWeight.medium};
   color: ${props => props.$designTheme === 'modern'
-    ? 'rgba(139, 92, 246, 1)'
+    ? 'rgba(255, 140, 66, 1)'
     : props.theme.colors.primary.main};
   padding: ${props => props.theme.spacing.xs} ${props => props.theme.spacing.sm};
   background: ${props => props.$designTheme === 'modern'
-    ? 'rgba(139, 92, 246, 0.15)'
+    ? 'rgba(255, 140, 66, 0.15)'
     : `${props.theme.colors.primary.main}10`};
   border-radius: ${props => props.theme.borderRadius.full};
   border: ${props => props.$designTheme === 'modern'
-    ? '1px solid rgba(139, 92, 246, 0.3)'
+    ? '1px solid rgba(255, 140, 66, 0.3)'
     : 'none'};
 `;
 
@@ -110,13 +110,13 @@ const LibrarySection = styled.div`
 
   &::-webkit-scrollbar-thumb {
     background: ${props => props.$designTheme === 'modern'
-      ? 'rgba(139, 92, 246, 0.4)'
+      ? 'rgba(255, 140, 66, 0.4)'
       : props.theme.colors.neutral[300]};
     border-radius: ${props => props.theme.borderRadius.full};
 
     &:hover {
       background: ${props => props.$designTheme === 'modern'
-        ? 'rgba(139, 92, 246, 0.6)'
+        ? 'rgba(255, 140, 66, 0.6)'
         : props.theme.colors.neutral[400]};
     }
   }
@@ -137,7 +137,7 @@ const MediaItem = styled.div`
   border: ${props => {
     if (props.$selected) {
       return props.$designTheme === 'modern'
-        ? '3px solid rgba(139, 92, 246, 1)'
+        ? '3px solid rgba(255, 140, 66, 1)'
         : `2px solid ${props.theme.colors.primary.main}`;
     }
     return props.$designTheme === 'modern'
@@ -149,10 +149,10 @@ const MediaItem = styled.div`
 
   &:hover {
     border-color: ${props => props.$designTheme === 'modern'
-      ? 'rgba(139, 92, 246, 0.6)'
+      ? 'rgba(255, 140, 66, 0.6)'
       : props.theme.colors.primary.main};
     box-shadow: ${props => props.$designTheme === 'modern'
-      ? '0 4px 16px rgba(139, 92, 246, 0.3)'
+      ? '0 4px 16px rgba(255, 140, 66, 0.3)'
       : '0 4px 12px rgba(0, 0, 0, 0.15)'};
     transform: scale(0.98);
   }
@@ -220,8 +220,8 @@ const CropButton = styled.button`
   z-index: 10;
 
   &:hover {
-    background: rgba(139, 92, 246, 0.9);
-    border-color: rgba(139, 92, 246, 1);
+    background: rgba(255, 140, 66, 0.9);
+    border-color: rgba(255, 140, 66, 1);
     transform: scale(1.1);
   }
 
@@ -270,7 +270,7 @@ const Dropzone = styled.div`
   border: ${props => {
     if (props.$isDragging) {
       return props.$designTheme === 'modern'
-        ? '2px dashed rgba(139, 92, 246, 1)'
+        ? '2px dashed rgba(255, 140, 66, 1)'
         : `2px dashed ${props.theme.colors.primary.main}`;
     }
     return props.$designTheme === 'modern'
@@ -283,7 +283,7 @@ const Dropzone = styled.div`
   background: ${props => {
     if (props.$isDragging) {
       return props.$designTheme === 'modern'
-        ? 'rgba(139, 92, 246, 0.15)'
+        ? 'rgba(255, 140, 66, 0.15)'
         : `${props.theme.colors.primary.main}10`;
     }
     return props.$designTheme === 'modern'
@@ -300,10 +300,10 @@ const Dropzone = styled.div`
 
   &:hover {
     border-color: ${props => props.$designTheme === 'modern'
-      ? 'rgba(139, 92, 246, 0.6)'
+      ? 'rgba(255, 140, 66, 0.6)'
       : props.theme.colors.primary.main};
     background: ${props => props.$designTheme === 'modern'
-      ? 'rgba(139, 92, 246, 0.08)'
+      ? 'rgba(255, 140, 66, 0.08)'
       : `${props.theme.colors.primary.main}05`};
   }
 `;
@@ -347,12 +347,12 @@ const ProgressBar = styled.div`
 const ProgressFill = styled.div`
   height: 100%;
   background: ${props => props.$designTheme === 'modern'
-    ? 'linear-gradient(90deg, rgba(139, 92, 246, 0.8), rgba(139, 92, 246, 1))'
+    ? 'linear-gradient(90deg, rgba(255, 140, 66, 0.8), rgba(255, 140, 66, 1))'
     : props.theme.colors.primary.main};
   width: ${props => props.$progress}%;
   transition: width 0.3s;
   box-shadow: ${props => props.$designTheme === 'modern'
-    ? '0 0 10px rgba(139, 92, 246, 0.5)'
+    ? '0 0 10px rgba(255, 140, 66, 0.5)'
     : 'none'};
 `;
 

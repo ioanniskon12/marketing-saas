@@ -230,20 +230,20 @@ export default function LoadingDemoPage() {
                   width: '200%',
                   height: '200%',
                   background: `
-                    radial-gradient(circle at 20% 50%, #6366f120 0%, transparent 50%),
-                    radial-gradient(circle at 80% 80%, #8b5cf620 0%, transparent 50%),
-                    radial-gradient(circle at 40% 20%, #4f46e515 0%, transparent 50%)
+                    radial-gradient(circle at 20% 50%, #ff8c4220 0%, transparent 50%),
+                    radial-gradient(circle at 80% 80%, #ff6b3520 0%, transparent 50%),
+                    radial-gradient(circle at 40% 20%, #ff8c4215 0%, transparent 50%)
                   `
                 }}></div>
                 <div style={{
                   width: '120px',
                   height: '120px',
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                  background: 'linear-gradient(135deg, #ff8c42, #ff6b35)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 0 60px #6366f140, 0 0 100px #8b5cf620',
+                  boxShadow: '0 0 60px #ff8c4240, 0 0 100px #ff6b3520',
                   marginBottom: '2rem',
                   position: 'relative',
                   zIndex: 1
@@ -258,7 +258,7 @@ export default function LoadingDemoPage() {
                     justifyContent: 'center',
                     fontSize: '1.875rem',
                     fontWeight: '700',
-                    color: '#6366f1'
+                    color: '#ff8c42'
                   }}>S</div>
                 </div>
                 <div style={{

@@ -98,7 +98,7 @@ const LogoLink = styled(Link)`
 const LogoIcon = styled.div`
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   border-radius: ${props => props.theme.borderRadius.lg};
   display: flex;
   align-items: center;
@@ -111,7 +111,7 @@ const LogoIcon = styled.div`
 const Logo = styled.span`
   font-size: ${props => props.theme.typography.fontSize['2xl']};
   font-weight: ${props => props.theme.typography.fontWeight.extrabold};
-  background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+  background: linear-gradient(135deg, #ff8c42, #ff6b35, #e67a35);
   background-size: 200% 200%;
   animation: ${gradientMove} 3s ease infinite;
   -webkit-background-clip: text;
@@ -142,8 +142,8 @@ const NavLink = styled(Link)`
   transition: all 0.2s ease;
 
   &:hover {
-    color: #6366f1;
-    background: rgba(99, 102, 241, 0.08);
+    color: #ff8c42;
+    background: rgba(255, 140, 66, 0.08);
   }
 `;
 
@@ -171,7 +171,7 @@ const MobileMenuButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(99, 102, 241, 0.08);
+    background: rgba(255, 140, 66, 0.08);
   }
 
   @media (max-width: ${props => props.theme.breakpoints.lg}) {
@@ -220,8 +220,8 @@ const MobileNavLink = styled(Link)`
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(99, 102, 241, 0.08);
-    color: #6366f1;
+    background: rgba(255, 140, 66, 0.08);
+    color: #ff8c42;
   }
 `;
 
@@ -245,13 +245,13 @@ const Button = styled(Link)`
   font-size: ${props => props.theme.typography.fontSize.sm};
 
   ${props => props.$variant === 'primary' && `
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
     color: white;
-    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 4px 14px rgba(255, 140, 66, 0.4);
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+      box-shadow: 0 6px 20px rgba(255, 140, 66, 0.5);
     }
   `}
 
@@ -260,8 +260,8 @@ const Button = styled(Link)`
     color: ${props.theme.colors.text.primary};
 
     &:hover {
-      border-color: #6366f1;
-      color: #6366f1;
+      border-color: #ff8c42;
+      color: #ff8c42;
     }
   `}
 
@@ -283,7 +283,7 @@ const Button = styled(Link)`
 const HeroSection = styled.section`
   position: relative;
   padding: 160px ${props => props.theme.spacing.xl} 100px;
-  background: linear-gradient(135deg, #faf5ff 0%, #f0f9ff 50%, #f0fdf4 100%);
+  background: linear-gradient(135deg, #fff5ee 0%, #faf8f5 50%, #fff9f5 100%);
   overflow: hidden;
 
   &::before {
@@ -293,7 +293,7 @@ const HeroSection = styled.section`
     right: -20%;
     width: 800px;
     height: 800px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(255, 140, 66, 0.1) 0%, transparent 70%);
     animation: ${float} 6s ease-in-out infinite;
   }
 
@@ -304,7 +304,7 @@ const HeroSection = styled.section`
     left: -10%;
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(236, 72, 153, 0.1) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(255, 107, 53, 0.1) 0%, transparent 70%);
     animation: ${float} 8s ease-in-out infinite reverse;
   }
 
@@ -338,11 +338,11 @@ const HeroBadge = styled.div`
   align-items: center;
   gap: ${props => props.theme.spacing.xs};
   padding: ${props => props.theme.spacing.xs} ${props => props.theme.spacing.md};
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(255, 107, 53, 0.1) 100%);
+  border: 1px solid rgba(255, 140, 66, 0.2);
   border-radius: ${props => props.theme.borderRadius.full};
   font-size: ${props => props.theme.typography.fontSize.sm};
-  color: #6366f1;
+  color: #ff8c42;
   font-weight: ${props => props.theme.typography.fontWeight.medium};
   margin-bottom: ${props => props.theme.spacing.lg};
 `;
@@ -355,7 +355,7 @@ const HeroTitle = styled.h1`
   color: ${props => props.theme.colors.text.primary};
 
   span {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+    background: linear-gradient(135deg, #ff8c42, #ff6b35, #e67a35);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -558,7 +558,7 @@ const LogoItem = styled.div`
 // Stats Section
 const StatsSection = styled.section`
   padding: ${props => props.theme.spacing['4xl']} ${props => props.theme.spacing.xl};
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
 `;
 
 const StatsContainer = styled.div`
@@ -616,10 +616,10 @@ const SectionBadge = styled.div`
   align-items: center;
   gap: ${props => props.theme.spacing.xs};
   padding: ${props => props.theme.spacing.xs} ${props => props.theme.spacing.md};
-  background: ${props => props.$bg || 'rgba(99, 102, 241, 0.1)'};
+  background: ${props => props.$bg || 'rgba(255, 140, 66, 0.1)'};
   border-radius: ${props => props.theme.borderRadius.full};
   font-size: ${props => props.theme.typography.fontSize.sm};
-  color: ${props => props.$color || '#6366f1'};
+  color: ${props => props.$color || '#ff8c42'};
   font-weight: ${props => props.theme.typography.fontWeight.medium};
   margin-bottom: ${props => props.theme.spacing.md};
 `;
@@ -763,7 +763,7 @@ const ShowcaseVisual = styled.div`
 // Testimonials Section
 const TestimonialsSection = styled.section`
   padding: 100px 0;
-  background: linear-gradient(180deg, #faf5ff 0%, #f0f9ff 50%, #faf5ff 100%);
+  background: linear-gradient(180deg, #fff5ee 0%, #faf8f5 50%, #fff5ee 100%);
   overflow: hidden;
   position: relative;
 
@@ -774,7 +774,7 @@ const TestimonialsSection = styled.section`
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.2), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 140, 66, 0.2), transparent);
   }
 `;
 
@@ -797,12 +797,12 @@ const TestimonialCard = styled.div`
   background: white;
   border-radius: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(255, 140, 66, 0.08);
   transition: box-shadow 0.3s ease, border-color 0.3s ease;
 
   &:hover {
-    box-shadow: 0 8px 30px rgba(99, 102, 241, 0.12);
-    border-color: rgba(99, 102, 241, 0.15);
+    box-shadow: 0 8px 30px rgba(255, 140, 66, 0.12);
+    border-color: rgba(255, 140, 66, 0.15);
   }
 `;
 
@@ -829,7 +829,7 @@ const TestimonialAvatar = styled.div`
   width: 48px;
   height: 48px;
   border-radius: ${props => props.theme.borderRadius.full};
-  background: ${props => props.$bg || 'linear-gradient(135deg, #6366f1, #8b5cf6)'};
+  background: ${props => props.$bg || 'linear-gradient(135deg, #ff8c42, #ff6b35)'};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -876,12 +876,12 @@ const PricingGrid = styled.div`
 const PricingCard = styled.div`
   padding: 32px;
   background: ${props => props.$featured
-    ? 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%)'
+    ? 'linear-gradient(135deg, #ff8c42 0%, #ff6b35 50%, #ff8c42 100%)'
     : 'white'};
   background-size: 200% 200%;
   border-radius: 20px;
   box-shadow: ${props => props.$featured
-    ? '0 25px 50px -12px rgba(139, 92, 246, 0.35)'
+    ? '0 25px 50px -12px rgba(255, 140, 66, 0.35)'
     : '0 1px 3px rgba(0, 0, 0, 0.05)'};
   position: relative;
   transition: all 0.3s ease;
@@ -904,7 +904,7 @@ const PricingCard = styled.div`
   &:hover {
     transform: ${props => props.$featured ? 'scale(1.08)' : 'translateY(-4px)'};
     box-shadow: ${props => props.$featured
-      ? '0 30px 60px -12px rgba(139, 92, 246, 0.45)'
+      ? '0 30px 60px -12px rgba(255, 140, 66, 0.45)'
       : '0 20px 40px -12px rgba(0, 0, 0, 0.12)'};
     border-color: ${props => props.$featured ? 'none' : '#cbd5e1'};
   }
@@ -983,7 +983,7 @@ const PricingButton = styled(Link)`
 
   ${props => props.$featured ? `
     background: white;
-    color: #3b82f6;
+    color: #ff8c42;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 
     &:hover {
@@ -1015,7 +1015,7 @@ const FAQSection = styled.section`
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.2), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 140, 66, 0.2), transparent);
   }
 
   h2, p {
@@ -1034,12 +1034,12 @@ const FAQItem = styled.div`
   margin-bottom: ${props => props.theme.spacing.md};
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(255, 140, 66, 0.08);
   transition: all 0.2s ease;
 
   &:hover {
-    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.12);
-    border-color: rgba(99, 102, 241, 0.15);
+    box-shadow: 0 4px 20px rgba(255, 140, 66, 0.12);
+    border-color: rgba(255, 140, 66, 0.15);
   }
 `;
 
@@ -1059,11 +1059,11 @@ const FAQQuestion = styled.button`
   transition: all 0.2s ease;
 
   svg {
-    color: #6366f1;
+    color: #ff8c42;
   }
 
   &:hover {
-    color: #6366f1;
+    color: #ff8c42;
   }
 `;
 
@@ -1072,7 +1072,7 @@ const FAQAnswer = styled.div`
   color: #475569;
   line-height: 1.8;
   display: ${props => props.$isOpen ? 'block' : 'none'};
-  border-top: 1px solid rgba(99, 102, 241, 0.08);
+  border-top: 1px solid rgba(255, 140, 66, 0.08);
   padding-top: ${props => props.$isOpen ? props.theme.spacing.lg : 0};
   font-size: 15px;
 `;
@@ -1080,7 +1080,7 @@ const FAQAnswer = styled.div`
 // CTA Section
 const CTASection = styled.section`
   padding: 100px ${props => props.theme.spacing.xl};
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 50%, #e67a35 100%);
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -1140,7 +1140,7 @@ const CTAButton = styled(Link)`
 
   ${props => props.$variant === 'white' && `
     background: white;
-    color: #6366f1;
+    color: #ff8c42;
 
     &:hover {
       transform: translateY(-2px);
@@ -1154,7 +1154,7 @@ const CTAButton = styled(Link)`
 
     &:hover {
       background: white;
-      color: #6366f1;
+      color: #ff8c42;
     }
   `}
 `;
@@ -1173,12 +1173,12 @@ const Footer = styled.footer`
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 140, 66, 0.5), transparent);
   }
 `;
 
 const FooterTop = styled.div`
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(255, 107, 53, 0.05) 100%);
   padding: ${props => props.theme.spacing['2xl']} ${props => props.theme.spacing.xl};
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 `;
@@ -1239,7 +1239,7 @@ const NewsletterInput = styled.input`
 
   &:focus {
     outline: none;
-    border-color: #6366f1;
+    border-color: #ff8c42;
     background: rgba(255, 255, 255, 0.15);
   }
 
@@ -1250,7 +1250,7 @@ const NewsletterInput = styled.input`
 
 const NewsletterButton = styled.button`
   padding: ${props => props.theme.spacing.md} ${props => props.theme.spacing.xl};
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   border: none;
   border-radius: ${props => props.theme.borderRadius.lg};
   color: white;
@@ -1262,7 +1262,7 @@ const NewsletterButton = styled.button`
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 4px 20px rgba(255, 140, 66, 0.4);
   }
 `;
 
@@ -1311,7 +1311,7 @@ const FooterLogoContainer = styled.div`
 const FooterLogoIcon = styled.div`
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   border-radius: ${props => props.theme.borderRadius.lg};
   display: flex;
   align-items: center;
@@ -1324,7 +1324,7 @@ const FooterLogoIcon = styled.div`
 const FooterLogo = styled.div`
   font-size: ${props => props.theme.typography.fontSize['2xl']};
   font-weight: ${props => props.theme.typography.fontWeight.bold};
-  background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+  background: linear-gradient(135deg, #ff8c42, #ff6b35, #e67a35);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1365,7 +1365,7 @@ const FooterLink = styled(Link)`
   transition: all 0.2s ease;
 
   &:hover {
-    color: #a5b4fc;
+    color: #ffb380;
     transform: translateX(4px);
   }
 `;
@@ -1446,7 +1446,7 @@ const SocialLink = styled.a`
   transition: all 0.2s ease;
 
   &:hover {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
     color: white;
     transform: translateY(-3px);
   }
@@ -1462,7 +1462,7 @@ export default function Home() {
       name: "Sarah Chen",
       role: "Marketing Director, TechStart",
       initials: "SC",
-      bg: "linear-gradient(135deg, #6366f1, #8b5cf6)"
+      bg: "linear-gradient(135deg, #ff8c42, #ff6b35)"
     },
     {
       text: "The analytics dashboard gives us insights we never had before. We've increased our engagement by 300% in just 3 months.",
@@ -1490,7 +1490,7 @@ export default function Home() {
       name: "Emily Thompson",
       role: "Brand Manager, Fashion Co",
       initials: "ET",
-      bg: "linear-gradient(135deg, #8b5cf6, #a78bfa)"
+      bg: "linear-gradient(135deg, #ff6b35, #ff8c42)"
     },
     {
       text: "Best investment we've made this year. ROI was positive within the first month of using SocialHub.",
@@ -1530,8 +1530,8 @@ export default function Home() {
 
   const features = [
     {
-      icon: <Calendar size={28} color="#6366f1" />,
-      bg: "#e0e7ff",
+      icon: <Calendar size={28} color="#ff8c42" />,
+      bg: "#fff5ee",
       title: "Smart Scheduling",
       description: "AI-powered scheduling that finds the perfect time to post for maximum engagement."
     },
@@ -1554,8 +1554,8 @@ export default function Home() {
       description: "Work together seamlessly with approval workflows and task assignments."
     },
     {
-      icon: <Zap size={28} color="#8b5cf6" />,
-      bg: "#ede9fe",
+      icon: <Zap size={28} color="#ff6b35" />,
+      bg: "#fff0e6",
       title: "Content Library",
       description: "Store, organize, and reuse your best performing content and templates."
     },
@@ -1628,8 +1628,8 @@ export default function Home() {
               <FloatingCardValue>+127%</FloatingCardValue>
             </FloatingCard>
             <FloatingCard $position="bottom-right" $delay="1s">
-              <FloatingCardIcon $bg="#e0e7ff">
-                <Clock size={20} color="#6366f1" />
+              <FloatingCardIcon $bg="#fff5ee">
+                <Clock size={20} color="#ff8c42" />
               </FloatingCardIcon>
               <FloatingCardText>Time Saved</FloatingCardText>
               <FloatingCardValue>12h/week</FloatingCardValue>

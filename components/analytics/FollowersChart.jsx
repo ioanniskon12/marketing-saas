@@ -138,7 +138,7 @@ function formatDate(dateString) {
 const METRICS_CONFIG = {
   followers: {
     label: 'Followers',
-    color: '#6366f1',
+    color: '#ff8c42',
     dataKey: 'followers',
   },
   engagement: {
@@ -158,7 +158,7 @@ const METRICS_CONFIG = {
   },
   engagementRate: {
     label: 'Engagement Rate',
-    color: '#8b5cf6',
+    color: '#ff6b35',
     dataKey: 'engagementRate',
   },
 };

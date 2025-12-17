@@ -140,7 +140,7 @@ export const showToast = {
   info: (message, title = 'Info') => {
     return toast.custom((t) => (
       <ToastContainer $visible={t.visible}>
-        <IconWrapper $color="#3B82F6">
+        <IconWrapper $color="#ff8c42">
           <Info size={24} />
         </IconWrapper>
         <Content>

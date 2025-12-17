@@ -106,13 +106,13 @@ export default function PlanFeedbackPage() {
   const getActivityColor = (type) => {
     switch (type) {
       case 'comment':
-        return '#8B5CF6';
+        return '#ff8c42';
       case 'approval':
         return '#10b981';
       case 'rejection':
         return '#ef4444';
       default:
-        return '#8B5CF6';
+        return '#ff8c42';
     }
   };
 
@@ -229,7 +229,7 @@ export default function PlanFeedbackPage() {
 
                 <StatsGrid>
                   <StatCard>
-                    <StatIcon $color="#8B5CF6">
+                    <StatIcon $color="#ff8c42">
                       <Eye size={20} />
                     </StatIcon>
                     <StatValue>{selectedShare.stats.viewCount}</StatValue>
@@ -237,7 +237,7 @@ export default function PlanFeedbackPage() {
                   </StatCard>
 
                   <StatCard>
-                    <StatIcon $color="#8B5CF6">
+                    <StatIcon $color="#ff8c42">
                       <MessageSquare size={20} />
                     </StatIcon>
                     <StatValue>{selectedShare.stats.totalComments}</StatValue>

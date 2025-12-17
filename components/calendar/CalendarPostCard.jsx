@@ -34,7 +34,7 @@ const PLATFORM_CONFIG = {
 };
 
 const STATUS_COLORS = {
-  scheduled: '#3B82F6', // blue
+  scheduled: '#ff8c42', // orange
   published: '#10B981', // green
   failed: '#EF4444',    // red
   draft: '#6B7280',     // gray
@@ -78,7 +78,7 @@ const CardContainer = styled.div`
   cursor: ${props => props.$isDragging ? 'grabbing' : 'pointer'};
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: ${props => props.$isDragging
-    ? '0 12px 32px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(59, 130, 246, 0.3)'
+    ? '0 12px 32px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(255, 140, 66, 0.3)'
     : '0 1px 3px rgba(0, 0, 0, 0.1)'};
   border-left: 4px solid ${props => props.$platformColor || '#6B7280'};
   opacity: ${props => props.$isDragging ? 0.75 : 1};
@@ -95,8 +95,8 @@ const CardContainer = styled.div`
       inset: 0;
       border-radius: inherit;
       background: linear-gradient(135deg,
-        rgba(59, 130, 246, 0.1),
-        rgba(147, 51, 234, 0.1));
+        rgba(255, 140, 66, 0.1),
+        rgba(255, 107, 53, 0.1));
       pointer-events: none;
     }
   `}
@@ -104,7 +104,7 @@ const CardContainer = styled.div`
   &:hover {
     transform: ${props => props.$isDragging ? 'scale(1.05) rotate(2deg)' : 'scale(1.02) translateX(2px)'};
     box-shadow: ${props => props.$isDragging
-      ? '0 12px 32px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(59, 130, 246, 0.3)'
+      ? '0 12px 32px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(255, 140, 66, 0.3)'
       : '0 6px 20px rgba(0, 0, 0, 0.2)'};
     background: ${props => props.$platformBg ? props.$platformBg.replace('0.15', '0.25') : 'rgba(255, 255, 255, 0.08)'};
   }

@@ -27,7 +27,7 @@ const PLATFORM_CONFIG = {
 };
 
 const STATUS_COLORS = {
-  scheduled: '#3B82F6',
+  scheduled: '#ff8c42',
   published: '#10B981',
   failed: '#EF4444',
   draft: '#6B7280',
@@ -471,7 +471,7 @@ export default function CalendarPostPill({
         tabIndex={0}
         role="button"
         aria-label={`${fullTitle} at ${time}`}
-        style={bulkSelectMode && isSelected ? { outline: '2px solid #6366f1' } : undefined}
+        style={bulkSelectMode && isSelected ? { outline: '2px solid #ff8c42' } : undefined}
       >
         {/* Show selection checkbox in bulk mode */}
         {bulkSelectMode && (

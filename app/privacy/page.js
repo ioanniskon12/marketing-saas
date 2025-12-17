@@ -44,7 +44,7 @@ const FloatingOrb = styled.div`
 const IconBox = styled.div`
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff8c42 100%);
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -57,7 +57,7 @@ const Badge = styled.span`
   display: inline-block;
   padding: 6px 16px;
   background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
+  color: #ff8c42;
   border-radius: 100px;
   font-size: 14px;
   font-weight: 600;
@@ -156,7 +156,7 @@ const SidebarButton = styled.button`
   font-weight: 500;
 
   ${props => props.$active ? `
-    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, #ff8c42 0%, #ff8c42 100%);
     color: white;
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
   ` : `
@@ -199,7 +199,7 @@ const ContentHeader = styled.div`
 const ContentIconBox = styled.div`
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff8c42 100%);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -267,7 +267,7 @@ const ListItem = styled.li`
 const ListIcon = styled.div`
   width: 24px;
   height: 24px;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff8c42 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -333,7 +333,7 @@ const NumberBadge = styled.div`
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  color: #3b82f6;
+  color: #ff8c42;
   flex-shrink: 0;
 `;
 
@@ -396,7 +396,7 @@ const RightsCard = styled.div`
 const RightsIcon = styled.div`
   width: 40px;
   height: 40px;
-  background: ${props => props.$gradient || 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)'};
+  background: ${props => props.$gradient || 'linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%)'};
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -429,7 +429,7 @@ const RetentionGrid = styled.div`
 const RetentionValue = styled.div`
   font-size: 28px;
   font-weight: 700;
-  color: ${props => props.$color || '#3b82f6'};
+  color: ${props => props.$color || '#ff8c42'};
   margin-bottom: 4px;
 `;
 
@@ -439,7 +439,7 @@ const RetentionLabel = styled.p`
 `;
 
 const ContactBox = styled.div`
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff8c42 100%);
   border-radius: 16px;
   padding: 32px;
   color: white;
@@ -683,10 +683,10 @@ export default function Privacy() {
           <ContentText>You have the following rights regarding your personal information:</ContentText>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {[
-              { title: 'Access', desc: 'Request a copy of your personal data', bg: '#eff6ff', border: '#bfdbfe', gradient: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)' },
+              { title: 'Access', desc: 'Request a copy of your personal data', bg: '#eff6ff', border: '#bfdbfe', gradient: 'linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%)' },
               { title: 'Correction', desc: 'Update or correct inaccurate information', bg: '#f0fdf4', border: '#bbf7d0', gradient: 'linear-gradient(135deg, #22c55e 0%, #4ade80 100%)' },
               { title: 'Deletion', desc: 'Request deletion of your data', bg: '#fef2f2', border: '#fecaca', gradient: 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)' },
-              { title: 'Portability', desc: 'Export your data in a readable format', bg: '#faf5ff', border: '#e9d5ff', gradient: 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)' },
+              { title: 'Portability', desc: 'Export your data in a readable format', bg: '#faf5ff', border: '#e9d5ff', gradient: 'linear-gradient(135deg, #ff8c42 0%, #a78bfa 100%)' },
               { title: 'Objection', desc: 'Object to certain types of processing', bg: '#fff7ed', border: '#fed7aa', gradient: 'linear-gradient(135deg, #f97316 0%, #fb923c 100%)' },
             ].map((item, i) => (
               <RightsCard key={i} $bg={item.bg} $border={item.border}>
@@ -713,11 +713,11 @@ export default function Privacy() {
           <RetentionBox>
             <RetentionGrid>
               <div>
-                <RetentionValue $color="#3b82f6">Active</RetentionValue>
+                <RetentionValue $color="#ff8c42">Active</RetentionValue>
                 <RetentionLabel>While your account is active</RetentionLabel>
               </div>
               <div>
-                <RetentionValue $color="#8b5cf6">30 Days</RetentionValue>
+                <RetentionValue $color="#ff8c42">30 Days</RetentionValue>
                 <RetentionLabel>After account closure</RetentionLabel>
               </div>
               <div>
@@ -824,7 +824,7 @@ export default function Privacy() {
           <RelatedTitle>Related Legal Documents</RelatedTitle>
           <RelatedGrid>
             <RelatedCard href="/terms">
-              <RelatedIcon $gradient="linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)">
+              <RelatedIcon $gradient="linear-gradient(135deg, #ff8c42 0%, #ec4899 100%)">
                 <FileText size={24} />
               </RelatedIcon>
               <RelatedInfo>

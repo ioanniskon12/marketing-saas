@@ -486,7 +486,7 @@ export default function WorkspaceSettingsPage() {
           <br /><br />
           Workspaces available: {workspaces.length}
           <br />
-          <Link href="/dashboard" style={{ color: '#3B82F6', textDecoration: 'underline' }}>
+          <Link href="/dashboard" style={{ color: '#ff8c42', textDecoration: 'underline' }}>
             Go to Dashboard
           </Link>
         </EmptyState>

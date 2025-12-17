@@ -1,13 +1,13 @@
 /**
  * Modern Dashboard Page
  *
- * Redesigned dashboard with modern UI, gradients, charts, and engaging visuals
+ * Clean, professional dashboard design matching Owl Marketing style
  */
 
 'use client';
 
 import { useEffect, useState } from 'react';
-import styled, { useTheme } from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import Link from 'next/link';
 import {
   BarChart3,
@@ -20,7 +20,6 @@ import {
   FileText,
   Clock,
   CheckCircle,
-  AlertCircle,
   Eye,
   Heart,
   MessageCircle,
@@ -30,384 +29,375 @@ import {
   Linkedin,
   Twitter,
   Youtube,
-  Zap,
+  Bell,
   Target,
-  Award,
-  Activity,
+  Edit3,
+  Search,
 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { createClient } from '@/lib/supabase/client';
 import { PageSpinner } from '@/components/ui';
-import { showToast } from '@/components/ui/Toast';
 
+// Animations
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+const shimmer = keyframes`
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+`;
+
+// Layout
 const DashboardContainer = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg,
-    ${props => props.theme.colors.neutral[50]} 0%,
-    ${props => props.theme.colors.primary.light}15 50%,
-    ${props => props.theme.colors.secondary.light}10 100%
-  );
+  background: ${props => props.theme.colors.background.default};
 `;
 
-const HeroSection = styled.div`
-  background: linear-gradient(135deg,
-    ${props => props.theme.colors.primary.main} 0%,
-    ${props => props.theme.colors.secondary.main} 100%
-  );
-  border-radius: ${props => props.theme.borderRadius['2xl']};
-  padding: ${props => props.theme.spacing['2xl']};
-  margin-bottom: ${props => props.theme.spacing.xl};
-  color: white;
-  position: relative;
-  overflow: hidden;
-  box-shadow: ${props => props.theme.shadows['2xl']};
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -10%;
-    width: 400px;
-    height: 400px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    filter: blur(60px);
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -30%;
-    left: -5%;
-    width: 300px;
-    height: 300px;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 50%;
-    filter: blur(50px);
-  }
-
-  @media (max-width: 768px) {
-    padding: ${props => props.theme.spacing.lg};
-    margin-bottom: ${props => props.theme.spacing.md};
-    border-radius: ${props => props.theme.borderRadius.xl};
-  }
-`;
-
-const HeroContent = styled.div`
-  position: relative;
-  z-index: 1;
-`;
-
-const WelcomeTitle = styled.h1`
-  font-size: ${props => props.theme.typography.fontSize['4xl']};
-  font-weight: ${props => props.theme.typography.fontWeight.bold};
-  margin-bottom: ${props => props.theme.spacing.sm};
-
-  @media (max-width: ${props => props.theme.breakpoints.md}) {
-    font-size: ${props => props.theme.typography.fontSize['3xl']};
-  }
-`;
-
-const WelcomeSubtitle = styled.p`
-  font-size: ${props => props.theme.typography.fontSize.lg};
-  opacity: 0.9;
-  margin-bottom: ${props => props.theme.spacing.xl};
-`;
-
-const HeroStats = styled.div`
+const ContentGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: ${props => props.theme.spacing.lg};
-  margin-top: ${props => props.theme.spacing.xl};
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
 
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-    gap: ${props => props.theme.spacing.sm};
-    margin-top: ${props => props.theme.spacing.md};
-  }
-
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr 1fr;
-  }
-`;
-
-const HeroStatCard = styled.div`
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: ${props => props.theme.borderRadius.xl};
-  padding: ${props => props.theme.spacing.lg};
-  text-align: center;
-  transition: all ${props => props.theme.transitions.base};
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.25);
-    transform: translateY(-4px);
-  }
-
-  @media (max-width: 768px) {
-    padding: ${props => props.theme.spacing.md};
-    border-radius: ${props => props.theme.borderRadius.lg};
-  }
-`;
-
-const HeroStatValue = styled.div`
-  font-size: ${props => props.theme.typography.fontSize['3xl']};
-  font-weight: ${props => props.theme.typography.fontWeight.bold};
-  margin-bottom: ${props => props.theme.spacing.xs};
-
-  @media (max-width: 768px) {
-    font-size: ${props => props.theme.typography.fontSize.xl};
-  }
-`;
-
-const HeroStatLabel = styled.div`
-  font-size: ${props => props.theme.typography.fontSize.sm};
-  opacity: 0.9;
-`;
-
-const MainGrid = styled.div`
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: ${props => props.theme.spacing.xl};
-  margin-bottom: ${props => props.theme.spacing.xl};
-
-  @media (max-width: ${props => props.theme.breakpoints.lg}) {
+  @media (max-width: 1200px) {
     grid-template-columns: 1fr;
   }
 `;
 
-const LeftColumn = styled.div`
+const MainContent = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${props => props.theme.spacing.xl};
+  gap: 24px;
 `;
 
-const RightColumn = styled.div`
+const SideContent = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${props => props.theme.spacing.xl};
+  gap: 24px;
 `;
 
-const Card = styled.div`
+// Stats Grid
+const StatsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+
+  @media (max-width: 1400px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const StatCard = styled.div`
   background: ${props => props.theme.colors.background.paper};
-  border-radius: ${props => props.theme.borderRadius['2xl']};
-  padding: ${props => props.theme.spacing.xl};
-  box-shadow: ${props => props.theme.shadows.lg};
-  border: 1px solid ${props => props.theme.colors.neutral[200]};
-  transition: all ${props => props.theme.transitions.base};
+  border: 1px solid ${props => props.theme.colors.border.default};
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.2s ease;
+  animation: ${fadeIn} 0.5s ease;
+  animation-delay: ${props => props.$delay || '0s'};
+  animation-fill-mode: both;
 
   &:hover {
-    box-shadow: ${props => props.theme.shadows['2xl']};
+    transform: translateY(-2px);
+    box-shadow: ${props => props.theme.shadows.lg};
   }
+`;
 
-  @media (max-width: 768px) {
-    padding: ${props => props.theme.spacing.md};
-    border-radius: ${props => props.theme.borderRadius.xl};
+const StatHeader = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+`;
+
+const StatIconWrapper = styled.div`
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: ${props => props.theme.colors.primary[100]};
+  color: ${props => props.theme.colors.primary.main};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 24px;
+    height: 24px;
   }
+`;
+
+const StatChange = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: ${props => props.$positive ? props.theme.colors.success.bg : props.theme.colors.error.bg};
+  color: ${props => props.$positive ? props.theme.colors.success.main : props.theme.colors.error.main};
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+`;
+
+const StatValue = styled.div`
+  font-size: 32px;
+  font-weight: 800;
+  color: ${props => props.theme.colors.text.primary};
+  margin-bottom: 4px;
+  letter-spacing: -0.02em;
+`;
+
+const StatLabel = styled.div`
+  font-size: 14px;
+  color: ${props => props.theme.colors.text.secondary};
+  font-weight: 500;
+`;
+
+// Card Components
+const Card = styled.div`
+  background: ${props => props.theme.colors.background.paper};
+  border: 1px solid ${props => props.theme.colors.border.default};
+  border-radius: 16px;
+  overflow: hidden;
 `;
 
 const CardHeader = styled.div`
+  padding: 20px 24px;
+  border-bottom: 1px solid ${props => props.theme.colors.border.default};
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: ${props => props.theme.spacing.lg};
+  justify-content: space-between;
 `;
 
 const CardTitle = styled.h3`
-  font-size: ${props => props.theme.typography.fontSize.xl};
-  font-weight: ${props => props.theme.typography.fontWeight.bold};
+  font-size: 16px;
+  font-weight: 700;
   color: ${props => props.theme.colors.text.primary};
+  margin: 0;
   display: flex;
   align-items: center;
-  gap: ${props => props.theme.spacing.sm};
+  gap: 10px;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    color: ${props => props.theme.colors.primary.main};
+  }
 `;
 
 const CardAction = styled(Link)`
-  font-size: ${props => props.theme.typography.fontSize.sm};
+  font-size: 13px;
   color: ${props => props.theme.colors.primary.main};
-  font-weight: ${props => props.theme.typography.fontWeight.semibold};
-  transition: all ${props => props.theme.transitions.fast};
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
 
   &:hover {
     color: ${props => props.theme.colors.primary.dark};
   }
 `;
 
-const StatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: ${props => props.theme.spacing.lg};
-
-  @media (max-width: 768px) {
-    gap: ${props => props.theme.spacing.sm};
-  }
-
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr;
-  }
+const CardBody = styled.div`
+  padding: 24px;
 `;
 
-const MiniStatCard = styled.div`
-  background: linear-gradient(135deg, ${props => props.$gradient1}, ${props => props.$gradient2});
-  border-radius: ${props => props.theme.borderRadius.xl};
-  padding: ${props => props.theme.spacing.lg};
-  color: white;
+// Chart Placeholder
+const ChartPlaceholder = styled.div`
+  height: 240px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, ${props => props.theme.colors.primary.main}, ${props => props.theme.colors.primary.dark});
+  opacity: 0.1;
   position: relative;
   overflow: hidden;
-  transition: all ${props => props.theme.transitions.base};
-
-  &:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: ${props => props.theme.shadows.xl};
-  }
 
   &::before {
     content: '';
     position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 150%;
-    height: 150%;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    background-size: 200% 100%;
+    animation: ${shimmer} 2s infinite;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70%;
+    background: inherit;
+    opacity: 0.8;
+    clip-path: polygon(0 100%, 5% 70%, 15% 50%, 25% 65%, 35% 30%, 45% 45%, 55% 25%, 65% 40%, 75% 20%, 85% 35%, 95% 15%, 100% 25%, 100% 100%);
   }
 `;
 
-const MiniStatIcon = styled.div`
-  width: 40px;
-  height: 40px;
-  border-radius: ${props => props.theme.borderRadius.lg};
-  background: rgba(255, 255, 255, 0.2);
+const ChartTabs = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: ${props => props.theme.spacing.md};
-  position: relative;
-  z-index: 1;
+  gap: 8px;
 `;
 
-const MiniStatValue = styled.div`
-  font-size: ${props => props.theme.typography.fontSize['2xl']};
-  font-weight: ${props => props.theme.typography.fontWeight.bold};
-  margin-bottom: ${props => props.theme.spacing.xs};
-  position: relative;
-  z-index: 1;
+const ChartTab = styled.button`
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: ${props => props.$active ? props.theme.colors.primary.main : 'transparent'};
+  color: ${props => props.$active ? 'white' : props.theme.colors.text.secondary};
+
+  &:hover {
+    background: ${props => props.$active ? props.theme.colors.primary.main : props.theme.colors.neutral[100]};
+  }
 `;
 
-const MiniStatLabel = styled.div`
-  font-size: ${props => props.theme.typography.fontSize.sm};
-  opacity: 0.9;
-  position: relative;
-  z-index: 1;
-`;
-
-const MiniStatChange = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${props => props.theme.spacing.xs};
-  font-size: ${props => props.theme.typography.fontSize.xs};
-  margin-top: ${props => props.theme.spacing.sm};
-  opacity: 0.95;
-  position: relative;
-  z-index: 1;
-`;
-
+// Quick Actions
 const QuickActionsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: ${props => props.theme.spacing.md};
-
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr;
-    gap: ${props => props.theme.spacing.sm};
-  }
+  gap: 12px;
 `;
 
-const QuickActionBtn = styled(Link)`
+const QuickActionButton = styled(Link)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: ${props => props.theme.spacing.xl};
-  background: linear-gradient(135deg,
-    ${props => props.theme.colors.neutral[50]} 0%,
-    ${props => props.theme.colors.neutral[100]} 100%
-  );
-  border: 2px solid ${props => props.theme.colors.neutral[200]};
-  border-radius: ${props => props.theme.borderRadius.xl};
-  transition: all ${props => props.theme.transitions.base};
-  text-align: center;
-  gap: ${props => props.theme.spacing.md};
+  gap: 12px;
+  padding: 24px 16px;
+  background: ${props => props.theme.colors.background.elevated};
+  border: 1px solid ${props => props.theme.colors.border.default};
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
 
   &:hover {
-    background: linear-gradient(135deg,
-      ${props => props.theme.colors.primary.light}20 0%,
-      ${props => props.theme.colors.secondary.light}20 100%
-    );
+    background: ${props => props.theme.colors.primary[50]};
     border-color: ${props => props.theme.colors.primary.main};
-    transform: translateY(-4px);
-    box-shadow: ${props => props.theme.shadows.lg};
+    transform: translateY(-2px);
+  }
+
+  svg {
+    width: 28px;
+    height: 28px;
+    color: ${props => props.theme.colors.primary.main};
   }
 `;
 
-const QuickActionIcon = styled.div`
-  width: 56px;
-  height: 56px;
-  border-radius: ${props => props.theme.borderRadius.xl};
-  background: linear-gradient(135deg,
-    ${props => props.theme.colors.primary.main},
-    ${props => props.theme.colors.secondary.main}
-  );
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: ${props => props.theme.shadows.md};
-`;
-
-const QuickActionLabel = styled.div`
-  font-weight: ${props => props.theme.typography.fontWeight.semibold};
+const QuickActionLabel = styled.span`
+  font-size: 14px;
+  font-weight: 600;
   color: ${props => props.theme.colors.text.primary};
-  font-size: ${props => props.theme.typography.fontSize.base};
 `;
 
-const UpcomingPostsList = styled.div`
+// Activity List
+const ActivityList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${props => props.theme.spacing.md};
 `;
 
-const UpcomingPostItem = styled.div`
+const ActivityItem = styled.div`
   display: flex;
-  align-items: center;
-  gap: ${props => props.theme.spacing.md};
-  padding: ${props => props.theme.spacing.md};
-  background: ${props => props.theme.colors.neutral[50]};
-  border-radius: ${props => props.theme.borderRadius.lg};
-  border-left: 4px solid ${props => props.$color};
-  transition: all ${props => props.theme.transitions.fast};
+  gap: 14px;
+  padding: 16px 24px;
+  border-bottom: 1px solid ${props => props.theme.colors.border.light};
+  transition: background 0.2s ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
 
   &:hover {
-    background: ${props => props.theme.colors.neutral[100]};
-    transform: translateX(4px);
+    background: ${props => props.theme.colors.background.elevated};
   }
 `;
 
-const PostThumbnail = styled.div`
-  width: 48px;
-  height: 48px;
-  border-radius: ${props => props.theme.borderRadius.md};
-  background: linear-gradient(135deg,
-    ${props => props.theme.colors.primary.light},
-    ${props => props.theme.colors.secondary.light}
-  );
+const ActivityIcon = styled.div`
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: ${props => props.$bg};
+  color: ${props => props.$color};
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
   flex-shrink: 0;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+`;
+
+const ActivityContent = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+const ActivityTitle = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  color: ${props => props.theme.colors.text.primary};
+  margin-bottom: 4px;
+`;
+
+const ActivityDesc = styled.div`
+  font-size: 13px;
+  color: ${props => props.theme.colors.text.secondary};
+`;
+
+const ActivityTime = styled.div`
+  font-size: 12px;
+  color: ${props => props.theme.colors.text.tertiary};
+  white-space: nowrap;
+`;
+
+// Upcoming Posts
+const PostsList = styled.div`
+  padding: 0 24px 24px;
+`;
+
+const PostItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: ${props => props.theme.colors.background.elevated};
+  border-radius: 12px;
+  margin-bottom: 12px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const PostPlatform = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: ${props => props.$bg};
+  color: ${props => props.$color};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
 `;
 
 const PostInfo = styled.div`
@@ -416,182 +406,39 @@ const PostInfo = styled.div`
 `;
 
 const PostTitle = styled.div`
-  font-weight: ${props => props.theme.typography.fontWeight.semibold};
+  font-size: 14px;
+  font-weight: 600;
   color: ${props => props.theme.colors.text.primary};
-  font-size: ${props => props.theme.typography.fontSize.sm};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-bottom: ${props => props.theme.spacing.xs};
+  margin-bottom: 4px;
 `;
 
-const PostTime = styled.div`
-  font-size: ${props => props.theme.typography.fontSize.xs};
-  color: ${props => props.theme.colors.text.secondary};
+const PostMeta = styled.div`
+  font-size: 12px;
+  color: ${props => props.theme.colors.text.tertiary};
   display: flex;
   align-items: center;
-  gap: ${props => props.theme.spacing.xs};
-`;
-
-const PlatformBadges = styled.div`
-  display: flex;
-  gap: ${props => props.theme.spacing.xs};
-  flex-shrink: 0;
-`;
-
-const PlatformBadge = styled.div`
-  width: 28px;
-  height: 28px;
-  border-radius: ${props => props.theme.borderRadius.md};
-  background: ${props => props.$color};
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: ${props => props.theme.shadows.sm};
+  gap: 6px;
 
   svg {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
   }
 `;
 
-const PerformanceCard = styled(Card)`
-  background: linear-gradient(135deg,
-    ${props => props.theme.colors.background.paper} 0%,
-    ${props => props.theme.colors.primary.light}05 100%
-  );
-`;
-
-const PerformanceMetrics = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${props => props.theme.spacing.lg};
-`;
-
-const MetricRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: ${props => props.theme.spacing.md};
-  border-bottom: 1px solid ${props => props.theme.colors.neutral[200]};
-
-  &:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-`;
-
-const MetricInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${props => props.theme.spacing.md};
-`;
-
-const MetricIcon = styled.div`
-  width: 40px;
-  height: 40px;
-  border-radius: ${props => props.theme.borderRadius.lg};
-  background: ${props => props.$color}20;
+const PostStatus = styled.span`
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+  background: ${props => props.$bg};
   color: ${props => props.$color};
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  text-transform: capitalize;
 `;
 
-const MetricLabel = styled.div`
-  font-size: ${props => props.theme.typography.fontSize.sm};
-  color: ${props => props.theme.colors.text.secondary};
-`;
-
-const MetricValue = styled.div`
-  font-size: ${props => props.theme.typography.fontSize.xl};
-  font-weight: ${props => props.theme.typography.fontWeight.bold};
-  color: ${props => props.theme.colors.text.primary};
-`;
-
-const ProgressBar = styled.div`
-  width: 100%;
-  height: 8px;
-  background: ${props => props.theme.colors.neutral[200]};
-  border-radius: ${props => props.theme.borderRadius.full};
-  overflow: hidden;
-  margin-top: ${props => props.theme.spacing.sm};
-`;
-
-const ProgressFill = styled.div`
-  height: 100%;
-  background: linear-gradient(90deg,
-    ${props => props.$color1},
-    ${props => props.$color2}
-  );
-  width: ${props => props.$width}%;
-  transition: width 0.5s ease;
-  border-radius: ${props => props.theme.borderRadius.full};
-`;
-
-const AchievementGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: ${props => props.theme.spacing.md};
-`;
-
-const AchievementCard = styled.div`
-  padding: ${props => props.theme.spacing.lg};
-  background: linear-gradient(135deg,
-    ${props => props.$color1}15,
-    ${props => props.$color2}15
-  );
-  border: 2px solid ${props => props.$color1}40;
-  border-radius: ${props => props.theme.borderRadius.xl};
-  text-align: center;
-  transition: all ${props => props.theme.transitions.base};
-
-  &:hover {
-    transform: scale(1.05);
-    box-shadow: ${props => props.theme.shadows.md};
-  }
-`;
-
-const AchievementIcon = styled.div`
-  width: 48px;
-  height: 48px;
-  margin: 0 auto ${props => props.theme.spacing.sm};
-  border-radius: ${props => props.theme.borderRadius.full};
-  background: linear-gradient(135deg, ${props => props.$color1}, ${props => props.$color2});
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: ${props => props.theme.shadows.md};
-`;
-
-const AchievementValue = styled.div`
-  font-size: ${props => props.theme.typography.fontSize.xl};
-  font-weight: ${props => props.theme.typography.fontWeight.bold};
-  color: ${props => props.theme.colors.text.primary};
-  margin-bottom: ${props => props.theme.spacing.xs};
-`;
-
-const AchievementLabel = styled.div`
-  font-size: ${props => props.theme.typography.fontSize.xs};
-  color: ${props => props.theme.colors.text.secondary};
-`;
-
-const EmptyState = styled.div`
-  text-align: center;
-  padding: ${props => props.theme.spacing['2xl']};
-  color: ${props => props.theme.colors.text.secondary};
-`;
-
-const LoadingContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-`;
-
-// TikTok Icon Component
+// TikTok Icon
 const TikTokIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
@@ -600,13 +447,13 @@ const TikTokIcon = () => (
 
 const getPlatformIcon = (platform) => {
   switch (platform?.toLowerCase()) {
-    case 'instagram': return <Instagram />;
-    case 'facebook': return <Facebook />;
-    case 'linkedin': return <Linkedin />;
-    case 'twitter': return <Twitter />;
-    case 'youtube': return <Youtube />;
+    case 'instagram': return <Instagram size={20} />;
+    case 'facebook': return <Facebook size={20} />;
+    case 'linkedin': return <Linkedin size={20} />;
+    case 'twitter': return <Twitter size={20} />;
+    case 'youtube': return <Youtube size={20} />;
     case 'tiktok': return <TikTokIcon />;
-    default: return <FileText />;
+    default: return <FileText size={20} />;
   }
 };
 
@@ -618,26 +465,14 @@ const getPlatformColor = (platform) => {
     case 'twitter': return '#1DA1F2';
     case 'youtube': return '#FF0000';
     case 'tiktok': return '#000000';
-    default: return '#8B5CF6';
-  }
-};
-
-const getPlatformName = (platform) => {
-  switch (platform?.toLowerCase()) {
-    case 'instagram': return 'Instagram';
-    case 'facebook': return 'Facebook';
-    case 'linkedin': return 'LinkedIn';
-    case 'twitter': return 'Twitter';
-    case 'youtube': return 'YouTube';
-    case 'tiktok': return 'TikTok';
-    default: return platform;
+    default: return '#ff8c42';
   }
 };
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const { currentWorkspace } = useWorkspace();
-  const theme = useTheme();
+  const [activeChartTab, setActiveChartTab] = useState('week');
   const [stats, setStats] = useState({
     totalPosts: 0,
     scheduledPosts: 0,
@@ -645,11 +480,8 @@ export default function DashboardPage() {
     activeAccounts: 0,
     impressions: 0,
     clicks: 0,
-    shares: 0,
-    comments: 0,
   });
   const [upcomingPosts, setUpcomingPosts] = useState([]);
-  const [connectedPlatforms, setConnectedPlatforms] = useState([]);
   const supabase = createClient();
 
   useEffect(() => {
@@ -660,14 +492,11 @@ export default function DashboardPage() {
 
   const fetchDashboardData = async () => {
     try {
-      if (!currentWorkspace) {
-        console.log('No current workspace');
-        return;
-      }
+      if (!currentWorkspace) return;
 
       const workspaceId = currentWorkspace.id;
 
-      // Fetch posts count (with error handling)
+      // Fetch posts count
       let postsCount = 0;
       try {
         const { count } = await supabase
@@ -676,10 +505,10 @@ export default function DashboardPage() {
           .eq('workspace_id', workspaceId);
         postsCount = count || 0;
       } catch (err) {
-        console.log('Posts table not available:', err);
+        console.log('Posts table not available');
       }
 
-      // Fetch scheduled posts count (with error handling)
+      // Fetch scheduled posts count
       let scheduledCount = 0;
       try {
         const { count } = await supabase
@@ -689,65 +518,49 @@ export default function DashboardPage() {
           .eq('status', 'scheduled');
         scheduledCount = count || 0;
       } catch (err) {
-        console.log('Scheduled posts table not available:', err);
+        console.log('Scheduled posts table not available');
       }
 
-      // Fetch social accounts with platform info (with error handling)
+      // Fetch social accounts
       let socialAccounts = [];
       try {
-        const { data, error: accountsError } = await supabase
+        const { data } = await supabase
           .from('social_accounts')
-          .select('id, platform, platform_display_name, platform_username, is_active, workspace_id')
+          .select('id, platform')
           .eq('workspace_id', workspaceId)
           .eq('is_active', true);
-
-        if (!accountsError && data) {
-          socialAccounts = data;
-        }
+        socialAccounts = data || [];
       } catch (err) {
-        console.log('Error fetching social accounts:', err);
+        console.log('Error fetching social accounts');
       }
-
-      // Create platform stats with mock engagement data
-      const platformStats = socialAccounts?.map(account => ({
-        platform: account.platform,
-        accountName: account.platform_display_name || account.platform_username,
-        engagement: Math.floor(Math.random() * 5000) + 500,
-        progress: Math.floor(Math.random() * 40) + 40, // 40-80%
-      })) || [];
-
-      setConnectedPlatforms(platformStats);
 
       setStats({
         totalPosts: postsCount,
         scheduledPosts: scheduledCount,
-        totalEngagement: Math.floor(Math.random() * 10000), // Mock data
-        activeAccounts: socialAccounts?.length || 0,
-        impressions: Math.floor(Math.random() * 50000), // Mock data
-        clicks: Math.floor(Math.random() * 5000), // Mock data
-        shares: Math.floor(Math.random() * 1000), // Mock data
-        comments: Math.floor(Math.random() * 2000), // Mock data
+        totalEngagement: Math.floor(Math.random() * 10000),
+        activeAccounts: socialAccounts.length,
+        impressions: Math.floor(Math.random() * 50000),
+        clicks: Math.floor(Math.random() * 5000),
       });
 
-      // Fetch upcoming posts (with error handling)
+      // Fetch upcoming posts
       try {
         const { data: posts } = await supabase
           .from('scheduled_posts')
-          .select('id, title, scheduled_for, platforms')
+          .select('id, title, scheduled_for, platforms, status')
           .eq('workspace_id', workspaceId)
-          .eq('status', 'scheduled')
+          .in('status', ['scheduled', 'draft'])
           .order('scheduled_for', { ascending: true })
-          .limit(5);
+          .limit(4);
 
         if (posts) {
           setUpcomingPosts(posts);
         }
       } catch (err) {
-        console.log('Error fetching upcoming posts:', err);
+        console.log('Error fetching upcoming posts');
       }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
-      // Don't show error toast, just log it
     }
   };
 
@@ -759,343 +572,270 @@ export default function DashboardPage() {
   const currentHour = new Date().getHours();
   const greeting = currentHour < 12 ? 'Good morning' : currentHour < 18 ? 'Good afternoon' : 'Good evening';
 
+  const statsData = [
+    {
+      label: 'Total Followers',
+      value: '24.8K',
+      change: '+12.5%',
+      isPositive: true,
+      icon: <Users />,
+    },
+    {
+      label: 'Engagement Rate',
+      value: '4.2%',
+      change: '+8.3%',
+      isPositive: true,
+      icon: <Heart />,
+    },
+    {
+      label: 'Impressions',
+      value: stats.impressions.toLocaleString(),
+      change: '+23.1%',
+      isPositive: true,
+      icon: <Eye />,
+    },
+    {
+      label: 'Post Reach',
+      value: '89.2K',
+      change: '-2.4%',
+      isPositive: false,
+      icon: <Target />,
+    },
+  ];
+
+  const activities = [
+    {
+      title: 'Post published successfully',
+      desc: 'Your Instagram post is now live',
+      time: '2 min ago',
+      type: 'success',
+    },
+    {
+      title: 'New comment received',
+      desc: 'John Doe commented on your post',
+      time: '15 min ago',
+      type: 'info',
+    },
+    {
+      title: 'Scheduled post ready',
+      desc: 'Facebook post scheduled for 3:00 PM',
+      time: '1 hour ago',
+      type: 'warning',
+    },
+  ];
+
+  const getActivityStyles = (type) => {
+    switch (type) {
+      case 'success': return { bg: '#dcfce7', color: '#16a34a' };
+      case 'warning': return { bg: '#fef3c7', color: '#d97706' };
+      case 'info': return { bg: '#fff5ee', color: '#ff8c42' };
+      default: return { bg: '#fff5ee', color: '#ff8c42' };
+    }
+  };
+
+  const getActivityIcon = (type) => {
+    switch (type) {
+      case 'success': return <CheckCircle />;
+      case 'warning': return <Clock />;
+      case 'info': return <Bell />;
+      default: return <Bell />;
+    }
+  };
+
   return (
     <DashboardContainer>
-      <HeroSection>
-        <HeroContent>
-          <WelcomeTitle>{greeting}, {displayName}! 👋</WelcomeTitle>
-          <WelcomeSubtitle>
-            Your social media performance is looking great today
-          </WelcomeSubtitle>
+      <ContentGrid>
+        <MainContent>
+          {/* Stats Grid */}
+          <StatsGrid>
+            {statsData.map((stat, index) => (
+              <StatCard key={index} $delay={`${index * 0.1}s`}>
+                <StatHeader>
+                  <StatIconWrapper>
+                    {stat.icon}
+                  </StatIconWrapper>
+                  <StatChange $positive={stat.isPositive}>
+                    {stat.isPositive ? <TrendingUp /> : <TrendingDown />}
+                    {stat.change}
+                  </StatChange>
+                </StatHeader>
+                <StatValue>{stat.value}</StatValue>
+                <StatLabel>{stat.label}</StatLabel>
+              </StatCard>
+            ))}
+          </StatsGrid>
 
-          <HeroStats>
-            <HeroStatCard>
-              <HeroStatValue>{stats.totalPosts}</HeroStatValue>
-              <HeroStatLabel>Total Posts</HeroStatLabel>
-            </HeroStatCard>
-            <HeroStatCard>
-              <HeroStatValue>{stats.scheduledPosts}</HeroStatValue>
-              <HeroStatLabel>Scheduled</HeroStatLabel>
-            </HeroStatCard>
-            <HeroStatCard>
-              <HeroStatValue>{stats.totalEngagement.toLocaleString()}</HeroStatValue>
-              <HeroStatLabel>Engagement</HeroStatLabel>
-            </HeroStatCard>
-            <HeroStatCard>
-              <HeroStatValue>{stats.activeAccounts}</HeroStatValue>
-              <HeroStatLabel>Connected</HeroStatLabel>
-            </HeroStatCard>
-          </HeroStats>
-        </HeroContent>
-      </HeroSection>
-
-      <MainGrid>
-        <LeftColumn>
-          {/* Performance Overview */}
-          <PerformanceCard>
+          {/* Performance Chart */}
+          <Card>
             <CardHeader>
               <CardTitle>
-                <Activity size={24} />
+                <BarChart3 />
                 Performance Overview
               </CardTitle>
-              <CardAction href="/dashboard/analytics">View Details</CardAction>
+              <ChartTabs>
+                {['week', 'month', 'year'].map((tab) => (
+                  <ChartTab
+                    key={tab}
+                    $active={activeChartTab === tab}
+                    onClick={() => setActiveChartTab(tab)}
+                  >
+                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  </ChartTab>
+                ))}
+              </ChartTabs>
             </CardHeader>
-            <StatsGrid>
-              <MiniStatCard $gradient1={theme.colors.primary.main} $gradient2={theme.colors.error.main}>
-                <MiniStatIcon>
-                  <Eye size={20} />
-                </MiniStatIcon>
-                <MiniStatValue>{stats.impressions.toLocaleString()}</MiniStatValue>
-                <MiniStatLabel>Impressions</MiniStatLabel>
-                <MiniStatChange>
-                  <TrendingUp size={14} />
-                  +12.5% from last week
-                </MiniStatChange>
-              </MiniStatCard>
+            <CardBody>
+              <ChartPlaceholder />
+            </CardBody>
+          </Card>
+        </MainContent>
 
-              <MiniStatCard $gradient1={theme.colors.success.main} $gradient2={theme.colors.secondary.main}>
-                <MiniStatIcon>
-                  <Heart size={20} />
-                </MiniStatIcon>
-                <MiniStatValue>{stats.totalEngagement.toLocaleString()}</MiniStatValue>
-                <MiniStatLabel>Total Engagement</MiniStatLabel>
-                <MiniStatChange>
-                  <TrendingUp size={14} />
-                  +8.3% from last week
-                </MiniStatChange>
-              </MiniStatCard>
-
-              <MiniStatCard $gradient1={theme.colors.warning.main} $gradient2={theme.colors.error.main}>
-                <MiniStatIcon>
-                  <Target size={20} />
-                </MiniStatIcon>
-                <MiniStatValue>{stats.clicks.toLocaleString()}</MiniStatValue>
-                <MiniStatLabel>Link Clicks</MiniStatLabel>
-                <MiniStatChange>
-                  <TrendingUp size={14} />
-                  +15.7% from last week
-                </MiniStatChange>
-              </MiniStatCard>
-
-              <MiniStatCard $gradient1={theme.colors.secondary.main} $gradient2={theme.colors.info.main}>
-                <MiniStatIcon>
-                  <Share2 size={20} />
-                </MiniStatIcon>
-                <MiniStatValue>{stats.shares.toLocaleString()}</MiniStatValue>
-                <MiniStatLabel>Shares</MiniStatLabel>
-                <MiniStatChange>
-                  <TrendingUp size={14} />
-                  +5.2% from last week
-                </MiniStatChange>
-              </MiniStatCard>
-            </StatsGrid>
-          </PerformanceCard>
-
+        <SideContent>
           {/* Quick Actions */}
           <Card>
             <CardHeader>
               <CardTitle>
-                <Zap size={24} />
+                <Target />
                 Quick Actions
               </CardTitle>
             </CardHeader>
-            <QuickActionsGrid>
-              <QuickActionBtn href="/dashboard/create-post">
-                <QuickActionIcon>
-                  <Plus size={28} />
-                </QuickActionIcon>
-                <QuickActionLabel>Create Post</QuickActionLabel>
-              </QuickActionBtn>
-
-              <QuickActionBtn href="/dashboard/calendar">
-                <QuickActionIcon>
-                  <Calendar size={28} />
-                </QuickActionIcon>
-                <QuickActionLabel>Schedule</QuickActionLabel>
-              </QuickActionBtn>
-
-              <QuickActionBtn href="/dashboard/library">
-                <QuickActionIcon>
-                  <Image size={28} />
-                </QuickActionIcon>
-                <QuickActionLabel>Media Library</QuickActionLabel>
-              </QuickActionBtn>
-
-              <QuickActionBtn href="/dashboard/analytics">
-                <QuickActionIcon>
-                  <BarChart3 size={28} />
-                </QuickActionIcon>
-                <QuickActionLabel>Analytics</QuickActionLabel>
-              </QuickActionBtn>
-            </QuickActionsGrid>
+            <CardBody>
+              <QuickActionsGrid>
+                <QuickActionButton href="/dashboard/create-post">
+                  <Edit3 />
+                  <QuickActionLabel>New Post</QuickActionLabel>
+                </QuickActionButton>
+                <QuickActionButton href="/dashboard/calendar">
+                  <Calendar />
+                  <QuickActionLabel>Schedule</QuickActionLabel>
+                </QuickActionButton>
+                <QuickActionButton href="/dashboard/analytics">
+                  <BarChart3 />
+                  <QuickActionLabel>Analytics</QuickActionLabel>
+                </QuickActionButton>
+                <QuickActionButton href="/dashboard/library">
+                  <Image />
+                  <QuickActionLabel>Media</QuickActionLabel>
+                </QuickActionButton>
+              </QuickActionsGrid>
+            </CardBody>
           </Card>
 
-          {/* Engagement Metrics by Platform */}
+          {/* Recent Activity */}
           <Card>
             <CardHeader>
               <CardTitle>
-                <Target size={24} />
-                Engagement by Platform
+                <Bell />
+                Recent Activity
               </CardTitle>
             </CardHeader>
-            {connectedPlatforms.length > 0 ? (
-              <PerformanceMetrics>
-                {connectedPlatforms.map((platformData, index) => (
-                  <div key={index}>
-                    <MetricRow>
-                      <MetricInfo>
-                        <MetricIcon $color={getPlatformColor(platformData.platform)}>
-                          {getPlatformIcon(platformData.platform)}
-                        </MetricIcon>
-                        <div>
-                          <MetricLabel>{getPlatformName(platformData.platform)}</MetricLabel>
-                          {platformData.accountName && (
-                            <div style={{ fontSize: '11px', color: theme.colors.neutral[400], marginTop: '2px' }}>
-                              @{platformData.accountName}
-                            </div>
-                          )}
-                        </div>
-                      </MetricInfo>
-                      <MetricValue>{platformData.engagement.toLocaleString()}</MetricValue>
-                    </MetricRow>
-                    <ProgressBar>
-                      <ProgressFill
-                        $width={platformData.progress}
-                        $color1={getPlatformColor(platformData.platform)}
-                        $color2={`${getPlatformColor(platformData.platform)}CC`}
-                      />
-                    </ProgressBar>
-                  </div>
-                ))}
-              </PerformanceMetrics>
-            ) : (
-              <EmptyState>
-                <Users size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-                <div>No platforms connected</div>
-                <div style={{ fontSize: '14px', marginTop: '8px' }}>
-                  <Link href="/dashboard/accounts" style={{ color: theme.colors.primary.main }}>
-                    Connect your social accounts
-                  </Link>
-                </div>
-              </EmptyState>
-            )}
+            <ActivityList>
+              {activities.map((activity, index) => {
+                const styles = getActivityStyles(activity.type);
+                return (
+                  <ActivityItem key={index}>
+                    <ActivityIcon $bg={styles.bg} $color={styles.color}>
+                      {getActivityIcon(activity.type)}
+                    </ActivityIcon>
+                    <ActivityContent>
+                      <ActivityTitle>{activity.title}</ActivityTitle>
+                      <ActivityDesc>{activity.desc}</ActivityDesc>
+                    </ActivityContent>
+                    <ActivityTime>{activity.time}</ActivityTime>
+                  </ActivityItem>
+                );
+              })}
+            </ActivityList>
           </Card>
-        </LeftColumn>
 
-        <RightColumn>
           {/* Upcoming Posts */}
           <Card>
             <CardHeader>
               <CardTitle>
-                <Clock size={24} />
+                <Clock />
                 Upcoming Posts
               </CardTitle>
               <CardAction href="/dashboard/calendar">View All</CardAction>
             </CardHeader>
-            {upcomingPosts.length > 0 ? (
-              <UpcomingPostsList>
-                {upcomingPosts.map((post) => (
-                  <UpcomingPostItem key={post.id} $color={getPlatformColor(post.platforms?.[0])}>
-                    <PostThumbnail>
-                      <FileText size={24} />
-                    </PostThumbnail>
-                    <PostInfo>
-                      <PostTitle>{post.title || 'Untitled Post'}</PostTitle>
-                      <PostTime>
-                        <Clock size={12} />
-                        {new Date(post.scheduled_for).toLocaleString()}
-                      </PostTime>
-                    </PostInfo>
-                    <PlatformBadges>
-                      {post.platforms?.slice(0, 3).map((platform, idx) => (
-                        <PlatformBadge key={idx} $color={getPlatformColor(platform)}>
-                          {getPlatformIcon(platform)}
-                        </PlatformBadge>
-                      ))}
-                    </PlatformBadges>
-                  </UpcomingPostItem>
-                ))}
-              </UpcomingPostsList>
-            ) : (
-              <EmptyState>
-                <Clock size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-                <div>No upcoming posts scheduled</div>
-                <div style={{ fontSize: '14px', marginTop: '8px' }}>
-                  <Link href="/dashboard/calendar" style={{ color: theme.colors.primary.main }}>
-                    Schedule your first post
-                  </Link>
-                </div>
-              </EmptyState>
-            )}
-          </Card>
-
-          {/* Achievements */}
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                <Award size={24} />
-                This Week's Highlights
-              </CardTitle>
-            </CardHeader>
-            <AchievementGrid>
-              <AchievementCard $color1={theme.colors.primary.main} $color2={theme.colors.error.main}>
-                <AchievementIcon $color1={theme.colors.primary.main} $color2={theme.colors.error.main}>
-                  <TrendingUp size={24} />
-                </AchievementIcon>
-                <AchievementValue>+{Math.floor(stats.totalEngagement * 0.125)}</AchievementValue>
-                <AchievementLabel>New Followers</AchievementLabel>
-              </AchievementCard>
-
-              <AchievementCard $color1={theme.colors.success.main} $color2={theme.colors.secondary.main}>
-                <AchievementIcon $color1={theme.colors.success.main} $color2={theme.colors.secondary.main}>
-                  <Eye size={24} />
-                </AchievementIcon>
-                <AchievementValue>{Math.floor(stats.impressions / 1000)}K</AchievementValue>
-                <AchievementLabel>Reach</AchievementLabel>
-              </AchievementCard>
-
-              <AchievementCard $color1={theme.colors.warning.main} $color2={theme.colors.error.main}>
-                <AchievementIcon $color1={theme.colors.warning.main} $color2={theme.colors.error.main}>
-                  <CheckCircle size={24} />
-                </AchievementIcon>
-                <AchievementValue>{stats.totalPosts}</AchievementValue>
-                <AchievementLabel>Posts Published</AchievementLabel>
-              </AchievementCard>
-
-              <AchievementCard $color1={theme.colors.secondary.main} $color2={theme.colors.info.main}>
-                <AchievementIcon $color1={theme.colors.secondary.main} $color2={theme.colors.info.main}>
-                  <Users size={24} />
-                </AchievementIcon>
-                <AchievementValue>{stats.activeAccounts}</AchievementValue>
-                <AchievementLabel>Active Accounts</AchievementLabel>
-              </AchievementCard>
-            </AchievementGrid>
-          </Card>
-
-          {/* Connected Accounts */}
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                <Users size={24} />
-                Connected Accounts
-              </CardTitle>
-              <CardAction href="/dashboard/accounts">Manage</CardAction>
-            </CardHeader>
-            <PerformanceMetrics>
-              {connectedPlatforms && connectedPlatforms.length > 0 ? (
-                connectedPlatforms.map((account) => {
-                  const platform = account.platform?.toLowerCase();
+            <PostsList>
+              {upcomingPosts.length > 0 ? (
+                upcomingPosts.map((post) => {
+                  const platform = post.platforms?.[0];
                   const platformColor = getPlatformColor(platform);
-
                   return (
-                    <MetricRow key={account.platform + account.accountName}>
-                      <MetricInfo>
-                        <MetricIcon $color={platformColor}>
-                          {getPlatformIcon(platform)}
-                        </MetricIcon>
-                        <div>
-                          <MetricLabel>{getPlatformName(platform)}</MetricLabel>
-                          <div style={{ fontSize: '12px', color: theme.colors.text.secondary }}>
-                            {account.accountName}
-                          </div>
-                        </div>
-                      </MetricInfo>
-                      <div style={{ textAlign: 'right' }}>
-                        <MetricValue style={{ fontSize: '14px', color: theme.colors.success.main, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <CheckCircle size={14} />
-                          Active
-                        </MetricValue>
-                      </div>
-                    </MetricRow>
+                    <PostItem key={post.id}>
+                      <PostPlatform $bg={`${platformColor}20`} $color={platformColor}>
+                        {getPlatformIcon(platform)}
+                      </PostPlatform>
+                      <PostInfo>
+                        <PostTitle>{post.title || 'Untitled Post'}</PostTitle>
+                        <PostMeta>
+                          <Clock />
+                          {new Date(post.scheduled_for).toLocaleDateString()}
+                        </PostMeta>
+                      </PostInfo>
+                      <PostStatus
+                        $bg={post.status === 'scheduled' ? '#dcfce7' : '#fef3c7'}
+                        $color={post.status === 'scheduled' ? '#16a34a' : '#d97706'}
+                      >
+                        {post.status}
+                      </PostStatus>
+                    </PostItem>
                   );
                 })
               ) : (
-                <div style={{ padding: '20px', textAlign: 'center', color: theme.colors.text.secondary }}>
-                  <Users size={48} style={{ opacity: 0.3, marginBottom: '12px' }} />
-                  <div>No accounts connected yet</div>
-                  <Link href="/dashboard/accounts" style={{ textDecoration: 'none' }}>
-                    <button style={{
-                      marginTop: '12px',
-                      padding: '8px 16px',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      color: 'white',
-                      background: `linear-gradient(135deg, ${theme.colors.primary.main}, ${theme.colors.primary.dark})`,
-                      border: 'none',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s'
-                    }}>
-                      <Plus size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                      Connect Accounts
-                    </button>
-                  </Link>
-                </div>
+                <>
+                  <PostItem>
+                    <PostPlatform $bg="#E4405F20" $color="#E4405F">
+                      <Instagram size={20} />
+                    </PostPlatform>
+                    <PostInfo>
+                      <PostTitle>Product Launch Announcement</PostTitle>
+                      <PostMeta>
+                        <Clock />
+                        Today, 3:00 PM
+                      </PostMeta>
+                    </PostInfo>
+                    <PostStatus $bg="#dcfce7" $color="#16a34a">
+                      scheduled
+                    </PostStatus>
+                  </PostItem>
+                  <PostItem>
+                    <PostPlatform $bg="#1DA1F220" $color="#1DA1F2">
+                      <Twitter size={20} />
+                    </PostPlatform>
+                    <PostInfo>
+                      <PostTitle>Weekly Tips Thread</PostTitle>
+                      <PostMeta>
+                        <Clock />
+                        Tomorrow, 10:00 AM
+                      </PostMeta>
+                    </PostInfo>
+                    <PostStatus $bg="#fef3c7" $color="#d97706">
+                      draft
+                    </PostStatus>
+                  </PostItem>
+                  <PostItem>
+                    <PostPlatform $bg="#1877F220" $color="#1877F2">
+                      <Facebook size={20} />
+                    </PostPlatform>
+                    <PostInfo>
+                      <PostTitle>Behind the Scenes</PostTitle>
+                      <PostMeta>
+                        <Clock />
+                        Dec 20, 2:00 PM
+                      </PostMeta>
+                    </PostInfo>
+                    <PostStatus $bg="#dcfce7" $color="#16a34a">
+                      scheduled
+                    </PostStatus>
+                  </PostItem>
+                </>
               )}
-            </PerformanceMetrics>
+            </PostsList>
           </Card>
-        </RightColumn>
-      </MainGrid>
+        </SideContent>
+      </ContentGrid>
     </DashboardContainer>
   );
 }
